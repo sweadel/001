@@ -5,7 +5,7 @@ let compareList = [];
 
 // 1. Render Storefront with Comparison Features
 function renderStorefront() {
-    const products = DB.getProducts();
+    const products = DB.getProducts().filter(p => !p.isHidden);
     const container = document.getElementById('product-container');
     if (!container) return;
 
