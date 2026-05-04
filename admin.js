@@ -1,184 +1,274 @@
-// ZOLNGEN COMMAND CENTER v19 - THE ULTIMATE STABLE
-let growthChart;
+// ZOLNGEN COMMAND CENTER PRO v20 - THE ERP STANDARD
+let mainChart;
 let currentTab = 'dashboard';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Session Check
-    if (sessionStorage.getItem('admin_auth') === 'true') {
-        document.getElementById('login-overlay').style.display = 'none';
+    // 1. Auth & Session (Improved)
+    if (sessionStorage.getItem('admin_pro_auth') === 'true') {
+        document.getElementById('login-screen').style.display = 'none';
         document.getElementById('admin-shell').style.display = 'grid';
-        initAdmin();
+        initProAdmin();
     }
 
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            if (u === 'admin' && p === 'admin123') {
-                sessionStorage.setItem('admin_auth', 'true');
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('admin-shell').style.display = 'grid';
-                DB.logAction('تسجيل دخول ناجح');
-                initAdmin();
-            } else alert('خطأ في البيانات');
-        });
+    document.getElementById('admin-login-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const u = document.getElementById('admin-user').value;
+        const p = document.getElementById('admin-pass').value;
+        if (u === 'admin' && p === 'admin123') {
+            sessionStorage.setItem('admin_pro_auth', 'true');
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-shell').style.display = 'grid';
+            DB.logAction('تسجيل دخول ناجح للمنظومة الاحترافية');
+            initProAdmin();
+        } else alert('خطأ في بيانات الدخول الصارمة');
+    });
+
+    function initProAdmin() {
+        showTab('dashboard');
+        checkLowStock();
     }
 
-    function initAdmin() { showTab('dashboard'); }
-
+    // 2. Tab Navigation & Rendering
     function showTab(tab) {
         currentTab = tab;
         document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        
         const target = document.getElementById(tab + '-tab');
         if (target) target.style.display = 'block';
-        document.querySelectorAll('.sidebar .nav-link').forEach(link => {
-            if (link.getAttribute('data-tab') === tab) link.classList.add('active');
-        });
+        
+        document.querySelectorAll('.nav-link[data-tab="'+tab+'"]').forEach(l => l.classList.add('active'));
+        document.getElementById('page-title').innerText = document.querySelector('.nav-link.active').innerText;
+        
         refreshData();
-        // Force secondary refresh to handle DOM rendering delays
-        setTimeout(refreshData, 50);
     }
 
     function refreshData() {
         if (currentTab === 'dashboard') renderDashboard();
         if (currentTab === 'orders') renderOrders();
         if (currentTab === 'inventory') renderInventory();
+        if (currentTab === 'entities') renderEntities();
+        if (currentTab === 'tickets') renderTickets();
         if (currentTab === 'audit') renderAudit();
     }
 
+    // 3. Dashboard Logic (Profit & Charts)
     function renderDashboard() {
-        const stats = DB.getStats();
-        const orders = DB.getOrders();
-        const totalSales = orders.reduce((acc, o) => acc + (o.total || 0), 0);
-        document.getElementById('stat-sales').innerText = totalSales.toLocaleString() + ' JOD';
-        document.getElementById('stat-orders').innerText = stats.orders;
-        document.getElementById('stat-entities').innerText = stats.entities;
-        document.getElementById('stat-low-stock').innerText = DB.getProducts().filter(p => p.stock < 10).length;
+        const stats = DB.getProStats();
+        document.getElementById('stat-sales').innerText = stats.totalSales.toLocaleString() + ' JOD';
+        document.getElementById('stat-profit').innerText = stats.totalProfit.toLocaleString() + ' JOD';
+        document.getElementById('stat-active').innerText = stats.activeOrders;
+        document.getElementById('stat-inv-val').innerText = stats.inventoryValue.toLocaleString() + ' JOD';
+        
+        const alertBox = document.getElementById('low-stock-alert');
+        if (stats.lowStock > 0) {
+            alertBox.innerText = `${stats.lowStock} منتجات منخفضة المخزون!`;
+            alertBox.style.color = 'var(--danger)';
+            document.getElementById('notif-dot').style.display = 'block';
+        } else {
+            alertBox.innerText = 'المخزون مستقر';
+            alertBox.style.color = 'var(--success)';
+            document.getElementById('notif-dot').style.display = 'none';
+        }
 
-        const ctx = document.getElementById('growthChart')?.getContext('2d');
+        const ctx = document.getElementById('mainChart')?.getContext('2d');
         if (!ctx) return;
-        if (growthChart) growthChart.destroy();
-        growthChart = new Chart(ctx, {
+        if (mainChart) mainChart.destroy();
+        mainChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-                datasets: [{
-                    label: 'Revenue', data: [5000, 15000, 10000, totalSales],
-                    borderColor: '#D4AF37', tension: 0.4, fill: true, backgroundColor: 'rgba(212, 175, 55, 0.05)'
-                }]
+                labels: ['يناير', 'فبراير', 'مارس', 'أبريل'],
+                datasets: [
+                    { label: 'المبيعات', data: [8000, 12000, 9500, stats.totalSales], borderColor: '#D4AF37', backgroundColor: 'rgba(212,175,55,0.05)', fill: true, tension: 0.4 },
+                    { label: 'الأرباح', data: [2000, 3500, 2800, stats.totalProfit], borderColor: '#2ecc71', borderDash: [5,5], tension: 0.4 }
+                ]
             },
-            options: { responsive: true, plugins: { legend: { display: false } } }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
         });
+
+        // Mini Audit
+        const logs = DB.getAuditLog().slice(0, 5);
+        document.getElementById('mini-audit').innerHTML = logs.map(l => `<div style="margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:5px;">${l.action} <br><small>${l.date}</small></div>`).join('');
     }
 
+    // 4. Advanced Table Rendering
     function renderOrders(filter = '') {
-        const tbody = document.getElementById('orders-tbody');
-        if (!tbody) return;
-        const orders = DB.getOrders().filter(o => 
-            (o.entity || '').toLowerCase().includes(filter.toLowerCase()) || 
-            (o.id || '').toLowerCase().includes(filter.toLowerCase())
-        );
-
-        tbody.innerHTML = orders.map(o => `
+        const orders = DB.getOrders().filter(o => o.entity.includes(filter) || o.id.includes(filter));
+        document.getElementById('orders-tbody').innerHTML = orders.map(o => `
             <tr>
                 <td>#${o.id}</td>
-                <td><strong>${o.entity}</strong><br><small>${o.fullName}</small></td>
+                <td><strong>${o.entity}</strong></td>
                 <td>${o.date}</td>
-                <td style="color:var(--primary); font-weight:700;">${(o.total || 0).toFixed(2)}</td>
-                <td><span class="badge ${o.status === 'delivered' ? 'badge-done' : 'badge-pending'}">${o.status.toUpperCase()}</span></td>
-                <td>
-                    <button class="btn-action btn-outline btn-sm view-order" data-id="${o.id}">عرض</button>
-                    <button class="btn-action btn-gold btn-sm update-order" data-id="${o.id}">تسليم</button>
-                </td>
+                <td style="color:var(--primary); font-weight:700;">${o.total.toFixed(2)}</td>
+                <td style="color:var(--success);">${(o.profit || 0).toFixed(2)}</td>
+                <td><span class="badge bg-${o.status === 'delivered' ? 'success' : 'pending'}">${o.status === 'delivered' ? 'مكتمل' : 'نشط'}</span></td>
+                <td><button class="btn btn-outline btn-sm" onclick="deliverOrder('${o.id}')">تسليم</button></td>
             </tr>
         `).join('');
-
-        tbody.querySelectorAll('.view-order').forEach(btn => btn.addEventListener('click', (e) => viewOrder(e.target.dataset.id)));
-        tbody.querySelectorAll('.update-order').forEach(btn => btn.addEventListener('click', (e) => {
-            DB.updateOrderStatus(e.target.dataset.id, 'delivered');
-            refreshData();
-        }));
-    }
-
-    function viewOrder(id) {
-        const order = DB.getOrders().find(o => String(o.id) === String(id));
-        if (!order) return;
-        document.getElementById('modal-title').innerText = `طلب #${order.id}`;
-        document.getElementById('modal-body').innerHTML = `
-            <p><b>الجهة:</b> ${order.entity}</p><p><b>المسؤول:</b> ${order.fullName}</p>
-            <table style="width:100%; margin-top:1rem;">
-                ${(order.items || []).map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>${i.price}</td></tr>`).join('')}
-            </table>
-        `;
-        document.getElementById('order-modal').style.display = 'flex';
     }
 
     function renderInventory() {
-        const tbody = document.getElementById('inventory-tbody');
-        if (!tbody) return;
-        tbody.innerHTML = DB.getProducts().map(p => `
-            <tr>
-                <td><strong>${p.name}</strong><br><small style="color:#444;">${p.category}</small></td>
-                <td>${(p.price || 0).toFixed(2)}</td>
-                <td style="color:${p.stock < 10 ? '#ff4757' : '#2ecc71'}">${p.stock}</td>
-                <td>${p.supplier || 'N/A'}</td>
-                <td>
-                    <button class="btn-action btn-outline btn-sm edit-prod" data-id="${p.id}"><i class="fas fa-edit"></i></button>
-                    <button class="btn-action btn-outline btn-sm delete-prod" data-id="${p.id}" style="color:#ff4757;"><i class="fas fa-trash"></i></button>
+        const prods = DB.getProducts();
+        document.getElementById('inventory-tbody').innerHTML = prods.map(p => `
+            <tr class="${p.stock < 10 ? 'low-stock-row' : ''}">
+                <td><strong>${p.name}</strong><br><small>${p.category}</small></td>
+                <td>${p.supplier || 'غير محدد'}</td>
+                <td>${(p.cost || 0).toFixed(2)}</td>
+                <td style="color:var(--primary); font-weight:700;">${p.price.toFixed(2)}</td>
+                <td style="color:${p.stock < 10 ? 'var(--danger)' : 'var(--success)'}; font-weight:800;">${p.stock}</td>
+                <td style="display:flex; gap:5px;">
+                    <button class="btn btn-outline btn-sm" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-outline btn-sm" onclick="deleteProduct('${p.id}')" style="color:var(--danger);"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
         `).join('');
-
-        tbody.querySelectorAll('.edit-prod').forEach(btn => btn.addEventListener('click', (e) => editProd(e.target.closest('button').dataset.id)));
-        tbody.querySelectorAll('.delete-prod').forEach(btn => btn.addEventListener('click', (e) => {
-            if (confirm('حذف المنتج؟')) { DB.deleteProduct(e.target.closest('button').dataset.id); refreshData(); }
-        }));
     }
 
-    function editProd(id) {
-        const p = DB.getProducts().find(p => String(p.id) === String(id));
+    function renderEntities() {
+        const ents = DB.getEntities();
+        document.getElementById('entities-tbody').innerHTML = ents.map(e => `
+            <tr>
+                <td><strong>${e.name}</strong></td>
+                <td>${e.totalOrders} طلبات</td>
+                <td style="color:var(--primary);">${e.totalValue.toLocaleString()} JOD</td>
+                <td><span class="badge bg-success">عميل نشط</span></td>
+            </tr>
+        `).join('');
+    }
+
+    function renderTickets() {
+        const tickets = DB.getTickets();
+        document.getElementById('tickets-tbody').innerHTML = tickets.length ? tickets.map(t => `
+            <tr>
+                <td>#${t.id.split('-')[1]}</td>
+                <td>${t.entity}</td>
+                <td>${t.issue}</td>
+                <td>${t.date}</td>
+                <td><span class="badge bg-pending">${t.status}</span></td>
+            </tr>
+        `).join('') : '<tr><td colspan="5" style="text-align:center;">لا توجد تذاكر صيانة حالية</td></tr>';
+    }
+
+    function renderAudit() {
+        const logs = DB.getAuditLog();
+        document.getElementById('audit-full-log').innerHTML = logs.map(l => `
+            <div style="padding:15px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between;">
+                <span><i class="fas fa-history" style="color:var(--primary); margin-left:10px;"></i> ${l.action}</span>
+                <span style="color:#666;">${l.date}</span>
+            </div>
+        `).join('');
+    }
+
+    // 5. Tool Implementations (Export, Backup, Theme)
+    window.toggleTheme = () => {
+        document.body.classList.toggle('light-mode');
+        const isLight = document.body.classList.contains('light-mode');
+        document.querySelector('.nav-link[onclick="toggleTheme()"]').innerHTML = isLight ? '<i class="fas fa-sun"></i> الوضع النهاري' : '<i class="fas fa-moon"></i> الوضع الليلي';
+    };
+
+    window.exportOrdersToExcel = () => {
+        const orders = DB.getOrders();
+        let csv = "رقم الطلب,الجهة,التاريخ,الإجمالي,الربح,الحالة\n";
+        orders.forEach(o => {
+            csv += `${o.id},${o.entity},${o.date},${o.total},${o.profit},${o.status}\n`;
+        });
+        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `ZOLNGEN_Orders_${Date.now()}.csv`;
+        link.click();
+        DB.logAction('تصدير بيانات الطلبات لملف Excel');
+    };
+
+    window.generateReport = () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const stats = DB.getProStats();
+        doc.setFontSize(22); doc.text("ZOLNGEN ENTERPRISE REPORT", 20, 20);
+        doc.setFontSize(14);
+        doc.text(`Report Date: ${new Date().toLocaleString()}`, 20, 35);
+        doc.text(`Total Sales: ${stats.totalSales} JOD`, 20, 50);
+        doc.text(`Total Net Profit: ${stats.totalProfit} JOD`, 20, 60);
+        doc.text(`Active Orders: ${stats.activeOrders}`, 20, 70);
+        doc.text(`Inventory Asset Value: ${stats.inventoryValue} JOD`, 20, 80);
+        doc.save(`ZOLNGEN_Pro_Report_${Date.now()}.pdf`);
+        DB.logAction('توليد تقرير PDF شامل للمنظومة');
+    };
+
+    window.backupSystem = () => {
+        const data = JSON.stringify(localStorage);
+        const blob = new Blob([data], { type: 'application/json' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `ZOLNGEN_System_Backup_${Date.now()}.json`;
+        link.click();
+        DB.logAction('إنشاء نسخة احتياطية كاملة للمنظومة');
+    };
+
+    window.deliverOrder = (id) => {
+        if (confirm('تأكيد تسليم الطلب وتحويل حالته لمكتمل؟')) {
+            DB.updateOrderStatus(id, 'delivered');
+            refreshData();
+        }
+    };
+
+    window.editProduct = (id) => {
+        const p = DB.getProducts().find(x => String(x.id) === String(id));
         if (!p) return;
         document.getElementById('p-id').value = p.id;
         document.getElementById('p-name').value = p.name;
         document.getElementById('p-supplier').value = p.supplier || '';
+        document.getElementById('p-cat').value = p.category || '';
+        document.getElementById('p-cost').value = p.cost || '';
         document.getElementById('p-price').value = p.price;
         document.getElementById('p-stock').value = p.stock;
-        document.getElementById('product-modal').style.display = 'flex';
-    }
+        document.getElementById('modal-head').innerText = 'تعديل بيانات المنتج';
+        document.getElementById('prod-modal').style.display = 'flex';
+    };
 
-    document.getElementById('product-form')?.addEventListener('submit', (e) => {
+    window.deleteProduct = (id) => {
+        if (confirm('هل أنت متأكد من حذف هذا المنتج نهائياً من المستودع؟')) {
+            DB.deleteProduct(id);
+            refreshData();
+        }
+    };
+
+    document.getElementById('prod-form')?.addEventListener('submit', (e) => {
         e.preventDefault();
-        DB.saveProduct({
+        const p = {
             id: document.getElementById('p-id').value || null,
             name: document.getElementById('p-name').value,
             supplier: document.getElementById('p-supplier').value,
+            category: document.getElementById('p-cat').value,
+            cost: parseFloat(document.getElementById('p-cost').value),
             price: parseFloat(document.getElementById('p-price').value),
             stock: parseInt(document.getElementById('p-stock').value),
-            category: 'Hardware', img: 'category_laptops_luxury.png'
-        });
-        closeModal(); refreshData();
+            img: 'category_laptops_luxury.png'
+        };
+        DB.saveProduct(p);
+        closeModal();
+        refreshData();
     });
 
-    function renderAudit() {
-        const container = document.getElementById('audit-log-container');
-        if (container) container.innerHTML = DB.getAuditLog().map(l => `<div style="padding:8px; border-bottom:1px solid #111;">[${l.date}] ${l.action}</div>`).join('');
-    }
-
-    const closeModal = () => document.querySelectorAll('.pro-modal').forEach(m => m.style.display = 'none');
-
-    document.querySelectorAll('.sidebar .nav-link').forEach(link => {
-        link.addEventListener('click', (e) => showTab(e.target.closest('.nav-link').getAttribute('data-tab')));
+    // Sidebar Links
+    document.querySelectorAll('.sidebar .nav-link[data-tab]').forEach(link => {
+        link.addEventListener('click', (e) => showTab(e.target.closest('.nav-link').dataset.tab));
     });
 
-    window.handleSearch = (val) => {
-        if (currentTab === 'orders') renderOrders(val);
-        if (currentTab === 'inventory') {
-            document.querySelectorAll('#inventory-tbody tr').forEach(r => r.style.display = r.innerText.toLowerCase().includes(val.toLowerCase()) ? 'table-row' : 'none');
-        }
+    window.closeModal = () => document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+    window.openProductModal = () => {
+        document.getElementById('prod-form').reset();
+        document.getElementById('p-id').value = '';
+        document.getElementById('modal-head').innerText = 'إضافة منتج جديد للمستودع';
+        document.getElementById('prod-modal').style.display = 'flex';
     };
-    window.closeModal = closeModal;
-    window.openProductModal = () => { document.getElementById('product-form').reset(); document.getElementById('p-id').value = ''; document.getElementById('product-modal').style.display = 'flex'; };
+
+    window.filterOrders = (val) => renderOrders(val);
+
+    function checkLowStock() {
+        const stats = DB.getProStats();
+        if (stats.lowStock > 0) {
+            console.warn("Inventory Alert: Low Stock Items Detected");
+        }
+    }
 });
