@@ -11,13 +11,23 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- RENDER LOGIC ---
     const renderProducts = (filter = '') => {
-        if (!productContainer) return;
-        const products = DB.getProducts().filter(p => 
+        const prodContainer = document.getElementById('product-container');
+        const fullProdContainer = document.getElementById('full-product-container');
+        
+        const targetContainer = fullProdContainer || prodContainer;
+        if (!targetContainer) return;
+
+        let products = DB.getProducts().filter(p => 
             (p.name.toLowerCase().includes(filter.toLowerCase()) || 
              (p.category || '').toLowerCase().includes(filter.toLowerCase()))
         );
 
-        productContainer.innerHTML = products.map(p => `
+        // Limit to 4 items on the home page preview
+        if (prodContainer && !fullProdContainer && filter === '') {
+            products = products.slice(0, 4);
+        }
+
+        targetContainer.innerHTML = products.length ? products.map(p => `
             <div class="product-card reveal active">
                 <div class="img-container">
                     <img src="${p.img}" alt="${p.name}" onerror="this.src='https://placehold.co/400x400/EEE/31343C?text=Hardware'">
@@ -27,9 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="price">${(p.price || 0).toFixed(2)} د.أ</div>
                 <button class="btn-add" data-id="${p.id}">أضف إلى الطلب</button>
             </div>
-        `).join('');
+        `).join('') : '<p style="grid-column:1/-1; text-align:center; padding:100px; color:#555;">لا توجد أجهزة مطابقة.</p>';
 
-        productContainer.querySelectorAll('.btn-add').forEach(btn => {
+        targetContainer.querySelectorAll('.btn-add').forEach(btn => {
             btn.addEventListener('click', (e) => addToCart(e.target.dataset.id));
         });
     };
@@ -117,12 +127,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Maintenance Ticket Logic
-    document.getElementById('maintenance-form')?.addEventListener('submit', (e) => {
+    const maintenanceForm = document.getElementById('maintenance-form') || document.getElementById('maintenance-form-page');
+    maintenanceForm?.addEventListener('submit', (e) => {
         e.preventDefault();
+        
+        // Find inputs regardless of which form it is
+        const entityVal = document.getElementById('m-entity-p')?.value || document.getElementById('m-entity')?.value;
+        const typeVal = document.getElementById('m-type-p')?.value || document.getElementById('m-type')?.value;
+        const issueVal = document.getElementById('m-issue-p')?.value || document.getElementById('m-issue')?.value;
+
         const ticket = DB.createTicket({
-            entity: document.getElementById('m-entity').value,
-            type: document.getElementById('m-type').value,
-            issue: document.getElementById('m-issue').value
+            entity: entityVal,
+            type: typeVal,
+            issue: issueVal
         });
         alert(`تم فتح تذكرة صيانة برقم: ${ticket.id.split('-')[1]}\nفريقنا التقني سيقوم بمراجعة الطلب فوراً.`);
         e.target.reset();

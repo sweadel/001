@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZOLNGEN | كتالوج الأجهزة المؤسسية</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        .page-header { background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('zolngen_premium_hero_laptop.png') center/cover; padding: 120px 0 80px; text-align: center; border-bottom: 1px solid var(--border-gold); }
+        .page-header h1 { font-size: 3.5rem; color: var(--gold); margin-bottom: 15px; }
+        .page-header p { color: #ccc; font-size: 1.2rem; }
+        .filter-bar { background: var(--surface); padding: 1.5rem; border-radius: 15px; margin: -30px auto 40px; position: relative; z-index: 10; border: 1px solid var(--border-gold); display: flex; gap: 15px; max-width: 800px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .filter-bar input { flex: 1; padding: 1rem; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; outline: none; }
+    </style>
+</head>
+<body>
+    <!-- Top Bar & Nav (Same as index) -->
+    <div class="top-bar">
+        <div class="container top-bar-content">
+            <div style="display: flex; gap: 2.5rem; align-items: center;">
+                <a href="admin.html" style="color:inherit; text-decoration:none;"><i class="fas fa-lock"></i> نظام الإدارة Pro</a>
+                <span>AR | EN</span>
+            </div>
+            <div style="display: flex; gap: 2rem; align-items: center;">
+                <i class="fas fa-phone-alt" style="color:var(--gold);"></i> <span>+962 79 000 0000</span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="nav-logo">
+                <img src="zolngen_logo.png" style="height:55px;" onerror="this.src='https://ui-avatars.com/api/?name=Z&background=D4AF37&color=000'">
+            </a>
+            <div class="nav-links">
+                <a href="index.html">الرئيسية</a>
+                <a href="products.html" class="active">الأجهزة</a>
+                <a href="maintenance.html">الصيانة</a>
+                <a href="index.html#tracking">تتبع الطلب</a>
+            </div>
+            <div style="display:flex; align-items:center; gap:1.5rem;">
+                <button id="cart-trigger" style="background:none; border:none; color:var(--gold); font-size:1.5rem; cursor:pointer; position:relative;">
+                    <i class="fas fa-shopping-basket"></i>
+                    <span id="cart-count" style="position:absolute; top:-8px; right:-8px; background:var(--white); color:#000; font-size:0.7rem; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900;">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1>الكتالوج المؤسسي للأجهزة</h1>
+            <p>تصفح أحدث التقنيات وأجهزة الأعمال المعتمدة للمؤسسات.</p>
+        </div>
+    </div>
+
+    <section class="container" style="padding-bottom:100px;">
+        <div class="filter-bar">
+            <input type="text" id="prod-search" placeholder="ابحث عن جهاز أو فئة..." onkeyup="searchProducts(this.value)">
+            <button class="btn btn-gold" style="padding:0 2rem;"><i class="fas fa-search"></i></button>
+        </div>
+        
+        <div class="products-grid" id="full-product-container">
+            <!-- Injected via main.js -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container" style="text-align:center; color:#555;">
+            جميع الحقوق محفوظة لشركة ZOLNGEN ENTERPRISE © 2024
+        </div>
+    </footer>
+
+    <!-- Side Cart (Include from main logic) -->
+    <div id="cart-sidebar" style="position:fixed; top:0; right:-450px; width:420px; height:100%; background:var(--surface); z-index:6000; transition:0.5s; padding:3rem; border-left:1px solid var(--border-gold); display:flex; flex-direction:column; box-shadow: -20px 0 50px rgba(0,0,0,0.5);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3rem;">
+            <h2 style="color:var(--gold);">قائمة التوريد</h2>
+            <button id="cart-close" style="background:none; border:none; color:#fff; font-size:2.5rem; cursor:pointer;">&times;</button>
+        </div>
+        <div id="cart-items" style="flex:1; overflow-y:auto; padding-left:10px;"></div>
+        <div style="padding-top:2rem; border-top:1px solid #222;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:2.5rem;">
+                <span style="color:#666;">إجمالي القيمة التقديرية:</span>
+                <span style="color:var(--gold); font-weight:900; font-size:1.8rem;"><span id="cart-total-val">0</span> د.أ</span>
+            </div>
+            <button class="btn btn-gold" style="width:100%; justify-content:center;" id="btn-order-trigger">تقديم طلب توريد رسمي</button>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div id="order-modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+        <div style="background:var(--surface); border:2px solid var(--gold); border-radius:30px; width:95%; max-width:600px; padding:4rem;">
+            <h2 style="color:var(--gold); text-align:center; margin-bottom:3rem;">تأكيد طلب التوريد</h2>
+            <form id="order-form">
+                <input type="text" id="full-name" placeholder="اسم المسؤول" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
+                <input type="tel" id="phone" placeholder="الهاتف" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
+                <select id="university" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
+                    <option value="">الجهة</option>
+                    <option value="الجامعة الأردنية">الجامعة الأردنية</option>
+                    <option value="شركة خاصة">شركة خاصة</option>
+                </select>
+                <div style="display:flex; gap:1.5rem;">
+                    <button type="submit" class="btn btn-gold" style="flex:1; justify-content:center;">إرسال</button>
+                    <button type="button" class="btn btn-outline" style="flex:1; justify-content:center;" id="modal-close">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="database.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
