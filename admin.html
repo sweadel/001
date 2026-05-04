@@ -3,89 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | CommandCenter</title>
+    <title>ZOLNGEN | مركز الإدارة المتطور</title>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --glass-bg: rgba(255, 255, 255, 0.03); --admin-radius: 20px; }
-        body.admin-body { background: radial-gradient(circle at top right, #111, #000); min-height: 100vh; color: #fff; }
-        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .login-glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.3); padding: 4rem; border-radius: 30px; width: 450px; text-align: center; }
-        .admin-shell { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; display: none; }
+        body.admin-body { background: radial-gradient(circle at top right, #111, #000); min-height: 100vh; color: #fff; overflow-x: hidden; }
+        .admin-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
         .admin-nav-sidebar { background: rgba(0,0,0,0.4); backdrop-filter: blur(30px); border-left: 1px solid rgba(212, 175, 55, 0.1); padding: 2.5rem; display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 0; height: 100vh; }
-        .admin-nav-link { display: flex; align-items: center; gap: 1.2rem; padding: 1.2rem 1.8rem; color: #888; text-decoration: none; border-radius: 18px; transition: 0.3s; cursor: pointer; }
+        .admin-nav-link { display: flex; align-items: center; gap: 1.2rem; padding: 1rem 1.5rem; color: #888; text-decoration: none; border-radius: 15px; transition: 0.3s; cursor: pointer; }
         .admin-nav-link:hover, .admin-nav-link.active { background: rgba(212,175,55,0.1); color: var(--primary-gold); border-right: 4px solid var(--primary-gold); }
-        .admin-content-area { padding: 3rem 5rem; }
-        .header-widget { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4rem; }
-        .grid-widgets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-bottom: 4rem; }
-        .widget-card { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.05); padding: 2rem; border-radius: var(--admin-radius); transition: 0.4s; }
-        .smart-table { width: 100%; border-collapse: separate; border-spacing: 0 15px; }
-        .smart-table tr { background: rgba(255,255,255,0.02); border-radius: 15px; }
-        .smart-table td, .smart-table th { padding: 1.5rem; text-align: right; }
-        .pro-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9000; display: none; align-items: center; justify-content: center; padding: 2rem; }
-        .modal-inner { background: #0a0a0a; border: 1px solid var(--primary-gold); border-radius: 20px; width: 100%; max-width: 800px; max-height: 90vh; overflow-y: auto; }
-        .modal-header-pro { padding: 2rem; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body-pro { padding: 2rem; }
-        [dir="ltr"] .admin-nav-sidebar { border-left: none; border-right: 1px solid rgba(212, 175, 55, 0.1); }
-        [dir="ltr"] .admin-nav-link:hover, [dir="ltr"] .admin-nav-link.active { border-right: none; border-left: 4px solid var(--primary-gold); }
+        .admin-content-area { padding: 3rem 4rem; }
+        .grid-widgets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem; }
+        .widget-card { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.05); padding: 1.5rem; border-radius: var(--admin-radius); }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .status-pending { background: rgba(243, 156, 18, 0.1); color: #f39c12; }
+        .status-shipped { background: rgba(52, 152, 219, 0.1); color: #3498db; }
+        .status-delivered { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+        .smart-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        .smart-table tr { background: rgba(255,255,255,0.01); border-radius: 12px; transition: 0.3s; }
+        .smart-table tr:hover { background: rgba(255,255,255,0.05); }
+        .smart-table td { padding: 1.2rem; border-top: 1px solid rgba(255,255,255,0.02); }
+        .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .search-pro { background: rgba(255,255,255,0.05); border: 1px solid #222; padding: 0.8rem 1.5rem; border-radius: 30px; color: #fff; width: 300px; outline: none; }
     </style>
 </head>
 <body class="admin-body">
 
-    <div id="login-overlay">
-        <div class="login-glass-card">
-            <h2 class="gold-gradient-text">ZOLNGEN</h2>
-            <p style="color: #666; margin-bottom: 3rem;">AUTHENTICATION REQUIRED</p>
+    <div id="login-overlay" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; display:flex; align-items:center; justify-content:center;">
+        <div class="glass-card" style="padding: 4rem; width: 450px; text-align: center;">
+            <h2 class="gold-gradient-text">ZOLNGEN COMMAND</h2>
             <form id="login-form" class="contact-form">
                 <input type="text" id="username" placeholder="Username" required>
                 <input type="password" id="password" placeholder="Password" required>
-                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; height: 60px;">INITIALIZE SYSTEM</button>
-                <p id="login-error" style="color: #ff4757; margin-top: 1rem; display: none;">ACCESS DENIED</p>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">INITIALIZE</button>
             </form>
         </div>
     </div>
 
-    <div class="admin-shell" id="admin-shell">
+    <div class="admin-shell" id="admin-shell" style="display:none;">
         <aside class="admin-nav-sidebar">
-            <div style="text-align: center; margin-bottom: 4rem;">
-                <h2 class="gold-gradient-text">ZOLNGEN</h2>
-                <p style="font-size: 0.7rem; color: #444; letter-spacing: 2px;">V3.0 BILINGUAL</p>
-            </div>
+            <h2 class="gold-gradient-text" style="text-align: center; margin-bottom: 3rem;">ZOLNGEN</h2>
             <nav>
-                <a class="admin-nav-link active" onclick="showTab('dashboard')" data-t="dashboard">Dashboard</a>
-                <a class="admin-nav-link" onclick="showTab('orders')" data-t="orders">Orders</a>
-                <a class="admin-nav-link" onclick="showTab('products')" data-t="products">Inventory</a>
-                <a class="admin-nav-link" onclick="showTab('audit')" data-t="audit">Audit Log</a>
+                <a class="admin-nav-link active" onclick="showTab('dashboard')"><i class="fas fa-chart-pie"></i> الإحصائيات</a>
+                <a class="admin-nav-link" onclick="showTab('orders')"><i class="fas fa-shopping-bag"></i> الطلبات</a>
+                <a class="admin-nav-link" onclick="showTab('products')"><i class="fas fa-boxes"></i> المنتجات</a>
+                <a class="admin-nav-link" onclick="showTab('categories')"><i class="fas fa-tags"></i> التصنيفات</a>
+                <a class="admin-nav-link" onclick="showTab('customers')"><i class="fas fa-university"></i> الجهات</a>
+                <a class="admin-nav-link" onclick="showTab('audit')"><i class="fas fa-history"></i> السجلات</a>
             </nav>
-            <div style="margin-top: auto; display: flex; flex-direction: column; gap: 1rem;">
-                <button class="btn-outline btn-sm" onclick="toggleLang()" style="width: 100%; justify-content: center;">AR | EN</button>
-                <a class="admin-nav-link" style="color: #ff4757;" onclick="logout()" data-t="logout">Logout</a>
+            <div style="margin-top: auto; display: grid; gap: 10px;">
+                <button class="btn-outline btn-sm" onclick="toggleAdminLang()">AR | EN</button>
+                <a class="admin-nav-link" style="color: #ff4757;" onclick="location.reload()"><i class="fas fa-power-off"></i> خروج</a>
             </div>
         </aside>
 
         <main class="admin-content-area">
-            <header class="header-widget">
-                <input type="text" class="contact-form" placeholder="Global Search..." data-t-placeholder="search" style="width: 400px; margin-bottom: 0;">
-                <div style="display: flex; align-items: center; gap: 1.5rem;">
-                    <div style="text-align: left;">
-                        <p style="font-weight: 700; color: #fff;" data-t="admin">Super Admin</p>
-                        <p style="font-size: 0.7rem; color: var(--primary-gold);">System Online</p>
+            <div class="action-bar">
+                <input type="text" class="search-pro" placeholder="بحث شامل في النظام..." onkeyup="adminGlobalSearch(this.value)">
+                <div style="display: flex; gap: 1.5rem; align-items: center;">
+                    <div id="admin-notif" style="position: relative; cursor: pointer;">
+                        <i class="fas fa-bell"></i>
+                        <span id="low-stock-dot" style="position: absolute; top:-5px; right:-5px; width:8px; height:8px; background:#ff4757; border-radius:50%; display:none;"></span>
                     </div>
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=000" style="width: 45px; border-radius: 12px; border: 1px solid var(--primary-gold);">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=000" style="width: 40px; border-radius: 12px; border: 1px solid var(--primary-gold);">
                 </div>
-            </header>
+            </div>
 
             <!-- Dashboard -->
             <div id="dashboard-tab" class="tab-content-pro">
                 <div class="grid-widgets">
-                    <div class="widget-card"><small data-t="sales">Sales</small><h3 id="stat-sales-pro">0 JOD</h3></div>
-                    <div class="widget-card"><small data-t="activeOrders">Orders</small><h3 id="stat-orders-pro">0</h3></div>
-                    <div class="widget-card"><small data-t="entities">Entities</small><h3 id="stat-entities-pro">0</h3></div>
-                    <div class="widget-card"><small data-t="stock">Stock</small><h3 id="stat-alerts-pro">0</h3></div>
+                    <div class="widget-card"><small>إجمالي المبيعات</small><h3 id="stat-sales">0 JOD</h3></div>
+                    <div class="widget-card"><small>الطلبات النشطة</small><h3 id="stat-orders">0</h3></div>
+                    <div class="widget-card"><small>الجهات المسجلة</small><h3 id="stat-entities">0</h3></div>
+                    <div class="widget-card"><small>المخزون الكلي</small><h3 id="stat-stock">0</h3></div>
                 </div>
-                <div class="widget-card" style="padding: 2rem;">
-                    <canvas id="proChart" height="100"></canvas>
+                <div class="widget-card" style="padding: 2.5rem;">
+                    <h4 class="gold-gradient-text" style="margin-bottom: 2rem;">معدل التوريد الشهري</h4>
+                    <canvas id="adminChart" height="100"></canvas>
                 </div>
             </div>
 
@@ -94,55 +90,72 @@
                 <div class="widget-card">
                     <table class="smart-table" id="orders-table">
                         <thead>
-                            <tr><th data-t="orderId">ID</th><th data-t="entity">Entity</th><th data-t="date">Date</th><th data-t="total">Total</th><th data-t="status">Status</th><th data-t="actions">Actions</th></tr>
+                            <tr><th>ID</th><th>الجهة</th><th>التاريخ</th><th>الإجمالي</th><th>الحالة</th><th>إجراءات</th></tr>
                         </thead>
-                        <tbody id="orders-tbody-pro"></tbody>
+                        <tbody id="orders-tbody"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Inventory -->
+            <!-- Products -->
             <div id="products-tab" class="tab-content-pro" style="display:none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h3 class="gold-gradient-text" data-t="products">Inventory</h3>
-                    <button class="btn-primary" onclick="openProductModal()" data-t="add">Add</button>
+                    <h3 class="gold-gradient-text">إدارة المستودع</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-outline btn-sm" onclick="bulkHideSelected()">إخفاء المحدد</button>
+                        <button class="btn-primary" onclick="openProductModal()"><i class="fas fa-plus"></i> إضافة منتج</button>
+                    </div>
                 </div>
                 <div class="widget-card">
                     <table class="smart-table">
                         <thead>
-                            <tr><th data-t="product">Product</th><th data-t="price">Price</th><th data-t="stock">Stock</th><th data-t="supplier">Supplier</th><th data-t="actions">Actions</th></tr>
+                            <tr><th><input type="checkbox" id="select-all-pro"></th><th>المنتج</th><th>السعر</th><th>المخزون</th><th>إجراءات</th></tr>
                         </thead>
-                        <tbody id="products-tbody-pro"></tbody>
+                        <tbody id="products-tbody"></tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div id="categories-tab" class="tab-content-pro" style="display:none;">
+                <div class="widget-card">
+                    <h3 class="gold-gradient-text" style="margin-bottom: 2rem;">إدارة الأقسام</h3>
+                    <div id="categories-list"></div>
+                    <div style="margin-top: 2rem; display: flex; gap: 10px;">
+                        <input type="text" id="new-cat-name" class="contact-form" style="width: 300px; margin-bottom: 0;" placeholder="اسم القسم الجديد">
+                        <button class="btn-primary" onclick="addNewCategory()">إضافة قسم</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customers -->
+            <div id="customers-tab" class="tab-content-pro" style="display:none;">
+                <div class="widget-card">
+                    <h3 class="gold-gradient-text" style="margin-bottom: 2rem;">سجل الجهات المتعاقدة</h3>
+                    <div id="customers-list"></div>
                 </div>
             </div>
 
             <!-- Audit -->
             <div id="audit-tab" class="tab-content-pro" style="display:none;">
-                <div class="widget-card" id="audit-full-log" style="font-family: monospace; color: #2ecc71;"></div>
+                <div class="widget-card">
+                    <h3 class="gold-gradient-text" style="margin-bottom: 2rem;">سجل العمليات والأمان</h3>
+                    <div id="full-audit-log" style="font-family: monospace; color: #2ecc71;"></div>
+                </div>
             </div>
         </main>
     </div>
 
     <!-- Modals -->
-    <div id="order-detail-modal" class="pro-modal">
-        <div class="modal-inner">
-            <div class="modal-header-pro">
-                <h3 class="gold-gradient-text">DETAILED PROCUREMENT VIEW</h3>
-                <span onclick="closeOrderModal()" style="cursor:pointer;"><i class="fas fa-times"></i></span>
+    <div id="order-detail-modal" class="modal" style="background: rgba(0,0,0,0.9);">
+        <div class="modal-content glass-card" style="width: 800px;">
+            <h3 class="gold-gradient-text" id="order-modal-title">تفاصيل التوريد</h3>
+            <div id="order-modal-body" style="margin: 2rem 0;"></div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn-primary" onclick="updateOrderStatus('shipped')">تم الشحن</button>
+                <button class="btn-primary" style="background: #2ecc71;" onclick="updateOrderStatus('delivered')">تم التسليم</button>
+                <button class="btn-outline" onclick="document.getElementById('order-detail-modal').style.display='none'">إغلاق</button>
             </div>
-            <div class="modal-body-pro" id="order-modal-body"></div>
-            <div style="padding: 2rem; text-align: left;"><button class="btn-primary" onclick="closeOrderModal()" data-t="cancel">Close</button></div>
-        </div>
-    </div>
-
-    <div id="product-modal-pro" class="pro-modal">
-        <div class="modal-inner" style="max-width: 600px;">
-            <div class="modal-header-pro"><h3 class="gold-gradient-text" data-t="product">Product</h3><span onclick="closeProductModal()" style="cursor:pointer;"><i class="fas fa-times"></i></span></div>
-            <form id="product-form-pro" class="modal-body-pro contact-form">
-                <input type="hidden" id="p-id"><input type="text" id="p-name" placeholder="Name" required><input type="text" id="p-supplier" placeholder="Supplier"><input type="number" id="p-price" step="0.01" required><input type="number" id="p-stock" required><textarea id="p-desc" placeholder="Specifications"></textarea>
-                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;" data-t="save">Save</button>
-            </form>
         </div>
     </div>
 
