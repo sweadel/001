@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZOLNGEN | لوحة التحكم المتكاملة</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-black); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: var(--surface-dark); padding: 4rem; border-radius: 15px; border: 1px solid var(--primary-gold); width: 400px; text-align: center; }
+        .admin-layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; padding-top: 80px; }
+        .sidebar { background: #0a0a0a; border-left: 1px solid var(--glass-border); padding: 2rem; position: sticky; top: 80px; height: calc(100vh - 80px); }
+        .sidebar-item { display: flex; align-items: center; gap: 1rem; padding: 1.2rem; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 0.5rem; transition: 0.3s; cursor: pointer; }
+        .sidebar-item:hover, .sidebar-item.active { background: var(--primary-gold); color: black; font-weight: 700; }
+        .main-content { padding: 3rem; background: var(--bg-black); overflow-y: auto; }
+        .stat-card { background: var(--surface-light); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center; }
+        .stat-card h3 { color: var(--primary-gold); font-size: 2rem; margin: 0.5rem 0; }
+        .log-item { padding: 0.8rem; border-bottom: 1px solid #222; font-size: 0.85rem; color: var(--text-muted); }
+        .log-item b { color: var(--primary-gold); }
+        .notification { position: fixed; top: 20px; right: 20px; background: var(--primary-gold); color: black; padding: 1rem 2rem; border-radius: 8px; font-weight: 700; z-index: 6000; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body class="admin-body">
+
+    <div id="notification" class="notification"></div>
+
+    <!-- Login Screen -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 class="gold-gradient-text" style="font-size: 2.5rem; margin-bottom: 2rem;">ZOLNGEN LOGIN</h2>
+            <form id="login-form" class="contact-form">
+                <input type="text" id="username" placeholder="اسم المستخدم" required>
+                <input type="password" id="password" placeholder="كلمة المرور" required>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">دخول الآدمن</button>
+                <p id="login-error" style="color: #ff4757; margin-top: 1rem; display: none;">خطأ في البيانات!</p>
+            </form>
+        </div>
+    </div>
+
+    <nav id="admin-nav" style="display:none;">
+        <div class="container">
+            <a href="index.html" class="logo"><span class="gold-gradient-text">ZOLNGEN ADMIN CENTER</span></a>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <div style="font-size: 0.8rem; color: var(--primary-gold);">المشغل: <span id="current-user">admin</span></div>
+                <button class="btn-outline btn-sm" onclick="logout()">تسجيل خروج</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-layout" id="admin-content" style="display:none;">
+        <aside class="sidebar">
+            <div class="sidebar-item active" onclick="showTab('dashboard')"><i class="fas fa-chart-pie"></i> الإحصائيات</div>
+            <div class="sidebar-item" onclick="showTab('orders')"><i class="fas fa-file-invoice-dollar"></i> الطلبات</div>
+            <div class="sidebar-item" onclick="showTab('products')"><i class="fas fa-boxes"></i> المنتجات</div>
+            <div class="sidebar-item" onclick="showTab('tickets')"><i class="fas fa-wrench"></i> الصيانة</div>
+            <div class="sidebar-item" onclick="showTab('audit')"><i class="fas fa-history"></i> سجل النشاط</div>
+            <div class="sidebar-item" onclick="showTab('settings')"><i class="fas fa-cogs"></i> الإعدادات</div>
+        </aside>
+
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem;">
+                    <div class="stat-card">
+                        <p>الطلبات</p><h3 id="stat-orders">0</h3>
+                    </div>
+                    <div class="stat-card">
+                        <p>المبيعات</p><h3 id="stat-sales">0</h3>
+                    </div>
+                    <div class="stat-card">
+                        <p>التذاكر المفتوحة</p><h3 id="stat-tickets">0</h3>
+                    </div>
+                    <div class="stat-card">
+                        <p>المخزون الحرج</p><h3 id="stat-stock-alert" style="color: #ff4757;">0</h3>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem;">
+                    <div class="dashboard-card" style="padding: 2rem;">
+                        <h3 class="gold-gradient-text" style="margin-bottom: 2rem;">نمو الطلبات الأسبوعي</h3>
+                        <canvas id="mainChart" height="150"></canvas>
+                    </div>
+                    <div class="dashboard-card" style="padding: 2rem;">
+                        <h3 class="gold-gradient-text" style="margin-bottom: 1rem;">آخر النشاطات</h3>
+                        <div id="mini-audit-log" style="max-height: 300px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Tab -->
+            <div id="orders-tab" class="tab-content" style="display:none;">
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                    <input type="text" class="search-bar" placeholder="بحث باسم الجهة أو رقم الطلب..." onkeyup="searchOrders(this.value)" style="margin-bottom: 0;">
+                    <button class="btn-outline" onclick="exportOrders()"><i class="fas fa-file-excel"></i> تصدير Excel</button>
+                </div>
+                <div class="dashboard-card">
+                    <table id="orders-table">
+                        <thead>
+                            <tr><th>رقم الطلب</th><th>الجهة</th><th>التاريخ</th><th>الإجمالي</th><th>الحالة</th><th>إجراءات</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Products Tab -->
+            <div id="products-tab" class="tab-content" style="display:none;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
+                    <button class="btn-primary" onclick="openProductModal()"><i class="fas fa-plus"></i> إضافة منتج</button>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn-outline btn-sm" onclick="bulkPriceUpdate()">تعديل الأسعار جماعياً</button>
+                        <button class="btn-outline btn-sm" onclick="exportInventory()">تصدير المخزون</button>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <table id="products-table">
+                        <thead>
+                            <tr><th>المنتج</th><th>المورد</th><th>السعر</th><th>المخزون</th><th>إجراءات</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tickets Tab (Maintenance) -->
+            <div id="tickets-tab" class="tab-content" style="display:none;">
+                <h2 class="gold-gradient-text" style="margin-bottom: 2rem;">طلبات الصيانة والدعم الفني</h2>
+                <div class="dashboard-card">
+                    <table id="tickets-table">
+                        <thead>
+                            <tr><th>رقم التذكرة</th><th>الجهة</th><th>المشكلة</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Audit Tab -->
+            <div id="audit-tab" class="tab-content" style="display:none;">
+                <h2 class="gold-gradient-text" style="margin-bottom: 2rem;">سجل الأمان والعمليات (Audit Log)</h2>
+                <div class="dashboard-card" id="full-audit-log" style="max-height: 600px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content" style="display:none;">
+                <h2 class="gold-gradient-text" style="margin-bottom: 2rem;">إعدادات النظام والبريد</h2>
+                <div class="dashboard-card">
+                    <h4 style="margin-bottom: 1rem;">قالب البريد الآلي (Notification Template)</h4>
+                    <textarea class="contact-form" rows="5" style="width: 100%;">شكراً لكم [Entity]. لقد تم استلام طلبكم رقم [OrderID] بنجاح. سيتم التواصل معكم خلال 24 ساعة.</textarea>
+                    <button class="btn-primary">حفظ القالب</button>
+                    <hr style="margin: 2rem 0; border-color: #333;">
+                    <button class="btn-outline" onclick="backupDB()"><i class="fas fa-database"></i> تحميل نسخة احتياطية للقاعدة (JSON)</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal (unchanged structure) -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="gold-gradient-text">إدارة المنتج</h3><br>
+            <form id="product-form" class="contact-form">
+                <input type="hidden" id="prod-id">
+                <input type="text" id="prod-name" placeholder="الاسم" required>
+                <input type="text" id="prod-supplier" placeholder="المورد (مثلاً HP Jordan)" required>
+                <input type="number" id="prod-price" placeholder="السعر" required>
+                <input type="number" id="prod-stock" placeholder="المخزون" required>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">حفظ</button>
+                    <button type="button" class="btn-outline" onclick="closeModal()" style="flex: 1;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="database.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

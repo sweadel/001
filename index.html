@@ -3,23 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | منصة طلب الأجهزة الإلكترونية الاحترافية</title>
-    <meta name="description" content="منصة زولنجن الرائدة لطلب الأجهزة الإلكترونية للشركات والمؤسسات. حلول تقنية متكاملة بأفضل الأسعار.">
+    <title>ZOLNGEN | المنصة المتكاملة لتوريد التقنية</title>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PDF Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
+    <!-- Comparison Modal -->
+    <div id="compare-modal" class="modal">
+        <div class="modal-content" style="width: 80%; max-width: 1000px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 class="gold-gradient-text">مقارنة المنتجات</h2>
+                <span class="close-modal" onclick="closeCompare()" style="cursor:pointer; font-size: 1.5rem;"><i class="fas fa-times"></i></span>
+            </div>
+            <div id="compare-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
+                <!-- Comparison data -->
+            </div>
+        </div>
+    </div>
+
     <div id="cart-sidebar">
         <div class="cart-header">
-            <h3>سلة الطلبات</h3>
+            <h3 class="gold-gradient-text">سلة الطلبات</h3>
             <span class="close-cart"><i class="fas fa-times"></i></span>
         </div>
-        <div id="cart-items" style="color: var(--text-muted); text-align: center; margin-top: 50px;">
-            السلة فارغة حالياً
-        </div>
-        <div class="cart-footer" style="position: absolute; bottom: 2rem; left: 2rem; right: 2rem;">
-            <button class="btn-primary" style="width: 100%; justify-content: center;">إتمام الطلب</button>
+        <div id="cart-items-list" style="margin-top: 30px; max-height: 50vh; overflow-y: auto; padding-right: 10px;"></div>
+        <div id="cart-empty-msg" style="color: var(--text-muted); text-align: center; margin-top: 50px;">السلة فارغة حالياً</div>
+        <div class="cart-footer" id="cart-footer" style="display:none; position: absolute; bottom: 0; left: 0; right: 0; background: var(--surface-dark); padding: 2rem; border-top: 1px solid var(--glass-border);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <span>الإجمالي التقديري:</span>
+                <span id="cart-total" style="color: var(--primary-gold); font-weight: 700; font-size: 1.3rem;">0 د.أ</span>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn-outline" onclick="generatePDFQuote()" style="flex: 1; font-size: 0.8rem;"><i class="fas fa-file-pdf"></i> تحميل عرض سعر</button>
+                <button class="btn-primary" onclick="scrollToContact()" style="flex: 1.5;">إتمام الطلب</button>
+            </div>
         </div>
     </div>
 
@@ -30,16 +50,17 @@
                     <i class="fas fa-shopping-cart"></i>
                     <span id="cart-count" style="position: absolute; top: -8px; right: -8px; background: var(--primary-gold); color: black; font-size: 0.7rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">0</span>
                 </div>
-                <i class="fas fa-user"></i>
-                <i class="fas fa-search"></i>
-                <span style="font-weight: 600; cursor: pointer; color: var(--primary-gold);">AR | EN</span>
+                <div class="currency-toggle" style="margin-right: 1rem; cursor: pointer; color: var(--primary-gold); font-weight: 700;" onclick="toggleCurrency()">
+                    <span id="currency-label">JOD</span>
+                </div>
+                <a href="admin.html" title="لوحة التحكم" style="color: inherit;"><i class="fas fa-cog"></i></a>
             </div>
 
             <ul class="nav-links">
                 <li><a href="#hero">الرئيسية</a></li>
                 <li><a href="#featured">المنتجات</a></li>
-                <li><a href="#process">خطوات الطلب</a></li>
-                <li><a href="#contact">تواصل معنا</a></li>
+                <li><a href="#maintenance">الصيانة</a></li>
+                <li><a href="#contact">طلب التوريد</a></li>
             </ul>
 
             <a href="#" class="logo">
@@ -52,297 +73,121 @@
         <div class="container">
             <div class="hero-grid">
                 <div class="hero-content">
-                    <h1 class="gold-gradient-text">ZOLNGEN</h1>
-                    <p style="font-size: 1.4rem;">المستقبل يبدأ هنا. الحلول التقنية الأكثر تطوراً لمؤسستك، في مكان واحد وبأفضل جودة عالمية.</p>
+                    <div class="status-badge" style="display: inline-block; background: rgba(212, 175, 55, 0.1); color: var(--primary-gold); border: 1px solid var(--primary-gold); margin-bottom: 1rem;">
+                        المزود المعتمد للجهات الحكومية
+                    </div>
+                    <h1 class="gold-gradient-text">التميز التقني لمؤسستك</h1>
+                    <p style="font-size: 1.4rem;">نوفر حلول توريد ذكية، صيانة احترافية، وأحدث الأجهزة العالمية تحت سقف واحد.</p>
                     <div class="hero-btns">
-                        <a href="#featured" class="btn-primary">
-                            <i class="fas fa-rocket"></i>
-                            ابدأ التسوق
-                        </a>
-                        <a href="#contact" class="btn-outline">
-                            <i class="fas fa-envelope"></i>
-                            استشارة تقنية
-                        </a>
+                        <a href="#featured" class="btn-primary"><i class="fas fa-shopping-basket"></i> تصفح المنتجات</a>
+                        <a href="#maintenance" class="btn-outline"><i class="fas fa-tools"></i> طلب صيانة</a>
                     </div>
                 </div>
                 <div class="hero-image">
-                    <img src="zolngen_hero_laptop.png" alt="Zolngen Premium Hardware">
+                    <img src="zolngen_hero_laptop.png" alt="Zolngen">
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="features-bar">
-        <div class="container">
-            <div class="features-grid">
-                <div class="feature-item">
-                    <div class="feature-icon"><i class="fas fa-headset"></i></div>
-                    <div class="feature-text">
-                        <h4>دعم فني 24/7</h4>
-                        <p>خبراؤنا في خدمتك دائماً</p>
-                    </div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon"><i class="fas fa-gem"></i></div>
-                    <div class="feature-text">
-                        <h4>جودة مضمونة</h4>
-                        <p>أفضل العلامات التجارية العالمية</p>
-                    </div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon"><i class="fas fa-shield-check"></i></div>
-                    <div class="feature-text">
-                        <h4>أمان فائق</h4>
-                        <p>حماية كاملة لبيانات الجهة</p>
-                    </div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon"><i class="fas fa-bolt"></i></div>
-                    <div class="feature-text">
-                        <h4>توصيل فائق السرعة</h4>
-                        <p>لكافة أنحاء المملكة</p>
-                    </div>
-                </div>
+    <!-- Tracking Section -->
+    <div style="background: var(--surface-light); padding: 3rem 0; border-bottom: 1px solid var(--glass-border);">
+        <div class="container" style="display: flex; align-items: center; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+            <h4 class="gold-gradient-text">تتبع طلبك:</h4>
+            <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="track-id" placeholder="أدخل رقم المرجع (مثلاً ORD-XXXX)" style="padding: 0.8rem; background: var(--bg-black); border: 1px solid var(--glass-border); color: white; border-radius: 4px; width: 300px;">
+                <button class="btn-primary btn-sm" onclick="trackOrder()">تتبع</button>
             </div>
         </div>
     </div>
 
-    <section id="categories">
-        <div class="container">
-            <div class="section-title">
-                <h2>أقسامنا المتميزة</h2>
-            </div>
-            <div class="category-grid">
-                <div class="category-card" onclick="filterProducts('laptop')">
-                    <img src="category_laptops.png" alt="Laptops">
-                    <h3>لابتوبات</h3>
-                    <p>LAPTOPS</p>
-                </div>
-                <div class="category-card" onclick="filterProducts('desktop')">
-                    <img src="category_desktops.png" alt="Desktops">
-                    <h3>أجهزة مكتبية</h3>
-                    <p>DESKTOPS</p>
-                </div>
-                <div class="category-card" onclick="filterProducts('electronics')">
-                    <img src="category_electronics.png" alt="Electronics">
-                    <h3>إلكترونيات</h3>
-                    <p>ELECTRONICS</p>
-                </div>
-                <div class="category-card" onclick="filterProducts('accessories')">
-                    <img src="category_accessories.png" alt="Accessories">
-                    <h3>إكسسوارات</h3>
-                    <p>ACCESSORIES</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <section id="featured">
         <div class="container">
             <div class="section-title">
-                <h2>أحدث العروض والمنتجات</h2>
+                <h2>دليل المنتجات والتوريد</h2>
             </div>
-            
             <div class="filter-tabs">
                 <button class="btn-filter active" onclick="filterProducts('all')">الكل</button>
                 <button class="btn-filter" onclick="filterProducts('laptop')">لابتوبات</button>
                 <button class="btn-filter" onclick="filterProducts('desktop')">مكتبي</button>
                 <button class="btn-filter" onclick="filterProducts('electronics')">إلكترونيات</button>
-                <button class="btn-filter" onclick="filterProducts('accessories')">إكسسوارات</button>
             </div>
+            <div class="products-grid" id="product-container"></div>
+        </div>
+    </section>
 
-            <div class="products-grid" id="product-container">
-                <!-- Hardcoded for full demo experience -->
-                <div class="product-card" data-category="laptop">
-                    <div class="product-img"><img src="category_laptops.png" alt="HP EliteBook"></div>
-                    <div class="product-info">
-                        <span class="product-tag">أعمال</span>
-                        <h3>HP EliteBook 840 G9</h3>
-                        <p class="product-price">499.00 د.أ</p>
-                        <button class="btn-primary add-to-cart" style="width: 100%; justify-content: center;">أضف إلى الطلب</button>
-                    </div>
+    <!-- Maintenance Section (New Suggestion) -->
+    <section id="maintenance" style="background: var(--bg-black); border-top: 1px solid var(--glass-border);">
+        <div class="container">
+            <div class="contact-grid" style="align-items: center;">
+                <div class="contact-info">
+                    <h2 class="gold-gradient-text" style="font-size: 2.5rem; margin-bottom: 2rem;">بوابة الصيانة والخدمات</h2>
+                    <p>هل تمتلك أجهزة من توريد زولنجن وتحتاج لصيانة فنية؟ فريقنا المختص جاهز لزيارتك في موقع المؤسسة.</p>
+                    <ul style="margin-top: 2rem;">
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-gold);"></i> صيانة دورية وقائية.</li>
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-gold);"></i> تحديث الأنظمة والقطع.</li>
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-gold);"></i> دعم فني طارئ 24/7.</li>
+                    </ul>
                 </div>
-                <div class="product-card" data-category="laptop">
-                    <div class="product-img"><img src="category_laptops.png" alt="Dell Latitude"></div>
-                    <div class="product-info">
-                        <span class="product-tag">أعمال</span>
-                        <h3>Dell Latitude 5530</h3>
-                        <p class="product-price">549.00 د.أ</p>
-                        <button class="btn-primary add-to-cart" style="width: 100%; justify-content: center;">أضف إلى الطلب</button>
-                    </div>
-                </div>
-                <div class="product-card" data-category="laptop">
-                    <div class="product-img"><img src="product_thinkpad_x1.png" alt="Lenovo ThinkPad"></div>
-                    <div class="product-info">
-                        <span class="product-tag">بريميوم</span>
-                        <h3>Lenovo ThinkPad X1 Carbon</h3>
-                        <p class="product-price">699.00 د.أ</p>
-                        <button class="btn-primary add-to-cart" style="width: 100%; justify-content: center;">أضف إلى الطلب</button>
-                    </div>
-                </div>
-                <div class="product-card" data-category="desktop">
-                    <div class="product-img"><img src="product_optiplex_7090.png" alt="Dell OptiPlex"></div>
-                    <div class="product-info">
-                        <span class="product-tag">مكتبي</span>
-                        <h3>Dell OptiPlex 7090 SFF</h3>
-                        <p class="product-price">379.00 د.أ</p>
-                        <button class="btn-primary add-to-cart" style="width: 100%; justify-content: center;">أضف إلى الطلب</button>
-                    </div>
-                </div>
-                <div class="product-card" data-category="desktop">
-                    <div class="product-img"><img src="category_desktops.png" alt="HP ProDesk"></div>
-                    <div class="product-info">
-                        <span class="product-tag">مكتبي</span>
-                        <h3>HP ProDesk 600 G6</h3>
-                        <p class="product-price">349.00 د.أ</p>
-                        <button class="btn-primary add-to-cart" style="width: 100%; justify-content: center;">أضف إلى الطلب</button>
-                    </div>
-                </div>
-                <div class="product-card" data-category="electronics">
-                    <div class="product-img"><img src="category_electronics.png" alt="LG Monitor"></div>
-                    <div class="product-info">
-                        <span class="product-tag">شاشات</span>
-                        <h3>LG 27" 4K UHD Monitor</h3>
-                        <p class="product-price">199.00 د.أ</p>
-                        <button class="btn-primary add-to-cart" style="width: 100%; justify-content: center;">أضف إلى الطلب</button>
-                    </div>
-                </div>
-                <div class="product-card" data-category="electronics">
-                    <div class="product-img"><img src="category_electronics.png" alt="HP LaserJet"></div>
-                    <div class="product-info">
-                        <span class="product-tag">طابعات</span>
-                        <h3>HP LaserJet Pro MFP 4103fdw</h3>
-                        <p class="product-price">299.00 د.أ</p>
-                        <button class="btn-primary add-to-cart" style="width: 100%; justify-content: center;">أضف إلى الطلب</button>
-                    </div>
-                </div>
-                <div class="product-card" data-category="accessories">
-                    <div class="product-img"><img src="product_sony_xm5.png" alt="Sony Headphones"></div>
-                    <div class="product-info">
-                        <span class="product-tag">صوتيات</span>
-                        <h3>Sony WH-1000XM5</h3>
-                        <p class="product-price">149.00 د.أ</p>
-                        <button class="btn-primary add-to-cart" style="width: 100%; justify-content: center;">أضف إلى الطلب</button>
-                    </div>
-                </div>
-                <div class="product-card" data-category="accessories">
-                    <div class="product-img"><img src="category_accessories.png" alt="Keyboard"></div>
-                    <div class="product-info">
-                        <span class="product-tag">إكسسوارات</span>
-                        <h3>Mechanical Gaming Keyboard</h3>
-                        <p class="product-price">89.00 د.أ</p>
-                        <button class="btn-primary add-to-cart" style="width: 100%; justify-content: center;">أضف إلى الطلب</button>
-                    </div>
-                </div>
-                <div class="product-card" data-category="accessories">
-                    <div class="product-img"><img src="category_accessories.png" alt="Hub"></div>
-                    <div class="product-info">
-                        <span class="product-tag">إكسسوارات</span>
-                        <h3>USB-C Multi-Hub 7-in-1</h3>
-                        <p class="product-price">49.00 د.أ</p>
-                        <button class="btn-primary add-to-cart" style="width: 100%; justify-content: center;">أضف إلى الطلب</button>
-                    </div>
+                <div class="dashboard-card" style="padding: 3rem;">
+                    <h3 style="margin-bottom: 1.5rem;">طلب دعم فني</h3>
+                    <form class="contact-form">
+                        <input type="text" placeholder="رقم مرجع الشراء">
+                        <select style="width: 100%; padding: 1.2rem; background: var(--bg-black); border: 1px solid var(--glass-border); color: white; margin-bottom: 1rem; border-radius: 4px;">
+                            <option>نوع المشكلة التقنية</option>
+                            <option>مشكلة في السوفت وير</option>
+                            <option>مشكلة في الهاردوير</option>
+                            <option>طلب تحديث (Upgrade)</option>
+                        </select>
+                        <button class="btn-outline" style="width: 100%; justify-content: center;">إرسال طلب الدعم</button>
+                    </form>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="process" style="background: var(--surface-dark);">
+    <section id="contact" style="background: var(--surface-dark);">
         <div class="container">
             <div class="section-title">
-                <h2>رحلة طلبك معنا</h2>
-            </div>
-            <div class="process-grid">
-                <div class="process-step">
-                    <div class="step-number">1</div>
-                    <h4>الاختيار</h4>
-                    <p>تصفح واطّلع على المواصفات</p>
-                </div>
-                <div class="process-step">
-                    <div class="step-number">2</div>
-                    <h4>السلة</h4>
-                    <p>أضف ما تحتاجه للطلب</p>
-                </div>
-                <div class="process-step">
-                    <div class="step-number">3</div>
-                    <h4>التأكيد</h4>
-                    <p>أدخل بياناتك للمراجعة</p>
-                </div>
-                <div class="process-step">
-                    <div class="step-number">4</div>
-                    <h4>التنفيذ</h4>
-                    <p>تجهيز وتغليف احترافي</p>
-                </div>
-                <div class="process-step">
-                    <div class="step-number">5</div>
-                    <h4>الاستلام</h4>
-                    <p>توصيل آمن لباب مؤسستك</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="contact">
-        <div class="container">
-            <div class="section-title">
-                <h2>تواصل معنا مباشرة</h2>
+                <h2>إتمام طلب التوريد</h2>
             </div>
             <div class="contact-grid">
                 <div class="contact-info">
-                    <h3 class="gold-gradient-text" style="font-size: 2rem; margin-bottom: 2rem;">نحن هنا لمساعدتك</h3>
-                    <p><i class="fas fa-phone" style="color: var(--primary-gold);"></i> +962 79 123 4567</p>
-                    <p><i class="fas fa-envelope" style="color: var(--primary-gold);"></i> info@zolngen.com</p>
-                    <p><i class="fas fa-location-dot" style="color: var(--primary-gold);"></i> عمان - شارع المدينة المنورة</p>
+                    <h3 class="gold-gradient-text" style="font-size: 2rem; margin-bottom: 2rem;">تفاصيل المؤسسة</h3>
+                    <div id="summary-card" style="padding: 1.5rem; background: var(--surface-light); border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <p id="summary-text">السلة فارغة حالياً.</p>
+                        <div id="summary-details" style="margin-top: 1rem; color: var(--text-muted);"></div>
+                    </div>
                 </div>
-                <form class="contact-form">
-                    <input type="text" placeholder="الاسم الكامل" required>
-                    <input type="email" placeholder="البريد الإلكتروني للجهة" required>
-                    <textarea rows="5" placeholder="تفاصيل الطلب أو الاستفسار" required></textarea>
-                    <button class="btn-primary" type="submit">إرسال الاستفسار</button>
+                <form class="contact-form" id="order-form">
+                    <input type="text" id="full-name" placeholder="اسم مقدم الطلب" required>
+                    <input type="tel" id="phone-number" placeholder="رقم التواصل" required>
+                    <select id="entity-select" required>
+                        <option value="">-- اختر الجامعة / المؤسسة --</option>
+                        <option value="الجامعة الأردنية">الجامعة الأردنية</option>
+                        <option value="جامعة اليرموك">جامعة اليرموك</option>
+                        <option value="جامعة العلوم والتكنولوجيا">جامعة العلوم والتكنولوجيا</option>
+                        <option value="الجامعة الهاشمية">الجامعة الهاشمية</option>
+                        <option value="جامعة مؤتة">جامعة مؤتة</option>
+                        <option value="جامعة البلقاء التطبيقية">جامعة البلقاء التطبيقية</option>
+                        <option value="other">جهة أخرى</option>
+                    </select>
+                    <input type="email" id="entity-email" placeholder="البريد الرسمي" required>
+                    <textarea id="order-notes" rows="4" placeholder="ملاحظات المواصفات"></textarea>
+                    <button class="btn-primary" type="submit" id="submit-order-btn" disabled style="width: 100%; justify-content: center;">إرسال الطلب الرسمي</button>
                 </form>
             </div>
         </div>
     </section>
 
-    <footer id="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-about">
-                    <h2 class="gold-gradient-text" style="font-size: 2.5rem; margin-bottom: 1rem;">ZOLNGEN</h2>
-                    <p style="color: var(--text-muted);">رؤيتنا هي تمكين المؤسسات بأفضل الأدوات التقنية لضمان نجاحها في العصر الرقمي.</p>
-                </div>
-                <div class="footer-links">
-                    <h4>روابط</h4>
-                    <ul>
-                        <li><a href="#">الرئيسية</a></li>
-                        <li><a href="#">المنتجات</a></li>
-                        <li><a href="#">تواصل معنا</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4>قانوني</h4>
-                    <ul>
-                        <li><a href="#">الشروط</a></li>
-                        <li><a href="#">الخصوصية</a></li>
-                    </ul>
-                </div>
-                <div class="footer-contact">
-                    <h4>تابعنا</h4>
-                    <div style="display: flex; gap: 1.5rem;">
-                        <i class="fab fa-facebook-f" style="cursor:pointer;"></i>
-                        <i class="fab fa-linkedin-in" style="cursor:pointer;"></i>
-                        <i class="fab fa-instagram" style="cursor:pointer;"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>© 2024 ZOLNGEN. جميع الحقوق محفوظة.</p>
-            </div>
-        </div>
-    </footer>
-
     <div id="back-to-top"><i class="fas fa-chevron-up"></i></div>
 
+    <!-- Live Chat Widget (Simulated) -->
+    <div id="chat-widget" style="position: fixed; bottom: 30px; left: 30px; width: 60px; height: 60px; background: #25d366; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" onclick="alert('جارٍ تحويلك لمندوب المبيعات عبر واتساب...')">
+        <i class="fab fa-whatsapp" style="font-size: 2rem;"></i>
+    </div>
+
+    <script src="database.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
