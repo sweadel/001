@@ -1,17 +1,24 @@
-// ZOLNGEN Ultimate Command Center JS v8
-let proChart;
+// ZOLNGEN Command Center v2.0 Logic
+let mainChart;
 
-// 1. Auth & Shell
+// 1. Auth & Login Logic
 document.getElementById('login-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
+    const u = document.getElementById('username').value;
+    const p = document.getElementById('password').value;
 
-    if (user === 'admin' && pass === 'admin123') {
-        document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('admin-container').style.display = 'block';
-        DB.logAction('Super Admin Login');
-        initUltimateDashboard();
+    if (u === 'admin' && p === 'admin123') {
+        const overlay = document.getElementById('login-overlay');
+        overlay.style.transition = 'opacity 1s ease, transform 1s ease';
+        overlay.style.opacity = '0';
+        overlay.style.transform = 'scale(1.1)';
+        
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            document.getElementById('admin-shell').style.display = 'grid';
+            DB.logAction('System Initialized: Root Access Granted');
+            initCommandCenter();
+        }, 1000);
     } else {
         const err = document.getElementById('login-error');
         err.style.display = 'block';
@@ -21,228 +28,134 @@ document.getElementById('login-form')?.addEventListener('submit', (e) => {
 
 function logout() { location.reload(); }
 
-// 2. Navigation & Smart Search
+// 2. Tab Navigation
 function showTab(tab) {
-    document.querySelectorAll('.tab-content-pro').forEach(c => c.style.display = 'none');
-    document.querySelectorAll('.nav-item').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+    document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
     document.getElementById(tab + '-tab').style.display = 'block';
     event.currentTarget.classList.add('active');
     
-    if (tab === 'dashboard') initUltimateDashboard();
-    if (tab === 'products') renderProducts();
+    if (tab === 'dashboard') initCommandCenter();
     if (tab === 'orders') renderOrders();
-    if (tab === 'audit') renderFullAudit();
+    if (tab === 'products') renderInventory();
+    if (tab === 'audit') renderAuditLogs();
 }
 
-// Keyboard shortcut '/' to search
-document.addEventListener('keydown', (e) => {
-    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
-        e.preventDefault();
-        document.getElementById('pro-search').focus();
-    }
-});
-
-// 3. Ultimate Dashboard Logic
-function initUltimateDashboard() {
+// 3. Command Center (Dashboard)
+function initCommandCenter() {
     const orders = DB.getOrders();
     const products = DB.getProducts();
-    const totalSales = orders.reduce((acc, o) => acc + o.total, 0);
-    const lowStock = products.filter(p => p.stock < 10).length;
+    const entities = [...new Set(orders.map(o => o.entity))];
+    const sales = orders.reduce((acc, o) => acc + o.total, 0);
 
-    document.getElementById('stat-sales-pro').innerText = totalSales.toLocaleString() + ' د.أ';
-    document.getElementById('stat-orders-pro').innerText = orders.length;
-    document.getElementById('stat-entities-pro').innerText = [...new Set(orders.map(o => o.entity))].length;
-    document.getElementById('stat-alerts-pro').innerText = lowStock;
+    document.getElementById('stat-sales').innerText = sales.toLocaleString() + ' JOD';
+    document.getElementById('stat-orders').innerText = orders.length;
+    document.getElementById('stat-entities').innerText = entities.length;
 
-    // Pro Chart
-    const ctx = document.getElementById('proChart').getContext('2d');
-    if (proChart) proChart.destroy();
-    proChart = new Chart(ctx, {
+    // Mini Logs
+    const mini = document.getElementById('mini-logs');
+    mini.innerHTML = DB.getAuditLog().slice(0, 6).map(l => `
+        <div style="border-bottom: 1px solid rgba(255,255,255,0.02); padding: 5px 0;">
+            <span style="color:#444;">[${l.date.split(' ')[0]}]</span> 
+            <span style="color:var(--primary-gold);">${l.action}</span>
+        </div>
+    `).join('');
+
+    // Chart.js
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    if (mainChart) mainChart.destroy();
+    mainChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: ['01', '02', '03', '04', '05', '06', '07'],
             datasets: [{
-                label: 'نمو المبيعات',
-                data: [5000, 7000, 4500, 9000, 12000, 8500, totalSales || 15000],
+                label: 'Revenue Stream',
+                data: [4000, 7000, 5000, 11000, 15000, 12000, sales || 18000],
                 borderColor: '#D4AF37',
-                borderWidth: 3,
+                borderWidth: 2,
+                pointRadius: 4,
                 pointBackgroundColor: '#D4AF37',
                 fill: true,
-                backgroundColor: 'rgba(212, 175, 55, 0.03)',
+                backgroundColor: 'rgba(212, 175, 55, 0.05)',
                 tension: 0.4
             }]
         },
-        options: { 
-            responsive: true, 
+        options: {
+            responsive: true,
             plugins: { legend: { display: false } },
             scales: {
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666' } },
-                x: { grid: { display: false }, ticks: { color: '#666' } }
+                y: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#444' } },
+                x: { grid: { display: false }, ticks: { color: '#444' } }
             }
         }
     });
-
-    // Update Notifications
-    updateNotifBell();
 }
 
-// 4. Notifications System
-function toggleNotifications() {
-    const drop = document.getElementById('notif-drop');
-    drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
-}
-
-function updateNotifBell() {
-    const logs = DB.getAuditLog().slice(0, 5);
-    const container = document.getElementById('notif-items');
-    container.innerHTML = logs.map(l => `
-        <div style="padding: 0.8rem; border-bottom: 1px solid #222; font-size: 0.8rem;">
-            <p style="color:#eee;">${l.action}</p>
-            <small style="color:var(--admin-accent);">${l.date}</small>
-        </div>
-    `).join('');
-}
-
-// 5. Orders Management
-function renderOrders(filter = '') {
-    const orders = DB.getOrders().filter(o => o.entity.includes(filter) || o.id.includes(filter));
-    const tbody = document.getElementById('orders-tbody-pro');
-    const empty = document.getElementById('orders-empty');
-
-    if (orders.length === 0) {
-        tbody.innerHTML = '';
-        empty.style.display = 'block';
-        return;
-    }
-    empty.style.display = 'none';
-    tbody.innerHTML = orders.map(o => `
+// 4. Order Rendering
+function renderOrders() {
+    const tbody = document.querySelector('#orders-table tbody');
+    tbody.innerHTML = DB.getOrders().map(o => `
         <tr>
             <td>#${o.id}</td>
-            <td><strong>${o.entity}</strong><br><small>${o.fullName}</small></td>
+            <td><strong>${o.entity}</strong><br><small style="color:#555;">${o.fullName}</small></td>
             <td>${o.date}</td>
-            <td style="color:var(--admin-accent); font-weight:700;">${o.total.toFixed(2)}</td>
-            <td><span class="badge badge-pending">في المعالجة</span></td>
-            <td>
-                <button class="btn-primary btn-sm" onclick="viewOrderDetails('${o.id}')">التفاصيل</button>
-            </td>
+            <td style="color:var(--primary-gold); font-weight:700;">${o.total.toFixed(2)}</td>
+            <td><span class="status-pill pill-gold">PROCESSING</span></td>
+            <td><button class="btn-primary btn-sm" onclick="alert('Viewing Details for ' + '${o.id}')">VIEW</button></td>
         </tr>
     `).join('');
 }
 
-function viewOrderDetails(id) {
-    const order = DB.getOrders().find(o => o.id === id);
-    const body = document.getElementById('order-modal-body');
-    
-    body.innerHTML = `
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:3rem; margin-bottom:2rem; background:rgba(255,255,255,0.01); padding:2rem; border-radius:12px;">
-            <div>
-                <h5 style="color:var(--admin-accent); margin-bottom:1rem; text-transform:uppercase; letter-spacing:1px;">المشتري:</h5>
-                <p style="font-size:1.2rem; font-weight:700;">${order.entity}</p>
-                <p>${order.fullName}</p>
-                <p>${order.phone}</p>
-            </div>
-            <div>
-                <h5 style="color:var(--admin-accent); margin-bottom:1rem; text-transform:uppercase; letter-spacing:1px;">حالة الطلب:</h5>
-                <p><b>التاريخ:</b> ${order.date}</p>
-                <p><b>الرقم المرجعي:</b> ${order.id}</p>
-                <p><b>الحالة الفنية:</b> قيد المراجعة النهائية</p>
-            </div>
-        </div>
-        <table style="width:100%; text-align:right; border-collapse:collapse;">
-            <thead style="color:var(--text-muted); border-bottom:1px solid #333;">
-                <tr><th style="padding:1rem;">الصنف</th><th style="padding:1rem;">الكمية</th><th style="padding:1rem;">السعر</th></tr>
-            </thead>
-            <tbody>
-                ${order.items.map(i => `
-                    <tr style="border-bottom:1px solid #222;">
-                        <td style="padding:1rem;">${i.name}</td>
-                        <td style="padding:1rem;">${i.qty}</td>
-                        <td style="padding:1rem;">${(i.price * i.qty).toFixed(2)} د.أ</td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-        <div style="margin-top:2rem; padding:1.5rem; background:#000; border-radius:8px; border:1px dashed #333;">
-            <p><b>الملاحظات الفنية:</b> ${order.notes || 'لا يوجد ملاحظات مرفقة'}</p>
-        </div>
-    `;
-    document.getElementById('order-detail-modal').style.display = 'flex';
-}
-
-function closeOrderModal() { document.getElementById('order-detail-modal').style.display = 'none'; }
-
-// 6. Products Management
-function renderProducts() {
-    const products = DB.getProducts();
-    const tbody = document.getElementById('products-tbody-pro');
-    tbody.innerHTML = products.map(p => `
+// 5. Inventory Rendering
+function renderInventory() {
+    const tbody = document.querySelector('#products-table tbody');
+    tbody.innerHTML = DB.getProducts().map(p => `
         <tr>
-            <td>
-                <div style="display:flex; align-items:center; gap:1rem;">
-                    <img src="${p.img}" style="width:40px; height:40px; background:#fff; border-radius:4px; padding:2px;">
-                    <div><strong>${p.name}</strong><br><small style="color:#666;">${p.tag}</small></div>
-                </div>
-            </td>
-            <td>${p.supplier || 'Generic'}</td>
-            <td style="color:var(--admin-accent); font-weight:700;">${p.price.toFixed(2)}</td>
+            <td><strong>${p.name}</strong><br><small style="color:#555;">${p.category}</small></td>
+            <td style="color:var(--primary-gold);">${p.price.toFixed(2)}</td>
             <td style="color:${p.stock < 10 ? '#ff4757' : '#2ecc71'};">${p.stock}</td>
+            <td>${p.supplier || 'N/A'}</td>
             <td>
-                <button class="btn-outline btn-sm" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button>
-                <button class="btn-outline btn-sm" onclick="deleteProduct(${p.id})" style="color:#ff4757; border-color:#ff4757;"><i class="fas fa-trash"></i></button>
+                <button class="btn-outline btn-sm" onclick="editProduct(${p.id})"><i class="fas fa-cog"></i></button>
             </td>
         </tr>
     `).join('');
 }
 
-function openProductModal() { document.getElementById('product-form-pro').reset(); document.getElementById('p-id').value = ''; document.getElementById('product-modal-pro').style.display = 'flex'; }
-function closeProductModal() { document.getElementById('product-modal-pro').style.display = 'none'; }
+// 6. Audit Log Rendering
+function renderAuditLogs() {
+    const container = document.getElementById('full-audit-log');
+    container.innerHTML = DB.getAuditLog().map(l => `
+        <div>[${l.date}] > USER: ${l.user} > ACTION: <span style="color:#fff;">${l.action}</span></div>
+    `).join('');
+}
 
+// Modal logic
+function openProductModal() { document.getElementById('product-form').reset(); document.getElementById('prod-id').value = ''; document.getElementById('product-modal').style.display = 'flex'; }
+function closeModal() { document.getElementById('product-modal').style.display = 'none'; }
 function editProduct(id) {
     const p = DB.getProducts().find(p => p.id == id);
-    document.getElementById('p-id').value = p.id;
-    document.getElementById('p-name').value = p.name;
-    document.getElementById('p-supplier').value = p.supplier || '';
-    document.getElementById('p-price').value = p.price;
-    document.getElementById('p-stock').value = p.stock;
-    document.getElementById('p-desc').value = p.description || '';
-    document.getElementById('product-modal-pro').style.display = 'flex';
+    document.getElementById('prod-id').value = p.id;
+    document.getElementById('prod-name').value = p.name;
+    document.getElementById('prod-supplier').value = p.supplier || '';
+    document.getElementById('prod-price').value = p.price;
+    document.getElementById('prod-stock').value = p.stock;
+    document.getElementById('prod-desc').value = p.description || '';
+    document.getElementById('product-modal').style.display = 'flex';
 }
 
-function deleteProduct(id) { if(confirm('هل تود حذف هذا المنتج من المستودع؟')) { DB.deleteProduct(id); renderProducts(); } }
-
-document.getElementById('product-form-pro')?.addEventListener('submit', (e) => {
+document.getElementById('product-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const product = {
-        id: document.getElementById('p-id').value || null,
-        name: document.getElementById('p-name').value,
-        supplier: document.getElementById('p-supplier').value,
-        price: parseFloat(document.getElementById('p-price').value),
-        stock: parseInt(document.getElementById('p-stock').value),
-        description: document.getElementById('p-desc').value,
+        id: document.getElementById('prod-id').value || null,
+        name: document.getElementById('prod-name').value,
+        supplier: document.getElementById('prod-supplier').value,
+        price: parseFloat(document.getElementById('prod-price').value),
+        stock: parseInt(document.getElementById('prod-stock').value),
+        description: document.getElementById('prod-desc').value,
         category: 'electronics', img: 'category_laptops.png', tag: 'High-End'
     };
-    DB.saveProduct(product); closeProductModal(); renderProducts();
+    DB.saveProduct(product); closeModal(); renderInventory();
 });
 
-// 7. Search Logic
-window.handleProSearch = (val) => {
-    const activeTab = document.querySelector('.nav-item.active').innerText.trim();
-    if (activeTab.includes('الطلبات')) renderOrders(val);
-    else if (activeTab.includes('المستودع')) {
-        const rows = document.querySelectorAll('#products-tbody-pro tr');
-        rows.forEach(r => r.style.display = r.innerText.includes(val) ? 'table-row' : 'none');
-    }
-};
-
-function renderFullAudit() {
-    const container = document.getElementById('audit-full-log');
-    container.innerHTML = DB.getAuditLog().map(l => `
-        <div style="padding:1rem; border-bottom:1px solid #222; font-family:monospace; font-size:0.9rem;">
-            <span style="color:#666;">[${l.date}]</span> <span style="color:var(--admin-accent);">${l.user}</span>: ${l.action}
-        </div>
-    `).join('');
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('login-overlay').style.display === 'none') initUltimateDashboard();
-});
+console.log("ZOLNGEN CommandCenter v2.0 Active");
