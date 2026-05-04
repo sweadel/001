@@ -1,45 +1,35 @@
-// ZOLNGEN Admin Core v15 - ULTIMATE STABLE & ISOLATED
+// ZOLNGEN COMMAND CENTER v17 - THE ABSOLUTE FINAL STANDARD
 let growthChart;
-let currentLang = 'ar';
-let activeOrderId = null;
+let currentTab = 'dashboard';
 
-// Expose to window for HTML events
+// Global Expose
 window.showTab = showTab;
 window.viewOrder = viewOrder;
 window.quickUpdate = quickUpdate;
 window.editProd = editProd;
+window.deleteProd = deleteProd;
 window.handleSearch = handleSearch;
 window.closeModal = closeModal;
 window.openProductModal = openProductModal;
 
-const i18n = {
-    ar: {
-        dash: 'الإحصائيات', ords: 'الطلبات', inv: 'المخزون', customers: 'الجهات', audit: 'الأمن'
-    },
-    en: {
-        dash: 'Dashboard', ords: 'Orders', inv: 'Inventory', customers: 'Entities', audit: 'Audit'
-    }
-};
-
-// 1. Auth Logic
+// 1. Authentication
 document.getElementById('login-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const u = document.getElementById('username').value;
-    const p = document.getElementById('password').value;
-    if (u === 'admin' && p === 'admin123') {
+    if (document.getElementById('username').value === 'admin' && document.getElementById('password').value === 'admin123') {
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('admin-shell').style.display = 'grid';
-        DB.logAction('Secure Admin Access Granted');
+        DB.logAction('System Secure Session Started');
         initAdmin();
-    } else alert('بيانات الدخول غير صحيحة');
+    } else alert('خطأ في بيانات الدخول');
 });
 
 function initAdmin() {
     showTab('dashboard');
 }
 
-// 2. Tab Management
+// 2. Navigation
 function showTab(tab) {
+    currentTab = tab;
     document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
     
@@ -50,13 +40,17 @@ function showTab(tab) {
         if (link.getAttribute('onclick')?.includes(`'${tab}'`)) link.classList.add('active');
     });
 
-    if (tab === 'dashboard') renderDashboard();
-    if (tab === 'orders') renderOrders();
-    if (tab === 'inventory') renderInventory();
-    if (tab === 'audit') renderAudit();
+    refreshCurrentTab();
 }
 
-// 3. Modules Logic
+function refreshCurrentTab() {
+    if (currentTab === 'dashboard') renderDashboard();
+    if (currentTab === 'orders') renderOrders();
+    if (currentTab === 'inventory') renderInventory();
+    if (currentTab === 'audit') renderAudit();
+}
+
+// 3. Logic Modules
 function renderDashboard() {
     const orders = DB.getOrders();
     const products = DB.getProducts();
@@ -74,10 +68,9 @@ function renderDashboard() {
     growthChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+            labels: ['M1', 'M2', 'M3', 'M4', 'M5', 'M6'],
             datasets: [{
-                label: 'Growth',
-                data: [5000, 15000, 8000, totalSales || 20000],
+                label: 'Growth', data: [4000, 15000, 8000, 12000, 18000, totalSales || 25000],
                 borderColor: '#D4AF37', tension: 0.4, fill: true, backgroundColor: 'rgba(212, 175, 55, 0.05)'
             }]
         },
@@ -93,51 +86,41 @@ function renderOrders(filter = '') {
         (o.id || '').toLowerCase().includes(filter.toLowerCase())
     );
 
-    tbody.innerHTML = orders.length ? orders.map(o => `
+    tbody.innerHTML = orders.map(o => `
         <tr>
             <td>#${o.id}</td>
-            <td><strong>${o.entity}</strong><br><small>${o.fullName || 'مسؤول تقني'}</small></td>
+            <td><strong>${o.entity}</strong><br><small>${o.fullName}</small></td>
             <td>${o.date}</td>
-            <td>${(o.total || 0).toFixed(2)}</td>
-            <td><span class="badge ${o.status === 'delivered' ? 'badge-done' : 'badge-pending'}">${(o.status || 'pending').toUpperCase()}</span></td>
+            <td style="color:var(--primary); font-weight:700;">${(o.total || 0).toFixed(2)}</td>
+            <td><span class="badge ${o.status === 'delivered' ? 'badge-done' : 'badge-pending'}">${o.status.toUpperCase()}</span></td>
             <td>
-                <button class="btn-action btn-outline btn-sm" onclick="viewOrder('${o.id}')">تفاصيل</button>
+                <button class="btn-action btn-outline btn-sm" onclick="viewOrder('${o.id}')">عرض</button>
                 <button class="btn-action btn-gold btn-sm" onclick="quickUpdate('${o.id}', 'delivered')">تسليم</button>
             </td>
         </tr>
-    `).join('') : '<tr><td colspan="6" style="text-align:center; padding:50px;">لا يوجد طلبات حالياً</td></tr>';
+    `).join('');
 }
 
 function viewOrder(id) {
-    activeOrderId = id;
     const order = DB.getOrders().find(o => String(o.id) === String(id));
     if (!order) return;
-    
     document.getElementById('modal-title').innerText = `تفاصيل الطلب #${order.id}`;
     document.getElementById('modal-body').innerHTML = `
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; border-bottom:1px solid #222; padding-bottom:15px; text-align:right;">
             <div><p><b>المؤسسة:</b> ${order.entity}</p><p><b>المسؤول:</b> ${order.fullName}</p></div>
             <div><p><b>التاريخ:</b> ${order.date}</p><p><b>الهاتف:</b> ${order.phone}</p></div>
         </div>
-        <table style="width:100%; margin-top:15px; text-align:right; border-collapse:collapse;">
-            <thead style="color:#666;"><tr><th>الصنف</th><th>الكمية</th><th>السعر</th></tr></thead>
-            <tbody>
-                ${(order.items || []).map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>${i.price}</td></tr>`).join('')}
-            </tbody>
+        <table style="width:100%; margin-top:20px; text-align:right;">
+            <thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th></tr></thead>
+            <tbody>${(order.items || []).map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>${i.price}</td></tr>`).join('')}</tbody>
         </table>
     `;
     document.getElementById('order-modal').style.display = 'flex';
 }
 
 function quickUpdate(id, status) {
-    const orders = DB.getOrders();
-    const order = orders.find(o => String(o.id) === String(id));
-    if (order) {
-        order.status = status;
-        DB.set('zolngen_orders', orders);
-        DB.logAction(`Updated Order #${id} to ${status}`);
-        renderOrders();
-    }
+    DB.updateOrderStatus(id, status);
+    refreshCurrentTab();
 }
 
 function renderInventory() {
@@ -149,7 +132,10 @@ function renderInventory() {
             <td style="color:var(--primary); font-weight:700;">${(p.price || 0).toFixed(2)}</td>
             <td style="color:${p.stock < 10 ? '#ff4757' : '#2ecc71'}">${p.stock}</td>
             <td>${p.supplier || 'N/A'}</td>
-            <td><button class="btn-action btn-outline btn-sm" onclick="editProd('${p.id}')"><i class="fas fa-edit"></i></button></td>
+            <td>
+                <button class="btn-action btn-outline btn-sm" onclick="editProd('${p.id}')"><i class="fas fa-edit"></i></button>
+                <button class="btn-action btn-outline btn-sm" style="color:#ff4757;" onclick="deleteProd('${p.id}')"><i class="fas fa-trash"></i></button>
+            </td>
         </tr>
     `).join('');
 }
@@ -168,20 +154,13 @@ function editProd(id) {
     document.getElementById('p-supplier').value = p.supplier || '';
     document.getElementById('p-price').value = p.price;
     document.getElementById('p-stock').value = p.stock;
-    document.getElementById('p-desc').value = p.description || '';
     document.getElementById('product-modal').style.display = 'flex';
 }
 
-function closeModal() {
-    document.querySelectorAll('.pro-modal').forEach(m => m.style.display = 'none');
-}
-
-function handleSearch(val) {
-    const active = document.querySelector('.nav-link.active')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
-    if (active === 'orders') renderOrders(val);
-    else if (active === 'inventory') {
-        const rows = document.querySelectorAll('#inventory-tbody tr');
-        rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(val.toLowerCase()) ? 'table-row' : 'none');
+function deleteProd(id) {
+    if (confirm('هل أنت متأكد من حذف هذا المنتج نهائياً من المستودع؟')) {
+        DB.deleteProduct(id);
+        renderInventory();
     }
 }
 
@@ -193,20 +172,29 @@ document.getElementById('product-form')?.addEventListener('submit', (e) => {
         supplier: document.getElementById('p-supplier').value,
         price: parseFloat(document.getElementById('p-price').value),
         stock: parseInt(document.getElementById('p-stock').value),
-        description: document.getElementById('p-desc').value,
-        category: 'Hardware', img: 'category_electronics.png'
+        category: 'Hardware', img: 'category_laptops_luxury.png'
     };
     DB.saveProduct(prod);
     closeModal();
     renderInventory();
 });
 
+function handleSearch(val) {
+    if (currentTab === 'orders') renderOrders(val);
+    if (currentTab === 'inventory') {
+        const rows = document.querySelectorAll('#inventory-tbody tr');
+        rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(val.toLowerCase()) ? 'table-row' : 'none');
+    }
+}
+
 function renderAudit() {
     const container = document.getElementById('audit-log-container');
     if (!container) return;
     container.innerHTML = DB.getAuditLog().map(l => `
-        <div style="padding:8px; border-bottom:1px solid #111;">[${l.date}] <b>${l.user}</b>: ${l.action}</div>
+        <div style="padding:10px; border-bottom:1px solid #111;">[${l.date}] <b>${l.user}</b>: ${l.action}</div>
     `).join('');
 }
 
-console.log("ZOLNGEN Admin v15 Fully Stabilized");
+function closeModal() { document.querySelectorAll('.pro-modal').forEach(m => m.style.display = 'none'); }
+
+console.log("ZOLNGEN COMMAND CENTER v17 - DEPLOYED");

@@ -1,14 +1,11 @@
-// ZOLNGEN Central Intelligence & Data Engine v15
+// ZOLNGEN ENTERPRISE CORE v17 - THE ABSOLUTE FINAL STANDARD
 const DB = {
-    // 1. Storage Helpers
-    get: (key) => JSON.parse(localStorage.getItem(key)) || [],
-    set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
+    get: (k) => JSON.parse(localStorage.getItem(k)) || [],
+    set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
 
-    // 2. Products Management
     getProducts: function() {
-        let prods = this.get('zolngen_inventory');
-        if (prods.length === 0) return this.seed();
-        return prods;
+        let p = this.get('zolngen_inventory');
+        return p.length ? p : this.seed();
     },
     saveProduct: function(p) {
         let prods = this.getProducts();
@@ -20,43 +17,55 @@ const DB = {
             prods.push(p);
         }
         this.set('zolngen_inventory', prods);
-        this.logAction(`Saved Product: ${p.name}`);
+        this.logAction(`Saved/Updated Product: ${p.name}`);
+    },
+    deleteProduct: function(id) {
+        let prods = this.getProducts().filter(x => String(x.id) !== String(id));
+        this.set('zolngen_inventory', prods);
+        this.logAction(`Deleted Product ID: ${id}`);
     },
 
-    // 3. Orders Management
     getOrders: function() { return this.get('zolngen_orders'); },
-    placeOrder: function(order) {
-        let orders = this.getOrders();
-        order.id = 'ORD-' + (Math.floor(Math.random() * 9000) + 1000);
-        order.date = new Date().toLocaleDateString('ar-EG');
-        orders.push(order);
-        this.set('zolngen_orders', orders);
-        this.logAction(`New Procurement Order: ${order.id} from ${order.entity}`);
-        return order;
+    placeOrder: function(o) {
+        let ords = this.getOrders();
+        o.id = 'ORD-' + (Math.floor(Math.random() * 9000) + 1000);
+        o.date = new Date().toLocaleDateString('ar-EG');
+        o.status = o.status || 'pending';
+        ords.unshift(o);
+        this.set('zolngen_orders', ords);
+        this.logAction(`New Institutional Order: ${o.id}`);
+        return o;
+    },
+    updateOrderStatus: function(id, status) {
+        let ords = this.getOrders();
+        let o = ords.find(x => String(x.id) === String(id));
+        if (o) {
+            o.status = status;
+            this.set('zolngen_orders', ords);
+            this.logAction(`Order ${id} status updated to ${status}`);
+        }
     },
 
-    // 4. Audit & Security
     getAuditLog: function() { return this.get('zolngen_audit'); },
-    logAction: function(action) {
+    logAction: function(a) {
         let logs = this.getAuditLog();
-        logs.unshift({ date: new Date().toLocaleString('ar-EG'), user: 'Admin-Secure', action });
-        this.set('zolngen_audit', logs.slice(0, 50));
+        logs.unshift({ date: new Date().toLocaleString('ar-EG'), user: 'Admin-System', action: a });
+        this.set('zolngen_audit', logs.slice(0, 100));
     },
 
-    // 5. Initial Seed (Luxury Institutional Selection)
     seed: function() {
         const initial = [
-            { id: '1', name: 'HP EliteBook 840 G9', price: 1250, stock: 45, category: 'Laptops', supplier: 'HP Jordan', tag: 'الأكثر طلباً', img: 'product_thinkpad_x1.png' },
-            { id: '2', name: 'Dell Latitude 7430', price: 1180, stock: 30, category: 'Laptops', supplier: 'Dell Enterprise', tag: 'احترافي', img: 'zolngen_hero_laptop.png' },
-            { id: '3', name: 'Apple MacBook Pro M2', price: 1850, stock: 12, category: 'Laptops', supplier: 'Apple Authorized', tag: 'فائق الأداء', img: 'product_thinkpad_x1.png' },
-            { id: '4', name: 'ThinkPad X1 Carbon Gen 10', price: 1450, stock: 8, category: 'Laptops', supplier: 'Lenovo Jordan', tag: 'مخزون منخفض', img: 'product_thinkpad_x1.png' },
-            { id: '5', name: 'HP LaserJet Managed E60165', price: 950, stock: 20, category: 'Printers', supplier: 'HP Jordan', tag: 'عروض', img: 'category_electronics.png' },
-            { id: '6', name: 'Dell UltraSharp 27" 4K', price: 550, stock: 50, category: 'Monitors', supplier: 'Dell Jordan', tag: 'جديد', img: 'category_electronics.png' }
+            { id: '1', name: 'HP EliteBook 840 G9', price: 1250, stock: 45, category: 'Laptops', supplier: 'HP Jordan', tag: 'الأكثر طلباً', img: 'category_laptops_luxury.png' },
+            { id: '2', name: 'Dell Latitude 7430', price: 1180, stock: 30, category: 'Laptops', supplier: 'Dell Enterprise', tag: 'احترافي', img: 'zolngen_premium_hero_laptop.png' },
+            { id: '3', name: 'ThinkPad X1 Carbon', price: 1450, stock: 12, category: 'Laptops', supplier: 'Lenovo Jordan', tag: 'مخزون منخفض', img: 'category_laptops_luxury.png' },
+            { id: '4', name: 'LG 27" 4K UHD Monitor', price: 450, stock: 25, category: 'Electronics', supplier: 'LG Jordan', tag: 'جديد', img: 'category_electronics_luxury.png' },
+            { id: '5', name: 'HP LaserJet Pro MFP', price: 850, stock: 15, category: 'Electronics', supplier: 'HP Jordan', tag: 'توفير', img: 'category_electronics_luxury.png' },
+            { id: '6', name: 'ZOLNGEN Custom Workstation', price: 2100, stock: 5, category: 'Desktops', supplier: 'ZOLNGEN', tag: 'الأعلى أداءً', img: 'category_desktops_luxury.png' }
         ];
         this.set('zolngen_inventory', initial);
         return initial;
     }
 };
 
-if (!localStorage.getItem('zolngen_inventory')) DB.seed();
 window.DB = DB;
+if (!localStorage.getItem('zolngen_inventory')) DB.seed();
