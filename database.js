@@ -97,9 +97,10 @@ const DB = {
 
     seed: function() {
         const initial = [
-            { id: '1', name: 'HP EliteBook 840 G9', price: 1250, cost: 950, stock: 45, category: 'Laptops', supplier: 'HP Jordan', img: 'category_laptops_luxury.png' },
-            { id: '2', name: 'Dell Latitude 7430', price: 1180, cost: 880, stock: 5, category: 'Laptops', supplier: 'Dell Enterprise', img: 'zolngen_premium_hero_laptop.png' },
-            { id: '3', name: 'Apple MacBook Pro M2', price: 1850, cost: 1600, stock: 12, category: 'Laptops', supplier: 'Apple Authorized', img: 'category_laptops_luxury.png' }
+            { id: '1', name: 'HP EliteBook 840 G9', price: 1250, cost: 950, stock: 45, category: 'أجهزة محمولة', supplier: 'HP Jordan', img: 'category_laptops_luxury.png', specs: ['Intel Core i7-1260P', '16GB DDR5 RAM', '512GB PCIe NVMe SSD', '14" WUXGA Display'] },
+            { id: '2', name: 'Dell Latitude 7430', price: 1180, cost: 880, stock: 5, category: 'أجهزة محمولة', supplier: 'Dell Enterprise', img: 'zolngen_premium_hero_laptop.png', specs: ['Intel Core i5-1245U', '16GB LPDDR5', '256GB SSD', 'Carbon Fiber Chassis'] },
+            { id: '3', name: 'Apple MacBook Pro M2', price: 1850, cost: 1600, stock: 12, category: 'أجهزة محمولة', supplier: 'Apple Authorized', img: 'category_laptops_luxury.png', specs: ['Apple M2 Pro Chip', '16GB Unified Memory', '512GB SSD', 'Liquid Retina XDR'] },
+            { id: '4', name: 'Dell PowerEdge R750', price: 4500, cost: 3800, stock: 3, category: 'خوادم وشبكات', supplier: 'Dell Enterprise', img: 'zolngen_premium_hero_laptop.png', specs: ['Dual Intel Xeon Silver', '128GB RDIMM', '4x 2TB SAS SSD', 'Dual Hot-plug PSU'] }
         ];
         this.set('zolngen_inventory', initial);
         return initial;

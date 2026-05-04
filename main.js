@@ -27,6 +27,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 else btn.classList.remove('visible');
             });
         }
+        if (!document.getElementById('qv-modal')) {
+            const qv = document.createElement('div');
+            qv.id = 'qv-modal';
+            qv.className = 'qv-modal';
+            qv.innerHTML = `
+                <div class="qv-content">
+                    <button class="qv-close" onclick="document.getElementById('qv-modal').style.display='none'">&times;</button>
+                    <div class="qv-img"><img id="qv-img-src" src=""></div>
+                    <div class="qv-details">
+                        <p class="category" id="qv-cat" style="color:#999; font-size:0.9rem; text-transform:uppercase;"></p>
+                        <h2 id="qv-name" style="font-size:2rem; margin-bottom:10px; color:var(--gold);"></h2>
+                        <h3 id="qv-price" style="font-size:1.5rem; margin-bottom:15px;"></h3>
+                        <ul class="qv-specs" id="qv-specs-list"></ul>
+                        <button class="btn btn-gold" id="qv-add-btn" style="width:100%; justify-content:center; margin-top:1rem;">أضف إلى الطلب</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(qv);
+        }
+        
+        // Particles Spawn
+        const pCont = document.getElementById('hero-particles');
+        if (pCont && pCont.children.length === 0) {
+            for(let i=0; i<25; i++) {
+                let p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                let size = Math.random() * 5 + 2;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.animationDelay = Math.random() * 8 + 's';
+                p.style.animationDuration = Math.random() * 5 + 6 + 's';
+                pCont.appendChild(p);
+            }
+        }
     };
     
     window.showToast = (msg, type = 'success') => {
@@ -51,6 +86,23 @@ document.addEventListener('DOMContentLoaded', () => {
     setupPremiumUX();
     
     let currentCategoryFilter = '';
+
+    window.openQuickView = (id) => {
+        const p = DB.getProducts().find(x => String(x.id) === String(id));
+        if (!p) return;
+        document.getElementById('qv-img-src').src = p.img;
+        document.getElementById('qv-name').innerText = p.name;
+        document.getElementById('qv-cat').innerText = p.category || 'تجهيزات مؤسسية';
+        document.getElementById('qv-price').innerText = p.price.toFixed(2) + ' JOD';
+        
+        const specsHtml = (p.specs || ['مواصفات قياسية معتمدة']).map(s => `<li><i class="fas fa-check"></i> ${s}</li>`).join('');
+        document.getElementById('qv-specs-list').innerHTML = specsHtml;
+        
+        const addBtn = document.getElementById('qv-add-btn');
+        addBtn.onclick = () => { addToCart(p.id); document.getElementById('qv-modal').style.display = 'none'; };
+        
+        document.getElementById('qv-modal').style.display = 'flex';
+    };
 
     window.searchProducts = (val) => renderProducts(val);
 
@@ -84,10 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         targetContainer.innerHTML = products.length ? products.map(p => `
             <div class="product-card reveal active">
-                <div class="img-container">
+                <div class="img-container" style="cursor:pointer;" onclick="openQuickView('${p.id}')" title="معاينة سريعة">
                     <img src="${p.img}" alt="${p.name}" onerror="this.src='https://placehold.co/400x400/EEE/31343C?text=Hardware'">
                 </div>
-                <h3>${p.name}</h3>
+                <h3 style="cursor:pointer;" onclick="openQuickView('${p.id}')">${p.name}</h3>
                 <p class="category">${p.category || 'تجهيزات تقنية'}</p>
                 <div class="price">${(p.price || 0).toFixed(2)} د.أ</div>
                 <button class="btn-add" data-id="${p.id}">أضف إلى الطلب</button>

@@ -37,11 +37,15 @@ body { background-color: var(--black); color: var(--white); direction: rtl; over
 .nav-links a.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: var(--grad); border-radius: 2px; }
 
 /* 2. Cinematic Hero */
-.hero { padding: 100px 0; min-height: 90vh; display: flex; align-items: center; position: relative; background: radial-gradient(circle at top right, rgba(212,175,55,0.05) 0%, transparent 70%); }
-.hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+.hero { padding: 100px 0; min-height: 90vh; display: flex; align-items: center; position: relative; background: radial-gradient(circle at top right, rgba(212,175,55,0.05) 0%, transparent 70%); overflow: hidden; }
+.hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; position: relative; z-index: 2; }
 .hero-content { text-align: right; }
 .hero-content h1 { font-size: 5.5rem; font-weight: 900; line-height: 1; margin-bottom: 1.5rem; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .hero-content p { font-size: 1.8rem; color: #999; margin-bottom: 4rem; font-weight: 300; }
+
+.particles-js { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.particle { position: absolute; background: var(--gold); border-radius: 50%; opacity: 0; animation: floatUp 8s infinite linear; }
+@keyframes floatUp { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 20% { opacity: 0.3; transform: translateY(80vh) scale(1); } 80% { opacity: 0.3; } 100% { transform: translateY(-10vh) scale(0); opacity: 0; } }
 
 .btn { display: inline-flex; align-items: center; gap: 12px; padding: 1.2rem 3rem; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.4s; border: none; text-decoration: none; }
 .btn-gold { background: var(--grad); color: #000; box-shadow: 0 10px 30px rgba(212,175,55,0.2); }
@@ -149,3 +153,21 @@ body { animation: pageFade 0.6s ease-out; }
 /* 3. Cart Badge Animation */
 @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.5); } 100% { transform: scale(1); } }
 .pop-anim { animation: pop 0.4s ease-in-out; }
+
+/* 5. Quick View Modal */
+.qv-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+.qv-content { background: var(--surface); width: 90%; max-width: 900px; border-radius: 20px; border: 1px solid var(--border-gold); display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.8); animation: pageFade 0.4s ease-out; }
+.qv-img { background: #fff; padding: 2rem; display: flex; align-items: center; justify-content: center; position: relative; }
+.qv-img img { max-width: 100%; max-height: 400px; object-fit: contain; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.qv-img:hover img { transform: scale(1.15); }
+.qv-details { padding: 3rem; position: relative; display: flex; flex-direction: column; justify-content: center; }
+.qv-close { position: absolute; top: 15px; right: 20px; font-size: 2rem; color: #666; cursor: pointer; background: none; border: none; transition: 0.3s; z-index: 10; }
+.qv-close:hover { color: var(--gold); transform: rotate(90deg); }
+.qv-specs { list-style: none; margin: 1.5rem 0; padding-top: 1.5rem; border-top: 1px solid #222; }
+.qv-specs li { margin-bottom: 12px; color: #ccc; font-size: 0.95rem; }
+.qv-specs li i { color: var(--gold); width: 25px; }
+
+@media (max-width: 768px) {
+    .qv-content { grid-template-columns: 1fr; max-height: 90vh; overflow-y: auto; }
+    .qv-details { padding: 2rem; }
+}
