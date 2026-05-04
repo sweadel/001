@@ -3,6 +3,27 @@ let mainChart;
 let currentTab = 'dashboard';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // --- PREMIUM UX SETUP ---
+    window.setupPremiumUX = () => {
+        if (!document.getElementById('toast-container')) {
+            const toastCont = document.createElement('div');
+            toastCont.id = 'toast-container';
+            document.body.appendChild(toastCont);
+        }
+    };
+    window.showToast = (msg, type = 'success') => {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${msg}</span>`;
+        container.appendChild(toast);
+        requestAnimationFrame(() => setTimeout(() => toast.classList.add('show'), 10));
+        setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 500); }, 4000);
+    };
+    setupPremiumUX();
+
     // 1. Auth & Session (Improved)
     if (sessionStorage.getItem('admin_pro_auth') === 'true') {
         document.getElementById('login-screen').style.display = 'none';
@@ -20,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('admin-shell').style.display = 'grid';
             DB.logAction('تسجيل دخول ناجح للمنظومة الاحترافية');
             initProAdmin();
-        } else alert('خطأ في بيانات الدخول الصارمة');
+        } else window.showToast('خطأ في بيانات الدخول الصارمة', 'error');
     });
 
     function initProAdmin() {
@@ -178,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         link.download = `ZOLNGEN_Orders_${Date.now()}.csv`;
         link.click();
         DB.logAction('تصدير بيانات الطلبات لملف Excel');
+        window.showToast('تم تصدير ملف Excel بنجاح');
     };
 
     window.generateReport = () => {
@@ -193,6 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
         doc.text(`Inventory Asset Value: ${stats.inventoryValue} JOD`, 20, 80);
         doc.save(`ZOLNGEN_Pro_Report_${Date.now()}.pdf`);
         DB.logAction('توليد تقرير PDF شامل للمنظومة');
+        window.showToast('تم حفظ تقرير PDF بنجاح');
     };
 
     window.backupSystem = () => {
@@ -203,12 +226,14 @@ document.addEventListener('DOMContentLoaded', () => {
         link.download = `ZOLNGEN_System_Backup_${Date.now()}.json`;
         link.click();
         DB.logAction('إنشاء نسخة احتياطية كاملة للمنظومة');
+        window.showToast('تم تفعيل النسخ الاحتياطي للنظام');
     };
 
     window.deliverOrder = (id) => {
         if (confirm('تأكيد تسليم الطلب وتحويل حالته لمكتمل؟')) {
             DB.updateOrderStatus(id, 'delivered');
             refreshData();
+            window.showToast('تم تحديث حالة الطلب إلى مكتمل');
         }
     };
 
@@ -230,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirm('هل أنت متأكد من حذف هذا المنتج نهائياً من المستودع؟')) {
             DB.deleteProduct(id);
             refreshData();
+            window.showToast('تم حذف المنتج بنجاح');
         }
     };
 
@@ -248,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DB.saveProduct(p);
         closeModal();
         refreshData();
+        window.showToast('تم حفظ المنتج في المستودع');
     });
 
     // Sidebar Links

@@ -9,6 +9,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartItemsContainer = document.getElementById('cart-items');
     const orderModal = document.getElementById('order-modal');
     
+    // --- PREMIUM UX SETUP ---
+    window.setupPremiumUX = () => {
+        if (!document.getElementById('toast-container')) {
+            const toastCont = document.createElement('div');
+            toastCont.id = 'toast-container';
+            document.body.appendChild(toastCont);
+        }
+        if (!document.getElementById('scroll-top')) {
+            const btn = document.createElement('button');
+            btn.id = 'scroll-top';
+            btn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+            btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.body.appendChild(btn);
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) btn.classList.add('visible');
+                else btn.classList.remove('visible');
+            });
+        }
+    };
+    
+    window.showToast = (msg, type = 'success') => {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${msg}</span>`;
+        container.appendChild(toast);
+        
+        requestAnimationFrame(() => {
+            setTimeout(() => toast.classList.add('show'), 10);
+        });
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 500);
+        }, 4000);
+    };
+    
+    setupPremiumUX();
+    
     // --- RENDER LOGIC ---
     const renderProducts = (filter = '') => {
         const prodContainer = document.getElementById('product-container');
@@ -78,6 +119,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (existing) existing.qty++;
         else cart.push({ ...prod, qty: 1 });
         updateCartUI();
+        
+        if (cartCount) {
+            cartCount.classList.remove('pop-anim');
+            void cartCount.offsetWidth; // trigger reflow
+            cartCount.classList.add('pop-anim');
+        }
+        
+        window.showToast(`تمت إضافة ${prod.name} لقائمة التوريد`);
         toggleCart(true);
     };
 
@@ -106,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cart-trigger')?.addEventListener('click', () => toggleCart());
     document.getElementById('cart-close')?.addEventListener('click', () => toggleCart(false));
     document.getElementById('btn-order-trigger')?.addEventListener('click', () => {
-        if (!cart.length) return alert('يرجى إضافة أجهزة لقائمة التوريد أولاً.');
+        if (!cart.length) return window.showToast('يرجى إضافة أجهزة لقائمة التوريد أولاً.', 'error');
         orderModal.style.display = 'flex';
     });
     document.getElementById('modal-close')?.addEventListener('click', () => orderModal.style.display = 'none');
@@ -122,8 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
             total: cart.reduce((acc, i) => acc + (i.price * i.qty), 0)
         });
         cart = []; updateCartUI();
-        alert(`تم إرسال طلب التوريد بنجاح! رقم المرجع: ${order.id}\nسنقوم بالتواصل معكم خلال 24 ساعة.`);
-        location.reload();
+        orderModal.style.display = 'none';
+        window.showToast(`تم إرسال طلب التوريد بنجاح! رقم المرجع: ${order.id}`, 'success');
+        setTimeout(() => location.reload(), 3000);
     });
 
     // Maintenance Ticket Logic
@@ -141,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
             type: typeVal,
             issue: issueVal
         });
-        alert(`تم فتح تذكرة صيانة برقم: ${ticket.id.split('-')[1]}\nفريقنا التقني سيقوم بمراجعة الطلب فوراً.`);
+        window.showToast(`تم فتح تذكرة صيانة برقم: ${ticket.id.split('-')[1]}`, 'success');
         e.target.reset();
     });
 
@@ -168,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartUI();
 
     window.generatePDFQuote = () => {
-        if (!cart.length) return alert('قائمة التوريد فارغة!');
+        if (!cart.length) return window.showToast('قائمة التوريد فارغة!', 'error');
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         doc.setFontSize(22); doc.text("ZOLNGEN - Official Quote", 20, 20);
