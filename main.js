@@ -50,6 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
     setupPremiumUX();
     
+    let currentCategoryFilter = '';
+
+    window.searchProducts = (val) => renderProducts(val);
+
+    document.querySelectorAll('.pill').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            e.target.classList.add('active');
+            currentCategoryFilter = e.target.dataset.cat;
+            renderProducts(document.getElementById('prod-search')?.value || '');
+        });
+    });
+
     // --- RENDER LOGIC ---
     const renderProducts = (filter = '') => {
         const prodContainer = document.getElementById('product-container');
@@ -60,7 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let products = DB.getProducts().filter(p => 
             (p.name.toLowerCase().includes(filter.toLowerCase()) || 
-             (p.category || '').toLowerCase().includes(filter.toLowerCase()))
+             (p.category || '').toLowerCase().includes(filter.toLowerCase())) &&
+            (currentCategoryFilter === '' || (p.category || '') === currentCategoryFilter)
         );
 
         // Limit to 4 items on the home page preview

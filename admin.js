@@ -24,6 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     setupPremiumUX();
 
+    // 0. Real-Time Admin Clock
+    setInterval(() => {
+        const clock = document.getElementById('real-time-clock');
+        if (clock) clock.innerText = new Date().toLocaleTimeString('en-US', { hour12: false });
+    }, 1000);
+
     // 1. Auth & Session (Improved)
     if (sessionStorage.getItem('admin_pro_auth') === 'true') {
         document.getElementById('login-screen').style.display = 'none';
