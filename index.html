@@ -3,190 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | المنصة المتكاملة لتوريد الأجهزة</title>
+    <title>ZOLNGEN | المؤسسة الرائدة لتجهيز التقنية</title>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Header with Smart Search -->
+    <!-- Professional Preloader -->
+    <div id="preloader">
+        <div class="loader-logo gold-gradient-text">ZOLNGEN</div>
+    </div>
+
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="container nav-content">
-            <a href="#" class="logo gold-gradient-text">ZOLNGEN</a>
-            
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" id="store-search" placeholder="ابحث عن لابتوب، طابعة، شاشة..." onkeyup="searchProducts(this.value)">
-            </div>
-
+            <a href="index.html" class="logo gold-gradient-text">ZOLNGEN</a>
             <div class="nav-links">
-                <a href="#featured">المنتجات</a>
-                <a href="#maintenance">الصيانة</a>
-                <a href="#tracking">تتبع الطلب</a>
-                <button class="btn-primary" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i> السلة (<span id="cart-count">0</span>)</button>
+                <a href="#featured">المستودع</a>
+                <a href="#services">الخدمات</a>
+                <a href="#tracking">التتبع</a>
+                <button class="btn-primary" onclick="toggleCart()">
+                    <i class="fas fa-shopping-basket"></i> السلة (<span id="cart-count">0</span>)
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- Cinematic Hero -->
     <header class="hero">
         <div class="container hero-grid">
             <div class="hero-content">
-                <h1 class="gold-gradient-text">توريد تقني.. بمعايير مؤسسية</h1>
-                <p>المنصة المعتمدة للجامعات الأردنية والمؤسسات الكبرى لتجهيز البنية التحتية التقنية بأفضل الأجهزة والضمانات.</p>
+                <h1 class="gold-gradient-text">بنية تحتية..<br>بصيغة المستقبل</h1>
+                <p>تجهيز متكامل للجامعات والمؤسسات الحكومية الأردنية بأحدث أجهزة الحاسوب والأنظمة التقنية بمعايير الجودة العالمية.</p>
                 <div class="hero-btns">
-                    <a href="#featured" class="btn-primary">استعرض المنتجات</a>
-                    <a href="#maintenance" class="btn-outline">طلب صيانة</a>
+                    <a href="#featured" class="btn-primary">استعراض الكتالوج المؤسسي</a>
+                    <a href="#services" class="btn-outline">الخدمات التقنية</a>
                 </div>
             </div>
             <div class="hero-image">
-                <img src="zolngen_hero_laptop.png" alt="Luxury Laptop" class="floating">
-                <div class="glow-effect"></div>
+                <img src="zolngen_hero_laptop.png" alt="Zolngen Premium Hardware" class="floating">
             </div>
         </div>
     </header>
 
-    <!-- Stats Section (Live Counters) -->
-    <section class="stats-section">
-        <div class="container stats-grid">
-            <div class="stat-item">
-                <h2 class="counter" data-target="25">0</h2>
-                <p>جامعة ومؤسسة معتمدة</p>
-            </div>
-            <div class="stat-item">
-                <h2 class="counter" data-target="1500">0</h2>
-                <p>جهاز تم توريده</p>
-            </div>
-            <div class="stat-item">
-                <h2 class="counter" data-target="98">0</h2>
-                <p>نسبة رضا العملاء %</p>
-            </div>
-            <div class="stat-item">
-                <h2 class="counter" data-target="10">0</h2>
-                <p>سنوات من التميز</p>
-            </div>
+    <!-- Stats Bar -->
+    <section class="section" style="padding: 60px 0; background: #080808; border-y: 1px solid #111;">
+        <div class="container" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; text-align: center;">
+            <div><h2 class="counter gold-gradient-text" data-target="25" style="font-size: 3rem;">0</h2><p style="color: #666;">جهة معتمدة</p></div>
+            <div><h2 class="counter gold-gradient-text" data-target="1500" style="font-size: 3rem;">0</h2><p style="color: #666;">جهاز مورد</p></div>
+            <div><h2 class="counter gold-gradient-text" data-target="98" style="font-size: 3rem;">0</h2><p style="color: #666;">رضا العملاء %</p></div>
+            <div><h2 class="counter gold-gradient-text" data-target="10" style="font-size: 3rem;">0</h2><p style="color: #666;">سنوات الخبرة</p></div>
         </div>
     </section>
 
-    <!-- Categories & Products -->
+    <!-- Main Inventory -->
     <section id="featured" class="container section">
-        <h2 class="section-title gold-gradient-text">المستودع التقني</h2>
-        <div class="filter-tabs">
-            <button class="filter-btn active" onclick="filterBy('all')">الكل</button>
-            <button class="filter-btn" onclick="filterBy('laptops')">أجهزة لابتوب</button>
-            <button class="filter-btn" onclick="filterBy('desktops')">أجهزة ديسكتوب</button>
-            <button class="filter-btn" onclick="filterBy('accessories')">ملحقات</button>
+        <div style="text-align: center; margin-bottom: 6rem;">
+            <h2 class="gold-gradient-text" style="font-size: 3.5rem; margin-bottom: 1rem;">المستودع التقني</h2>
+            <p style="color: #555;">أجهزة حاسوب، طابعات، وشاشات مختارة بعناية للمؤسسات التعليمية.</p>
+            <div style="margin-top: 3rem; display: flex; justify-content: center;">
+                <div class="search-container" style="background: rgba(255,255,255,0.03); padding: 0.8rem 2rem; border-radius: 50px; border: 1px solid #222; display: flex; align-items: center; gap: 15px;">
+                    <i class="fas fa-search" style="color: var(--primary-gold);"></i>
+                    <input type="text" id="store-search" placeholder="ابحث في المواصفات والأجهزة..." onkeyup="searchProducts(this.value)" style="background: transparent; border: none; color: #fff; outline: none; width: 300px;">
+                </div>
+            </div>
         </div>
         <div class="products-grid" id="product-container">
-            <!-- Injected via JS -->
+            <!-- Products injected by JS -->
         </div>
     </section>
 
-    <!-- Maintenance Portal -->
-    <section id="maintenance" class="maintenance-bg">
-        <div class="container">
-            <div class="glass-card maintenance-card">
-                <h2 class="gold-gradient-text">بوابة الصيانة والضمان</h2>
-                <p>هل تواجه مشكلة في جهاز تم توريده مسبقاً؟ قدم طلباً للفحص الفني وسيتصل بك فريقنا خلال 24 ساعة.</p>
-                <button class="btn-primary" onclick="openMaintenanceModal()">تقديم طلب صيانة <i class="fas fa-tools"></i></button>
-            </div>
+    <!-- Services & Tracking -->
+    <div id="services" class="container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; padding: 120px 5%;">
+        <div class="product-card" style="background: #080808;">
+            <h3 class="gold-gradient-text" style="margin-bottom: 2rem; font-size: 2rem;">الصيانة والضمان</h3>
+            <p style="color: #666; margin-bottom: 3rem;">نظام صيانة متقدم للأجهزة الموردة، مع دعم فني ميداني مباشر لكافة الجامعات والمؤسسات المتعاقدة.</p>
+            <button class="btn-primary" onclick="openOrderModal()">طلب فحص تقني</button>
         </div>
-    </section>
 
-    <!-- Tracking Section -->
-    <section id="tracking" class="container section">
-        <div class="tracking-box glass-card">
-            <h3>تتبع حالة طلب التوريد</h3>
-            <div class="tracking-input">
-                <input type="text" id="track-id" placeholder="أدخل رقم المرجع (مثلاً: ORD-1234)">
-                <button class="btn-primary" onclick="trackOrder()">تتبع الآن</button>
+        <div id="tracking" class="product-card" style="background: #080808;">
+            <h3 class="gold-gradient-text" style="margin-bottom: 2rem; font-size: 2rem;">تتبع طلبات التوريد</h3>
+            <div style="display: flex; gap: 15px; margin-bottom: 2rem;">
+                <input type="text" id="track-id" class="contact-form" style="margin-bottom: 0;" placeholder="رقم المرجع (ORD-XXXX)">
+                <button class="btn-primary" onclick="trackOrder()">تتبع</button>
             </div>
             <div id="track-result"></div>
         </div>
-    </section>
+    </div>
 
-    <!-- Footer with Newsletter -->
+    <!-- Footer -->
     <footer class="footer">
         <div class="container footer-grid">
             <div class="footer-col">
-                <h3 class="gold-gradient-text">ZOLNGEN</h3>
-                <p>التميز في توريد وصيانة الأجهزة الإلكترونية للمؤسسات التعليمية والخاصة.</p>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                <h3 class="gold-gradient-text" style="font-size: 2.2rem; margin-bottom: 2rem;">ZOLNGEN</h3>
+                <p style="color: #555;">المرجع الأول في الأردن لتجهيز البنية التحتية التقنية للمؤسسات الكبرى.</p>
+                <div style="margin-top: 2rem; display: flex; gap: 1.5rem; color: #444;">
+                    <i class="fab fa-linkedin fa-lg"></i><i class="fab fa-whatsapp fa-lg"></i><i class="fab fa-instagram fa-lg"></i>
                 </div>
             </div>
             <div class="footer-col">
-                <h4>روابط سريعة</h4>
+                <h4>الوصول السريع</h4>
                 <ul>
-                    <li><a href="#featured">المنتجات</a></li>
-                    <li><a href="#maintenance">الصيانة</a></li>
-                    <li><a href="#tracking">تتبع الطلبات</a></li>
-                    <li><a href="admin.html">لوحة الإدارة</a></li>
+                    <li><a href="#featured">كتالوج الأجهزة</a></li>
+                    <li><a href="#services">خدمات الصيانة</a></li>
+                    <li><a href="admin.html">بوابة الموظفين</a></li>
                 </ul>
             </div>
             <div class="footer-col">
-                <h4>الدعم الفني</h4>
-                <p>عمان، الأردن<br>المكتب الرئيسي - شارع الجامعة<br>هاتف: 07XXXXXXXX</p>
+                <h4>الدعم والمكتب</h4>
+                <p style="color: #555;">عمان - شارع الجامعة الأردنية<br>مبنى زولنجن التقني<br>هاتف: 07XXXXXXXX</p>
             </div>
             <div class="footer-col">
-                <h4>النشرة الإخبارية</h4>
-                <p>اشترك للحصول على أحدث العروض والمنتجات.</p>
-                <form class="newsletter-form" onsubmit="event.preventDefault(); alert('تم الاشتراك بنجاح!')">
-                    <input type="email" placeholder="بريدك الإلكتروني" required>
-                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                <h4>نشرة العطاءات</h4>
+                <form class="contact-form" onsubmit="event.preventDefault(); alert('تم تفعيل التنبيهات!');">
+                    <input type="email" placeholder="بريدك الرسمي" style="margin-bottom: 1rem;">
+                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">اشترك الآن</button>
                 </form>
             </div>
         </div>
+        <div class="container" style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #111; text-align: center; color: #333; font-size: 0.8rem;">
+            &copy; 2026 ZOLNGEN ENTERPRISE. جميع الحقوق محفوظة.
+        </div>
     </footer>
 
-    <!-- Cart Sidebar -->
+    <!-- Side Cart -->
     <div id="cart-sidebar" class="cart-sidebar">
-        <div class="cart-header">
-            <h3>سلة طلب التوريد</h3>
-            <button onclick="toggleCart()">&times;</button>
-        </div>
-        <div id="cart-items" class="cart-items"></div>
-        <div class="cart-footer">
-            <div class="cart-total">إجمالي القيمة: <span id="cart-total-val">0</span> د.أ</div>
-            <div style="display: grid; gap: 10px;">
-                <button class="btn-primary" onclick="generatePDFQuote()"><i class="fas fa-file-pdf"></i> استخراج عرض سعر رسمي</button>
-                <button class="btn-outline" onclick="scrollToForm()">إتمام طلب التوريد</button>
-            </div>
+        <div class="cart-header"><h3 class="gold-gradient-text">سلة التوريد</h3><button onclick="toggleCart()" style="background:none; border:none; color:#fff; font-size:2.5rem; cursor:pointer;">&times;</button></div>
+        <div id="cart-items" style="flex: 1; overflow-y: auto; padding-right: 10px;"></div>
+        <div style="padding-top: 2.5rem; border-top: 1px solid #222;">
+            <p style="margin-bottom: 2rem; font-size: 1.2rem;">إجمالي القيمة: <span id="cart-total-val" class="gold-gradient-text" style="font-weight: 800;">0</span> د.أ</p>
+            <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="generatePDFQuote()">إصدار عرض سعر رسمي (PDF)</button>
         </div>
     </div>
 
-    <!-- Order Form Modal -->
-    <div id="order-modal" class="modal">
-        <div class="modal-content glass-card">
-            <h2 class="gold-gradient-text">نموذج طلب التوريد الرسمي</h2>
+    <!-- Modals -->
+    <div id="order-modal" class="pro-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index:9000; align-items:center; justify-content:center;">
+        <div class="product-card" style="width: 90%; max-width: 650px; padding: 4rem;">
+            <h2 class="gold-gradient-text" style="margin-bottom: 3rem; text-align: center;">نموذج اعتماد طلب توريد</h2>
             <form id="order-form" class="contact-form">
-                <div class="form-row">
-                    <input type="text" id="full-name" placeholder="اسم مقدم الطلب" required>
-                    <input type="tel" id="phone" placeholder="رقم التواصل" required>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <input type="text" id="full-name" placeholder="اسم المسؤول" required>
+                    <input type="tel" id="phone" placeholder="رقم الهاتف" required>
                 </div>
-                <div class="form-row">
-                    <select id="university" required>
-                        <option value="">اختر الجامعة/المؤسسة</option>
-                        <option value="JU">الجامعة الأردنية</option>
-                        <option value="Yarmouk">جامعة اليرموك</option>
-                        <option value="JUST">جامعة العلوم والتكنولوجيا</option>
-                        <option value="Mutah">جامعة مؤتة</option>
-                        <option value="Private">مؤسسة خاصة</option>
-                    </select>
-                    <input type="email" id="email" placeholder="البريد الرسمي" required>
-                </div>
-                <textarea id="notes" placeholder="ملاحظات إضافية أو مواصفات خاصة"></textarea>
-                <button type="submit" class="btn-primary">إرسال الطلب واعتماده</button>
-                <button type="button" class="btn-outline" onclick="closeOrderModal()">إلغاء</button>
+                <select id="university" required>
+                    <option value="">اختر الجامعة / المؤسسة</option>
+                    <option value="JU">الجامعة الأردنية</option>
+                    <option value="Yarmouk">جامعة اليرموك</option>
+                    <option value="JUST">جامعة العلوم والتكنولوجيا</option>
+                    <option value="Other">جهة أخرى</option>
+                </select>
+                <input type="email" id="email" placeholder="البريد الإلكتروني الرسمي" required>
+                <textarea id="notes" placeholder="ملاحظات فنية إضافية" rows="4"></textarea>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">تأكيد وإرسال الطلب</button>
+                <button type="button" class="btn-outline" style="width: 100%; margin-top: 15px;" onclick="closeOrderModal()">إغلاق النافذة</button>
             </form>
         </div>
     </div>
 
     <script src="database.js"></script>
     <script src="main.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const preloader = document.getElementById('preloader');
+                preloader.style.opacity = '0';
+                setTimeout(() => preloader.style.display = 'none', 1000);
+            }, 1500);
+        });
+        function openOrderModal() { document.getElementById('order-modal').style.display = 'flex'; }
+        function closeOrderModal() { document.getElementById('order-modal').style.display = 'none'; }
+    </script>
 </body>
 </html>
