@@ -3,173 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | لوحة التحكم المتكاملة</title>
+    <title>ZOLNGEN | لوحة التحكم الفاخرة</title>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-black); z-index: 5000; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: var(--surface-dark); padding: 4rem; border-radius: 15px; border: 1px solid var(--primary-gold); width: 400px; text-align: center; }
-        .admin-layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; padding-top: 80px; }
-        .sidebar { background: #0a0a0a; border-left: 1px solid var(--glass-border); padding: 2rem; position: sticky; top: 80px; height: calc(100vh - 80px); }
-        .sidebar-item { display: flex; align-items: center; gap: 1rem; padding: 1.2rem; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 0.5rem; transition: 0.3s; cursor: pointer; }
-        .sidebar-item:hover, .sidebar-item.active { background: var(--primary-gold); color: black; font-weight: 700; }
-        .main-content { padding: 3rem; background: var(--bg-black); overflow-y: auto; }
-        .stat-card { background: var(--surface-light); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center; }
-        .stat-card h3 { color: var(--primary-gold); font-size: 2rem; margin: 0.5rem 0; }
-        .log-item { padding: 0.8rem; border-bottom: 1px solid #222; font-size: 0.85rem; color: var(--text-muted); }
-        .log-item b { color: var(--primary-gold); }
-        .notification { position: fixed; top: 20px; right: 20px; background: var(--primary-gold); color: black; padding: 1rem 2rem; border-radius: 8px; font-weight: 700; z-index: 6000; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        :root { --admin-bg: #050505; --admin-surface: #0d0d0d; --admin-accent: #D4AF37; }
+        body.admin-mode { background: var(--admin-bg); color: #fff; }
+        
+        .admin-sidebar { width: 280px; background: var(--admin-surface); border-left: 1px solid rgba(212,175,55,0.15); height: 100vh; position: fixed; right: 0; top: 0; padding: 2rem; display: flex; flex-direction: column; transition: 0.3s; z-index: 1000; }
+        .admin-main { margin-right: 280px; padding: 2rem 4rem; min-height: 100vh; transition: 0.3s; }
+        
+        .nav-brand { font-size: 2rem; font-weight: 800; margin-bottom: 3rem; text-align: center; letter-spacing: 2px; }
+        .sidebar-nav { flex: 1; }
+        .nav-item { display: flex; align-items: center; gap: 1.2rem; padding: 1rem 1.5rem; color: var(--text-muted); text-decoration: none; border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .nav-item i { width: 20px; text-align: center; font-size: 1.1rem; }
+        .nav-item:hover { color: var(--admin-accent); background: rgba(212,175,55,0.05); }
+        .nav-item.active { background: var(--admin-accent); color: #000; font-weight: 700; box-shadow: 0 10px 20px rgba(212,175,55,0.2); }
+        .nav-item.active::after { content: ''; position: absolute; left: -10px; top: 50%; transform: translateY(-50%); border-left: 10px solid var(--admin-accent); border-top: 10px solid transparent; border-bottom: 10px solid transparent; }
+
+        .header-pro { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; background: var(--admin-surface); padding: 1rem 2rem; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .header-actions { display: flex; align-items: center; gap: 2rem; }
+        
+        .stat-grid-pro { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem; }
+        .stat-card-pro { background: var(--admin-surface); border: 1px solid rgba(255,255,255,0.05); padding: 2rem; border-radius: 20px; position: relative; overflow: hidden; transition: 0.3s; }
+        .stat-card-pro:hover { transform: translateY(-5px); border-color: var(--admin-accent); }
+        .stat-card-pro::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%); pointer-events: none; }
+        .stat-card-pro h3 { font-size: 2.2rem; margin: 0.5rem 0; color: var(--admin-accent); }
+        
+        .btn-quick { background: rgba(255,255,255,0.03); border: 1px dashed #333; padding: 1rem; border-radius: 12px; cursor: pointer; transition: 0.3s; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .btn-quick:hover { background: rgba(212,175,55,0.1); border-color: var(--admin-accent); }
+        .btn-quick i { font-size: 1.5rem; color: var(--admin-accent); }
+
+        .table-pro { width: 100%; border-collapse: separate; border-spacing: 0 12px; }
+        .table-pro tr { background: #0a0a0a; border-radius: 15px; transition: 0.3s; }
+        .table-pro tr:hover { transform: scale(1.005); background: #111; }
+        .table-pro td { padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .table-pro td:first-child { border-right: 1px solid rgba(255,255,255,0.05); border-radius: 0 15px 15px 0; }
+        .table-pro td:last-child { border-left: 1px solid rgba(255,255,255,0.05); border-radius: 15px 0 0 15px; }
+
+        .notification-bell { position: relative; cursor: pointer; font-size: 1.3rem; }
+        .notification-dot { position: absolute; top: -5px; right: -5px; width: 8px; height: 8px; background: #ff4757; border-radius: 50%; }
+        .notification-dropdown { position: absolute; top: 50px; left: 0; width: 320px; background: var(--admin-surface); border: 1px solid var(--admin-accent); border-radius: 12px; padding: 1rem; display: none; z-index: 2000; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+
+        /* Smooth tab transition */
+        .tab-content-pro { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .empty-state { text-align: center; padding: 5rem; color: var(--text-muted); }
+        .empty-state i { font-size: 4rem; margin-bottom: 1rem; opacity: 0.3; }
     </style>
 </head>
-<body class="admin-body">
+<body class="admin-mode">
 
-    <div id="notification" class="notification"></div>
-
-    <!-- Login Screen -->
+    <!-- Login Overlay -->
     <div id="login-overlay">
         <div class="login-box">
-            <h2 class="gold-gradient-text" style="font-size: 2.5rem; margin-bottom: 2rem;">ZOLNGEN LOGIN</h2>
+            <h2 class="gold-gradient-text" style="font-size: 3rem; margin-bottom: 1rem;">ZOLNGEN</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2.5rem;">لوحة التحكم المركزية للمؤسسات</p>
             <form id="login-form" class="contact-form">
                 <input type="text" id="username" placeholder="اسم المستخدم" required>
                 <input type="password" id="password" placeholder="كلمة المرور" required>
-                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">دخول الآدمن</button>
-                <p id="login-error" style="color: #ff4757; margin-top: 1rem; display: none;">خطأ في البيانات!</p>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; height: 60px; font-size: 1.1rem;">دخول النظام</button>
+                <p id="login-error" style="color: #ff4757; margin-top: 1.5rem; display: none; font-weight: 700;">بيانات الدخول غير صحيحة!</p>
             </form>
         </div>
     </div>
 
-    <nav id="admin-nav" style="display:none;">
-        <div class="container">
-            <a href="index.html" class="logo"><span class="gold-gradient-text">ZOLNGEN ADMIN CENTER</span></a>
-            <div style="display: flex; align-items: center; gap: 2rem;">
-                <div style="font-size: 0.8rem; color: var(--primary-gold);">المشغل: <span id="current-user">admin</span></div>
-                <button class="btn-outline btn-sm" onclick="logout()">تسجيل خروج</button>
+    <div id="admin-container" style="display:none;">
+        <aside class="admin-sidebar">
+            <div class="nav-brand gold-gradient-text">COMMAND CENTER</div>
+            <nav class="sidebar-nav">
+                <div class="nav-item active" onclick="showTab('dashboard')"><i class="fas fa-chart-line"></i> الإحصائيات العامة</div>
+                <div class="nav-item" onclick="showTab('orders')"><i class="fas fa-clipboard-list"></i> الطلبات الواردة</div>
+                <div class="nav-item" onclick="showTab('products')"><i class="fas fa-warehouse"></i> إدارة المستودع</div>
+                <div class="nav-item" onclick="showTab('accounts')"><i class="fas fa-user-shield"></i> الأمان والحسابات</div>
+                <div class="nav-item" onclick="showTab('audit')"><i class="fas fa-fingerprint"></i> سجل العمليات</div>
+            </nav>
+            <div class="nav-item" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.05); color: #ff4757;" onclick="logout()">
+                <i class="fas fa-power-off"></i> تسجيل الخروج
             </div>
-        </div>
-    </nav>
-
-    <div class="admin-layout" id="admin-content" style="display:none;">
-        <aside class="sidebar">
-            <div class="sidebar-item active" onclick="showTab('dashboard')"><i class="fas fa-chart-pie"></i> الإحصائيات</div>
-            <div class="sidebar-item" onclick="showTab('orders')"><i class="fas fa-file-invoice-dollar"></i> الطلبات</div>
-            <div class="sidebar-item" onclick="showTab('products')"><i class="fas fa-boxes"></i> المنتجات</div>
-            <div class="sidebar-item" onclick="showTab('tickets')"><i class="fas fa-wrench"></i> الصيانة</div>
-            <div class="sidebar-item" onclick="showTab('audit')"><i class="fas fa-history"></i> سجل النشاط</div>
-            <div class="sidebar-item" onclick="showTab('settings')"><i class="fas fa-cogs"></i> الإعدادات</div>
         </aside>
 
-        <main class="main-content">
-            <!-- Dashboard Tab -->
-            <div id="dashboard-tab" class="tab-content">
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem;">
-                    <div class="stat-card">
-                        <p>الطلبات</p><h3 id="stat-orders">0</h3>
-                    </div>
-                    <div class="stat-card">
-                        <p>المبيعات</p><h3 id="stat-sales">0</h3>
-                    </div>
-                    <div class="stat-card">
-                        <p>التذاكر المفتوحة</p><h3 id="stat-tickets">0</h3>
-                    </div>
-                    <div class="stat-card">
-                        <p>المخزون الحرج</p><h3 id="stat-stock-alert" style="color: #ff4757;">0</h3>
+        <main class="admin-main">
+            <header class="header-pro">
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div class="search-wrapper" style="width: 350px;">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="search-input" id="pro-search" placeholder="بحث ذكي (ضغط '/' للتركيز)" onkeyup="handleProSearch(this.value)">
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem;">
-                    <div class="dashboard-card" style="padding: 2rem;">
-                        <h3 class="gold-gradient-text" style="margin-bottom: 2rem;">نمو الطلبات الأسبوعي</h3>
-                        <canvas id="mainChart" height="150"></canvas>
+                <div class="header-actions">
+                    <div class="notification-bell" onclick="toggleNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <div class="notification-dot"></div>
+                        <div class="notification-dropdown" id="notif-drop">
+                            <h4 style="margin-bottom: 1rem; border-bottom: 1px solid #222; padding-bottom: 0.5rem;">آخر الإشعارات</h4>
+                            <div id="notif-items"></div>
+                        </div>
                     </div>
-                    <div class="dashboard-card" style="padding: 2rem;">
-                        <h3 class="gold-gradient-text" style="margin-bottom: 1rem;">آخر النشاطات</h3>
-                        <div id="mini-audit-log" style="max-height: 300px; overflow-y: auto;"></div>
+                    <div style="display: flex; align-items: center; gap: 1rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-radius: 30px; border: 1px solid #222;">
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=000" style="width: 30px; border-radius: 50%;">
+                        <span style="font-weight: 600; font-size: 0.9rem;">أدمن زولنجن</span>
+                    </div>
+                </div>
+            </header>
+
+            <div id="dashboard-tab" class="tab-content-pro">
+                <div class="stat-grid-pro">
+                    <div class="stat-card-pro">
+                        <small>قيمة المبيعات</small>
+                        <h3 id="stat-sales-pro">0</h3>
+                        <p style="color: #2ecc71; font-size: 0.8rem;"><i class="fas fa-arrow-up"></i> +12% هذا الشهر</p>
+                    </div>
+                    <div class="stat-card-pro">
+                        <small>طلبات التوريد</small>
+                        <h3 id="stat-orders-pro">0</h3>
+                        <p style="color: var(--admin-accent); font-size: 0.8rem;">قيد المعالجة</p>
+                    </div>
+                    <div class="stat-card-pro">
+                        <small>الجهات النشطة</small>
+                        <h3 id="stat-entities-pro">0</h3>
+                        <p style="color: var(--text-muted); font-size: 0.8rem;">جامعات ومؤسسات</p>
+                    </div>
+                    <div class="stat-card-pro">
+                        <small>تنبيهات المخزون</small>
+                        <h3 id="stat-alerts-pro">0</h3>
+                        <p style="color: #ff4757; font-size: 0.8rem;">منتجات منخفضة</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                    <div class="pro-card">
+                        <h4 class="gold-gradient-text" style="margin-bottom: 2rem;">مخطط المبيعات المؤسسية</h4>
+                        <canvas id="proChart" height="120"></canvas>
+                    </div>
+                    <div class="pro-card">
+                        <h4 style="margin-bottom: 1.5rem;">إجراءات سريعة</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="btn-quick" onclick="openProductModal()"><i class="fas fa-plus"></i><small>إضافة منتج</small></div>
+                            <div class="btn-quick" onclick="showTab('orders')"><i class="fas fa-file-export"></i><small>تقارير</small></div>
+                            <div class="btn-quick" onclick="location.reload()"><i class="fas fa-sync"></i><small>تحديث</small></div>
+                            <div class="btn-quick" onclick="alert('جارٍ أخذ نسخة احتياطية...')"><i class="fas fa-database"></i><small>نسخة احتياطية</small></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Orders Tab -->
-            <div id="orders-tab" class="tab-content" style="display:none;">
-                <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-                    <input type="text" class="search-bar" placeholder="بحث باسم الجهة أو رقم الطلب..." onkeyup="searchOrders(this.value)" style="margin-bottom: 0;">
-                    <button class="btn-outline" onclick="exportOrders()"><i class="fas fa-file-excel"></i> تصدير Excel</button>
-                </div>
-                <div class="dashboard-card">
-                    <table id="orders-table">
+            <!-- Tabs: Orders, Products, etc. (Enhanced UI) -->
+            <div id="orders-tab" class="tab-content-pro" style="display:none;">
+                <div class="pro-card">
+                    <table class="table-pro" id="orders-table-pro">
                         <thead>
-                            <tr><th>رقم الطلب</th><th>الجهة</th><th>التاريخ</th><th>الإجمالي</th><th>الحالة</th><th>إجراءات</th></tr>
+                            <tr><th>المعرف</th><th>الجهة</th><th>التاريخ</th><th>القيمة</th><th>الحالة</th><th>إجراءات</th></tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody id="orders-tbody-pro"></tbody>
                     </table>
+                    <div id="orders-empty" class="empty-state" style="display:none;">
+                        <i class="fas fa-folder-open"></i><p>لا يوجد طلبات واردة حالياً</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Products Tab -->
-            <div id="products-tab" class="tab-content" style="display:none;">
+            <div id="products-tab" class="tab-content-pro" style="display:none;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
-                    <button class="btn-primary" onclick="openProductModal()"><i class="fas fa-plus"></i> إضافة منتج</button>
-                    <div style="display: flex; gap: 1rem;">
-                        <button class="btn-outline btn-sm" onclick="bulkPriceUpdate()">تعديل الأسعار جماعياً</button>
-                        <button class="btn-outline btn-sm" onclick="exportInventory()">تصدير المخزون</button>
-                    </div>
+                    <button class="btn-primary" onclick="openProductModal()"><i class="fas fa-plus-circle"></i> إضافة لمنتج جديد</button>
+                    <h3 class="gold-gradient-text">إدارة المستودع الذكي</h3>
                 </div>
-                <div class="dashboard-card">
-                    <table id="products-table">
+                <div class="pro-card">
+                    <table class="table-pro" id="products-table-pro">
                         <thead>
                             <tr><th>المنتج</th><th>المورد</th><th>السعر</th><th>المخزون</th><th>إجراءات</th></tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody id="products-tbody-pro"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Tickets Tab (Maintenance) -->
-            <div id="tickets-tab" class="tab-content" style="display:none;">
-                <h2 class="gold-gradient-text" style="margin-bottom: 2rem;">طلبات الصيانة والدعم الفني</h2>
-                <div class="dashboard-card">
-                    <table id="tickets-table">
-                        <thead>
-                            <tr><th>رقم التذكرة</th><th>الجهة</th><th>المشكلة</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+            <div id="audit-tab" class="tab-content-pro" style="display:none;">
+                <div class="pro-card">
+                    <h3 class="gold-gradient-text" style="margin-bottom: 2rem;">سجل العمليات والأمان</h3>
+                    <div id="audit-full-log"></div>
                 </div>
             </div>
 
-            <!-- Audit Tab -->
-            <div id="audit-tab" class="tab-content" style="display:none;">
-                <h2 class="gold-gradient-text" style="margin-bottom: 2rem;">سجل الأمان والعمليات (Audit Log)</h2>
-                <div class="dashboard-card" id="full-audit-log" style="max-height: 600px; overflow-y: auto;"></div>
-            </div>
-
-            <!-- Settings Tab -->
-            <div id="settings-tab" class="tab-content" style="display:none;">
-                <h2 class="gold-gradient-text" style="margin-bottom: 2rem;">إعدادات النظام والبريد</h2>
-                <div class="dashboard-card">
-                    <h4 style="margin-bottom: 1rem;">قالب البريد الآلي (Notification Template)</h4>
-                    <textarea class="contact-form" rows="5" style="width: 100%;">شكراً لكم [Entity]. لقد تم استلام طلبكم رقم [OrderID] بنجاح. سيتم التواصل معكم خلال 24 ساعة.</textarea>
-                    <button class="btn-primary">حفظ القالب</button>
-                    <hr style="margin: 2rem 0; border-color: #333;">
-                    <button class="btn-outline" onclick="backupDB()"><i class="fas fa-database"></i> تحميل نسخة احتياطية للقاعدة (JSON)</button>
+            <div id="accounts-tab" class="tab-content-pro" style="display:none;">
+                <div class="pro-card" style="text-align: center; padding: 4rem;">
+                    <i class="fas fa-user-lock" style="font-size: 4rem; color: var(--admin-accent); margin-bottom: 2rem;"></i>
+                    <h3 class="gold-gradient-text">إدارة الحسابات المشفرة</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">يتم حالياً تأمين حسابات الموظفين عبر نظام تشفير AES-256</p>
+                    <button class="btn-outline" style="margin: 0 auto;">إضافة حساب جديد</button>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Product Modal (unchanged structure) -->
-    <div id="product-modal" class="modal">
-        <div class="modal-content">
-            <h3 class="gold-gradient-text">إدارة المنتج</h3><br>
-            <form id="product-form" class="contact-form">
-                <input type="hidden" id="prod-id">
-                <input type="text" id="prod-name" placeholder="الاسم" required>
-                <input type="text" id="prod-supplier" placeholder="المورد (مثلاً HP Jordan)" required>
-                <input type="number" id="prod-price" placeholder="السعر" required>
-                <input type="number" id="prod-stock" placeholder="المخزون" required>
+    <!-- Modals (Enhanced) -->
+    <div id="order-detail-modal" class="pro-modal">
+        <div class="modal-inner" style="max-width: 800px;">
+            <div class="modal-header-pro">
+                <h3 class="gold-gradient-text" id="order-modal-title">تفاصيل التوريد</h3>
+                <span onclick="closeOrderModal()" style="cursor:pointer; color: #666;"><i class="fas fa-times"></i></span>
+            </div>
+            <div class="modal-body-pro" id="order-modal-body"></div>
+            <div style="padding: 2rem; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; gap: 1rem;">
-                    <button type="submit" class="btn-primary" style="flex: 1;">حفظ</button>
-                    <button type="button" class="btn-outline" onclick="closeModal()" style="flex: 1;">إلغاء</button>
+                    <button class="btn-outline" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+                    <button class="btn-outline" onclick="alert('جارٍ التصدير لملف Excel...')"><i class="fas fa-file-excel"></i> تصدير</button>
                 </div>
+                <button class="btn-primary" onclick="closeOrderModal()">إغلاق النافذة</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="product-modal-pro" class="pro-modal">
+        <div class="modal-inner">
+            <div class="modal-header-pro">
+                <h3 class="gold-gradient-text">بيانات المنتج التقني</h3>
+                <span onclick="closeProductModal()" style="cursor:pointer;"><i class="fas fa-times"></i></span>
+            </div>
+            <form id="product-form-pro" class="modal-body-pro contact-form">
+                <input type="hidden" id="p-id">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label>اسم الجهاز</label>
+                        <input type="text" id="p-name" placeholder="مثلاً: HP EliteBook" required>
+                    </div>
+                    <div class="form-group">
+                        <label>المورد المعتمد</label>
+                        <input type="text" id="p-supplier" placeholder="مثلاً: HP Jordan">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label>السعر (د.أ)</label>
+                        <input type="number" id="p-price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>الكمية المتوفرة</label>
+                        <input type="number" id="p-stock" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>المواصفات الفنية</label>
+                    <textarea id="p-desc" rows="4" placeholder="أدخل التفاصيل الدقيقة للجهاز..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; height: 55px;">حفظ وتحديث المستودع</button>
             </form>
         </div>
     </div>
