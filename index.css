@@ -28,7 +28,7 @@ body { background-color: var(--black); color: var(--white); direction: rtl; over
 .top-bar { background: #030303; border-bottom: 1px solid rgba(255,255,255,0.03); padding: 0.6rem 0; font-size: 0.85rem; }
 .top-bar-content { display: flex; justify-content: space-between; align-items: center; color: #666; }
 
-.navbar { padding: 1.5rem 0; position: sticky; top: 0; z-index: 5000; background: var(--glass); backdrop-filter: blur(25px); border-bottom: 1px solid rgba(212,175,55,0.05); }
+.navbar { padding: 1.5rem 0; position: sticky; top: 0; z-index: 5000; background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(212,175,55,0.05); }
 .nav-content { display: flex; justify-content: space-between; align-items: center; }
 .nav-links { display: flex; gap: 3rem; }
 .nav-links a { color: #fff; text-decoration: none; font-weight: 500; font-size: 1.05rem; position: relative; padding: 5px 0; transition: 0.3s; }
@@ -44,7 +44,7 @@ body { background-color: var(--black); color: var(--white); direction: rtl; over
 .hero-content p { font-size: 1.8rem; color: #999; margin-bottom: 4rem; font-weight: 300; }
 
 .particles-js { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-.particle { position: absolute; background: var(--gold); border-radius: 50%; opacity: 0; animation: floatUp 8s infinite linear; }
+.particle { position: absolute; background: var(--gold); border-radius: 50%; opacity: 0; animation: floatUp 8s infinite linear; will-change: transform, opacity; }
 @keyframes floatUp { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 20% { opacity: 0.3; transform: translateY(80vh) scale(1); } 80% { opacity: 0.3; } 100% { transform: translateY(-10vh) scale(0); opacity: 0; } }
 
 .btn { display: inline-flex; align-items: center; gap: 12px; padding: 1.2rem 3rem; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.4s; border: none; text-decoration: none; }

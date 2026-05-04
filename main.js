@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Particles Spawn
         const pCont = document.getElementById('hero-particles');
         if (pCont && pCont.children.length === 0) {
-            for(let i=0; i<25; i++) {
+            for(let i=0; i<12; i++) {
                 let p = document.createElement('div');
                 p.className = 'particle';
                 p.style.left = Math.random() * 100 + '%';
