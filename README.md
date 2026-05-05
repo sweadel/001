@@ -7,7 +7,8 @@ ZOLNGEN Enterprise Pro is a premium B2B (Business-to-Business) eCommerce platfor
 - **Premium Storefront**: Dark/Light mode toggle, animated particles, and a cinematic hero section.
 - **Advanced Product Catalog**: Quick View modal, hardware configurator (RAM/SSD upgrades), and category filtering.
 - **Smart Cart System**: Real-time volume discount engine (10% off for 5+ items) and PDF quote generation.
-- **Admin Command Center**: Real-time clock, sales analytics, inventory management, and one-click data backups.
+- **Universal Tracking Engine**: Track both `ORD` and `TCK` statuses in real-time with an animated progress bar.
+- **Admin Command Center**: Real-time clock, sales analytics, ticket resolution system, inventory management, and one-click data backups.
 - **Maintenance Portal**: Dedicated ticketing system for post-purchase institutional support.
 - **Premium UX**: Custom glassmorphism toast notifications, pop animations, and silky-smooth page transitions.
 
@@ -26,7 +27,8 @@ To unlock the platform's full potential, the following external integrations are
 - **واجهة العميل الفاخرة**: دعم الوضع الداكن/الساطع، تأثيرات الجزيئات المتطايرة، وانتقالات سينمائية للصفحات.
 - **الكتالوج المتطور**: شاشة معاينة سريعة، ميزة تخصيص الأجهزة (ترقية الرام)، وفلترة ذكية.
 - **سلة الطلبات الذكية**: محرك خصم كميات تلقائي (خصم 10% لـ 5 أجهزة فأكثر)، وتوليد كشوفات أسعار PDF.
-- **مركز القيادة الإداري**: ساعة حية، تحليل مبيعات، إدارة مخزون، ونسخ احتياطي للبيانات بضغطة زر.
+- **نظام التتبع الشامل (Universal Tracking)**: تتبع فوري للطلبات (`ORD`) وتذاكر الصيانة (`TCK`) مع شريط تقدم متحرك.
+- **مركز القيادة الإداري**: ساعة حية، تحليل مبيعات، نظام إغلاق تذاكر الصيانة، إدارة مخزون، ونسخ احتياطي للبيانات بضغطة زر.
 - **بوابة الصيانة**: نظام تذاكر مخصص للدعم الفني المؤسسي بعد الشراء.
 - **تجربة مستخدم استثنائية (Premium UX)**: إشعارات زجاجية مخصصة، وحركة تفاعلية سلسة (60FPS).
 
