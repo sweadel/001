@@ -81,6 +81,28 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             document.body.appendChild(sm);
         }
+
+        // Global Chat Widget Injection
+        if (!document.getElementById('chat-widget')) {
+            const cw = document.createElement('div');
+            cw.id = 'chat-widget';
+            cw.style.cssText = 'position:fixed; bottom:30px; left:30px; z-index:8000;';
+            cw.innerHTML = `
+                <button id="chat-toggle" class="btn btn-gold" style="border-radius:50%; width:60px; height:60px; padding:0; box-shadow:0 10px 20px rgba(0,0,0,0.5);" onclick="const win = document.getElementById('chat-window'); win.style.display = win.style.display === 'none' ? 'flex' : 'none'; if(window.renderClientChat) window.renderClientChat();"><i class="fas fa-comments" style="font-size:1.8rem;"></i></button>
+                <div id="chat-window" style="display:none; position:absolute; bottom:80px; left:0; width:350px; height:450px; background:var(--surface); border:1px solid var(--gold); border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.8); flex-direction:column; overflow:hidden;">
+                    <div style="background:var(--grad); padding:1rem; color:#000; font-weight:800; display:flex; justify-content:space-between; align-items:center;">
+                        <span>الدعم الفني المباشر</span>
+                        <button onclick="document.getElementById('chat-window').style.display='none'" style="background:none; border:none; cursor:pointer;"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div id="client-chat-box" style="flex:1; padding:1.5rem; overflow-y:auto; display:flex; flex-direction:column; gap:10px; background:#050505;"></div>
+                    <div style="padding:1rem; border-top:1px solid var(--border); display:flex; gap:10px;">
+                        <input type="text" id="client-chat-input" placeholder="اكتب رسالتك..." style="width:100%; padding:0.8rem; background:#111; border:1px solid #333; border-radius:10px; color:#fff; outline:none;" onkeypress="if(event.key==='Enter') window.sendClientChat()">
+                        <button class="btn btn-gold" style="padding:0 1.2rem;" onclick="window.sendClientChat()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(cw);
+        }
     };
     
     window.showSuccessModal = (title, orderObj) => {
@@ -382,11 +404,16 @@ document.addEventListener('DOMContentLoaded', () => {
     renderProducts();
     updateCartUI();
     
-    // Load Entities for autocomplete
+    // Load Entities for autocomplete globally
     if(DB.getEntitiesList) {
         const ents = DB.getEntitiesList();
-        const dl = document.getElementById('entities-list');
-        if(dl) dl.innerHTML = ents.map(e => `<option value="${e}">`).join('');
+        let dl = document.getElementById('entities-list');
+        if(!dl) {
+            dl = document.createElement('datalist');
+            dl.id = 'entities-list';
+            document.body.appendChild(dl);
+        }
+        dl.innerHTML = ents.map(e => `<option value="${e}">`).join('');
     }
 
     window.generatePDFQuote = () => {
@@ -413,16 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
         box.scrollTop = box.scrollHeight;
     };
-
-    document.getElementById('chat-toggle')?.addEventListener('click', () => {
-        const win = document.getElementById('chat-window');
-        if(win.style.display === 'none') {
-            win.style.display = 'flex';
-            window.renderClientChat();
-        } else {
-            win.style.display = 'none';
-        }
-    });
 
     window.sendClientChat = () => {
         const input = document.getElementById('client-chat-input');
