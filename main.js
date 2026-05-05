@@ -62,6 +62,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 pCont.appendChild(p);
             }
         }
+        
+        // Success Modal
+        if (!document.getElementById('success-modal')) {
+            const sm = document.createElement('div');
+            sm.id = 'success-modal';
+            sm.className = 'success-modal';
+            sm.innerHTML = `
+                <div class="success-content">
+                    <i class="fas fa-check-circle success-icon"></i>
+                    <h2 style="color:var(--gold); margin-bottom:10px;" id="success-title">تم بنجاح</h2>
+                    <p style="color:var(--text-muted); font-size:1.1rem; margin-bottom:5px;">يرجى الاحتفاظ برقم المرجع أدناه لتتبع الحالة:</p>
+                    <div class="success-ref" id="success-ref-code">ORD-0000</div>
+                    <button class="btn btn-gold" style="width:100%; justify-content:center;" onclick="document.getElementById('success-modal').style.display='none'">حسنًا، متابعة</button>
+                </div>
+            `;
+            document.body.appendChild(sm);
+        }
+    };
+    
+    window.showSuccessModal = (title, refCode) => {
+        document.getElementById('success-title').innerText = title;
+        document.getElementById('success-ref-code').innerText = refCode;
+        document.getElementById('success-modal').style.display = 'flex';
     };
     
     window.showToast = (msg, type = 'success') => {
@@ -266,8 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         cart = []; updateCartUI();
         orderModal.style.display = 'none';
-        window.showToast(`تم إرسال طلب التوريد بنجاح! رقم المرجع: ${order.id}`, 'success');
-        setTimeout(() => location.reload(), 3000);
+        window.showSuccessModal('تم استلام طلب التوريد بنجاح', order.id);
+        e.target.reset();
     });
 
     // Maintenance Ticket Logic
@@ -275,7 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
     maintenanceForm?.addEventListener('submit', (e) => {
         e.preventDefault();
         
-        // Find inputs regardless of which form it is
         const entityVal = document.getElementById('m-entity-p')?.value || document.getElementById('m-entity')?.value;
         const typeVal = document.getElementById('m-type-p')?.value || document.getElementById('m-type')?.value;
         const issueVal = document.getElementById('m-issue-p')?.value || document.getElementById('m-issue')?.value;
@@ -285,26 +307,55 @@ document.addEventListener('DOMContentLoaded', () => {
             type: typeVal,
             issue: issueVal
         });
-        window.showToast(`تم فتح تذكرة صيانة برقم: ${ticket.id.split('-')[1]}`, 'success');
+        window.showSuccessModal('تم تسجيل التذكرة الفنية بنجاح', ticket.id);
         e.target.reset();
     });
 
     document.getElementById('btn-track')?.addEventListener('click', () => {
-        const id = document.getElementById('track-id').value;
-        const order = DB.getOrders().find(o => String(o.id) === String(id));
+        const id = document.getElementById('track-id').value.trim().toUpperCase();
         const res = document.getElementById('track-result');
-        if (!res) return;
-        if (order) {
+        if (!res || !id) return;
+
+        let found = null;
+        let type = '';
+
+        if (id.startsWith('ORD-')) {
+            found = DB.getOrders().find(o => String(o.id) === id);
+            type = 'طلب توريد مؤسسي';
+        } else if (id.startsWith('TCK-')) {
+            found = DB.getTickets().find(t => String(t.id) === id);
+            type = 'تذكرة صيانة ودعم';
+        }
+
+        if (found) {
+            let statusText = '';
+            let progress = 50;
+            if (found.status === 'pending') { statusText = 'قيد المعالجة (Pending)'; progress = 30; }
+            else if (found.status === 'delivered') { statusText = 'مكتمل (Delivered)'; progress = 100; }
+            else if (found.status === 'open') { statusText = 'مفتوحة (قيد المراجعة)'; progress = 20; }
+            else if (found.status === 'resolved') { statusText = 'تم الحل (Resolved)'; progress = 100; }
+
             res.innerHTML = `
-                <div class="tracking-card">
-                    <h3 style="color:var(--gold); margin-bottom:1rem;">حالة الطلب: ${order.status.toUpperCase()}</h3>
-                    <p style="color:#888;">الجهة: ${order.entity} | التاريخ: ${order.date}</p>
-                    <div style="margin-top:1.5rem; height:4px; background:#222; border-radius:2px; position:relative;">
-                        <div style="position:absolute; height:100%; width:${order.status === 'delivered' ? '100%' : '50%'}; background:var(--gold);"></div>
+                <div class="tracking-card" style="text-align:right;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                        <div>
+                            <span style="background:rgba(212,175,55,0.1); color:var(--gold); padding:5px 15px; border-radius:20px; font-size:0.8rem; font-weight:800;">${type}</span>
+                            <h3 style="color:var(--text); margin-top:10px; font-size:1.5rem;">المرجع: <span style="font-family:monospace; color:var(--gold);">${found.id}</span></h3>
+                        </div>
+                        <i class="fas ${id.startsWith('ORD') ? 'fa-box' : 'fa-tools'}" style="font-size:3rem; color:var(--border-gold);"></i>
+                    </div>
+                    
+                    <p style="color:var(--text-muted); font-size:1.1rem; margin-bottom:2rem;">الجهة المستفيدة: <strong style="color:var(--text);">${found.entity}</strong> | التاريخ: <strong style="color:var(--text);">${found.date}</strong></p>
+                    
+                    <h4 style="color:var(--gold); margin-bottom:10px; font-size:1.2rem;">الحالة الحالية: ${statusText}</h4>
+                    <div style="height:8px; background:var(--surface); border:1px solid #333; border-radius:4px; position:relative; overflow:hidden;">
+                        <div style="position:absolute; height:100%; width:${progress}%; background:var(--grad); transition:1s ease-out;"></div>
                     </div>
                 </div>
             `;
-        } else res.innerHTML = '<p style="color:var(--danger); margin-top:2rem;">عذراً، رقم المرجع غير صحيح أو غير موجود في سجلاتنا.</p>';
+        } else {
+            res.innerHTML = '<p style="color:#ff4757; margin-top:2rem; font-size:1.2rem; font-weight:800;"><i class="fas fa-exclamation-triangle"></i> عذراً، رقم المرجع غير صحيح أو غير مسجل في النظام.</p>';
+        }
     });
 
     // --- INITIALIZE ---
