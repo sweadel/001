@@ -168,12 +168,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('tickets-tbody').innerHTML = tickets.length ? tickets.map(t => `
             <tr>
                 <td>#${t.id.split('-')[1]}</td>
-                <td>${t.entity}</td>
+                <td><strong>${t.entity}</strong></td>
                 <td>${t.issue}</td>
                 <td>${t.date}</td>
-                <td><span class="badge bg-pending">${t.status}</span></td>
+                <td><span class="badge bg-${t.status === 'resolved' ? 'success' : 'pending'}">${t.status === 'resolved' ? 'تم الحل' : 'مفتوحة'}</span></td>
+                <td>
+                    ${t.status !== 'resolved' ? `<button class="btn btn-outline btn-sm" onclick="resolveTicket('${t.id}')"><i class="fas fa-check" style="color:var(--success);"></i> حل المشكلة</button>` : '<span style="color:var(--success); font-weight:800;"><i class="fas fa-check-circle"></i> مغلقة</span>'}
+                </td>
             </tr>
-        `).join('') : '<tr><td colspan="5" style="text-align:center;">لا توجد تذاكر صيانة حالية</td></tr>';
+        `).join('') : '<tr><td colspan="6" style="text-align:center; padding:2rem; color:#666;">لا توجد تذاكر صيانة حالية</td></tr>';
     }
 
     function renderAudit() {
@@ -243,6 +246,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    window.resolveTicket = (id) => {
+        if (confirm('تأكيد حل المشكلة الفنية وإغلاق التذكرة؟')) {
+            let tickets = DB.getTickets();
+            let t = tickets.find(x => String(x.id) === String(id));
+            if (t) {
+                t.status = 'resolved';
+                DB.set('zolngen_tickets', tickets);
+                DB.logAction(`إغلاق تذكرة صيانة رقم: ${id}`);
+                refreshData();
+                window.showToast('تم إغلاق التذكرة بنجاح');
+            }
+        }
+    };
+
     window.editProduct = (id) => {
         const p = DB.getProducts().find(x => String(x.id) === String(id));
         if (!p) return;
@@ -275,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cost: parseFloat(document.getElementById('p-cost').value),
             price: parseFloat(document.getElementById('p-price').value),
             stock: parseInt(document.getElementById('p-stock').value),
-            img: 'category_laptops_luxury.png'
+            img: 'category_laptops.png'
         };
         DB.saveProduct(p);
         closeModal();
