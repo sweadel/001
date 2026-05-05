@@ -96,10 +96,29 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('qv-price').innerText = p.price.toFixed(2) + ' JOD';
         
         const specsHtml = (p.specs || ['مواصفات قياسية معتمدة']).map(s => `<li><i class="fas fa-check"></i> ${s}</li>`).join('');
-        document.getElementById('qv-specs-list').innerHTML = specsHtml;
+        document.getElementById('qv-specs-list').innerHTML = specsHtml + `
+            <li style="margin-top:20px;">
+                <label style="color:var(--gold); display:block; margin-bottom:5px;">تخصيص الأجهزة (Configurator):</label>
+                <select id="qv-ram-upgrade" style="width:100%; padding:10px; background:#111; color:#fff; border:1px solid #333; border-radius:8px;">
+                    <option value="0">بدون ترقية (المواصفات الأساسية)</option>
+                    <option value="50">ترقية الذاكرة إلى 32GB (+50 JOD)</option>
+                    <option value="120">ترقية الذاكرة إلى 64GB (+120 JOD)</option>
+                </select>
+            </li>
+        `;
         
+        let basePrice = p.price;
+        const upgradeSelect = document.getElementById('qv-ram-upgrade');
+        upgradeSelect.onchange = (e) => {
+            document.getElementById('qv-price').innerText = (basePrice + parseFloat(e.target.value)).toFixed(2) + ' JOD';
+        };
+
         const addBtn = document.getElementById('qv-add-btn');
-        addBtn.onclick = () => { addToCart(p.id); document.getElementById('qv-modal').style.display = 'none'; };
+        addBtn.onclick = () => { 
+            addToCart(p.id); 
+            if(upgradeSelect.value > 0) window.showToast('تم إضافة الترقية للطلب المبدئي');
+            document.getElementById('qv-modal').style.display = 'none'; 
+        };
         
         document.getElementById('qv-modal').style.display = 'flex';
     };
@@ -153,8 +172,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateCartUI = () => {
         localStorage.setItem('zolngen_cart', JSON.stringify(cart));
-        if (cartCount) cartCount.innerText = cart.reduce((acc, i) => acc + i.qty, 0);
-        if (cartTotalVal) cartTotalVal.innerText = cart.reduce((acc, i) => acc + (i.price * i.qty), 0).toFixed(2);
+        const totalItems = cart.reduce((acc, i) => acc + i.qty, 0);
+        let rawTotal = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+        let discount = totalItems >= 5 ? rawTotal * 0.1 : 0;
+        
+        if (cartCount) cartCount.innerText = totalItems;
+        if (cartTotalVal) {
+            cartTotalVal.innerText = (rawTotal - discount).toFixed(2);
+            if (discount > 0) {
+                cartTotalVal.innerHTML += `<br><span style="font-size:1rem; color:#2ecc71; display:block; margin-top:10px;">خصم كميات مؤسسية (10%): -${discount.toFixed(2)} JOD</span>`;
+            }
+        }
         
         if (cartItemsContainer) {
             cartItemsContainer.innerHTML = cart.length ? cart.map(item => `

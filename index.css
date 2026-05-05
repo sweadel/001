@@ -16,7 +16,20 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; scroll-behavior: smooth; }
-body { background-color: var(--black); color: var(--white); direction: rtl; overflow-x: hidden; }
+body { background-color: var(--black); color: var(--white); direction: rtl; overflow-x: hidden; transition: background-color 0.5s, color 0.5s; }
+
+body.light-theme {
+    --black: #f4f6f8;
+    --dark-bg: #e2e8f0;
+    --surface: #ffffff;
+    --white: #0f172a;
+    --text-muted: #64748b;
+    --border-gold: rgba(212, 175, 55, 0.6);
+    --glass: rgba(255, 255, 255, 0.85);
+}
+body.light-theme .navbar a { color: var(--white); }
+body.light-theme .hero-content p { color: var(--text-muted); }
+body.light-theme .product-card, body.light-theme .cat-card { box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-color: #e2e8f0; }
 
 /* Luxury Reveal Animation */
 .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
