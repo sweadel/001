@@ -41,16 +41,24 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const u = document.getElementById('admin-user').value;
         const p = document.getElementById('admin-pass').value;
-        if (u === 'admin' && p === 'admin123') {
+        const accounts = DB.getAccounts();
+        const validUser = accounts.find(a => a.user === u && a.pass === p);
+        
+        if (validUser) {
             sessionStorage.setItem('admin_pro_auth', 'true');
+            sessionStorage.setItem('admin_pro_user', JSON.stringify(validUser));
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('admin-shell').style.display = 'grid';
-            DB.logAction('تسجيل دخول ناجح للمنظومة الاحترافية');
+            DB.logAction(`تسجيل دخول موظف: ${validUser.user} (${validUser.role})`);
             initProAdmin();
-        } else window.showToast('خطأ في بيانات الدخول الصارمة', 'error');
+        } else window.showToast('خطأ في بيانات الدخول', 'error');
     });
 
     function initProAdmin() {
+        const userObj = JSON.parse(sessionStorage.getItem('admin_pro_user') || '{"user":"admin","role":"المدير العام"}');
+        const nameEl = document.getElementById('current-admin-name');
+        if(nameEl) nameEl.innerText = `${userObj.user} (${userObj.role})`;
+
         showTab('dashboard');
         checkLowStock();
     }
@@ -400,6 +408,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const drop = document.getElementById('notif-dropdown');
         if(drop) drop.style.display = drop.style.display === 'none' ? 'block' : 'none';
     };
+
+    // Auto-refresh logic for real-time synchronization
+    setInterval(() => {
+        if (currentTab === 'chat') renderChats();
+        if (currentTab === 'orders') renderOrders(document.querySelector('.search-box')?.value || '');
+        if (currentTab === 'dashboard') checkLowStock();
+    }, 3000);
 
     // Sidebar Links
     document.querySelectorAll('.sidebar .nav-link[data-tab]').forEach(link => {
