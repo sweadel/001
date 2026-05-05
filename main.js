@@ -372,4 +372,41 @@ document.addEventListener('DOMContentLoaded', () => {
         doc.text(`Total Estimate: ${cart.reduce((acc, i) => acc + (i.price * i.qty), 0).toFixed(2)} JOD`, 20, y + 15);
         doc.save(`ZOLNGEN_Estimate.pdf`);
     };
+
+    // --- CHAT SYSTEM ---
+    window.renderClientChat = () => {
+        const chats = DB.getChats();
+        const box = document.getElementById('client-chat-box');
+        if(!box) return;
+        box.innerHTML = chats.map(c => `
+            <div style="background:${c.isClient ? 'rgba(212,175,55,0.1)' : 'rgba(255,255,255,0.05)'}; padding:10px; border-radius:10px; width:fit-content; max-width:85%; margin-${c.isClient ? 'right' : 'left'}:auto; border:1px solid ${c.isClient ? 'var(--gold)' : '#333'}; text-align:${c.isClient ? 'right' : 'left'};">
+                <div style="font-size:0.7rem; color:${c.isClient ? 'var(--gold)' : '#aaa'}; margin-bottom:3px; font-weight:bold;">${c.sender}</div>
+                <div style="font-size:0.9rem; color:#fff;">${c.message}</div>
+            </div>
+        `).join('');
+        box.scrollTop = box.scrollHeight;
+    };
+
+    document.getElementById('chat-toggle')?.addEventListener('click', () => {
+        const win = document.getElementById('chat-window');
+        if(win.style.display === 'none') {
+            win.style.display = 'flex';
+            window.renderClientChat();
+        } else {
+            win.style.display = 'none';
+        }
+    });
+
+    window.sendClientChat = () => {
+        const input = document.getElementById('client-chat-input');
+        if(!input || !input.value.trim()) return;
+        DB.addChatMessage('عميل مؤسسي', input.value, true);
+        input.value = '';
+        window.renderClientChat();
+    };
+
+    setInterval(() => {
+        if(document.getElementById('chat-window')?.style.display === 'flex') window.renderClientChat();
+    }, 2000);
+
 });

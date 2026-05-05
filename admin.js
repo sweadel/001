@@ -76,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentTab === 'inventory') renderInventory();
         if (currentTab === 'entities') renderEntities();
         if (currentTab === 'tickets') renderTickets();
+        if (currentTab === 'accounts') renderAccounts();
+        if (currentTab === 'chat') renderChats();
         if (currentTab === 'audit') renderAudit();
     }
 
@@ -189,6 +191,32 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
+    function renderAccounts() {
+        const accs = DB.getAccounts();
+        document.getElementById('accounts-tbody').innerHTML = accs.map(a => `
+            <tr>
+                <td><strong>${a.user}</strong></td>
+                <td><span class="badge bg-pending">${a.role}</span></td>
+                <td>
+                    ${a.user !== 'admin' ? `<button class="btn btn-outline btn-sm" onclick="deleteAccount('${a.user}')" style="color:var(--danger);"><i class="fas fa-trash"></i></button>` : '<span style="color:#666;">حساب أساسي</span>'}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderChats() {
+        const chats = DB.getChats();
+        const box = document.getElementById('chat-box');
+        if(!box) return;
+        box.innerHTML = chats.map(c => `
+            <div style="background:${c.isClient ? 'rgba(212,175,55,0.1)' : 'rgba(255,255,255,0.05)'}; padding:15px; border-radius:15px; width:fit-content; max-width:80%; margin-${c.isClient ? 'right' : 'left'}:auto; border:1px solid ${c.isClient ? 'var(--primary)' : 'var(--border)'};">
+                <div style="font-size:0.8rem; color:var(--primary); margin-bottom:5px; font-weight:bold;">${c.sender} <span style="color:#666; margin-right:10px; font-weight:normal;">${c.date}</span></div>
+                <div style="font-size:1rem; color:#fff;">${c.message}</div>
+            </div>
+        `).join('');
+        box.scrollTop = box.scrollHeight;
+    }
+
     // 5. Tool Implementations (Export, Backup, Theme)
     window.toggleTheme = () => {
         document.body.classList.toggle('light-mode');
@@ -238,6 +266,24 @@ document.addEventListener('DOMContentLoaded', () => {
         window.showToast('تم تفعيل النسخ الاحتياطي للنظام');
     };
 
+    window.restoreSystem = (e) => {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                const data = JSON.parse(ev.target.result);
+                Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
+                DB.logAction('استعادة النظام من نسخة احتياطية سابقة');
+                window.showToast('تم استعادة النظام بنجاح! سيتم التحديث...', 'success');
+                setTimeout(() => location.reload(), 2000);
+            } catch(err) {
+                window.showToast('ملف النسخة الاحتياطية غير صالح', 'error');
+            }
+        };
+        reader.readAsText(file);
+    };
+
     window.deliverOrder = (id) => {
         if (confirm('تأكيد تسليم الطلب وتحويل حالته لمكتمل؟')) {
             DB.updateOrderStatus(id, 'delivered');
@@ -284,21 +330,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('prod-form')?.addEventListener('submit', (e) => {
         e.preventDefault();
-        const p = {
-            id: document.getElementById('p-id').value || null,
-            name: document.getElementById('p-name').value,
-            supplier: document.getElementById('p-supplier').value,
-            category: document.getElementById('p-cat').value,
-            cost: parseFloat(document.getElementById('p-cost').value),
-            price: parseFloat(document.getElementById('p-price').value),
-            stock: parseInt(document.getElementById('p-stock').value),
-            img: 'category_laptops.png'
+        const fileInput = document.getElementById('p-img-upload');
+        const existingId = document.getElementById('p-id').value;
+        let imgVal = existingId ? (DB.getProducts().find(x => String(x.id) === String(existingId))?.img || 'category_laptops.png') : 'category_laptops.png';
+        
+        const finalizeSave = (finalImg) => {
+            const p = {
+                id: existingId || null,
+                name: document.getElementById('p-name').value,
+                supplier: document.getElementById('p-supplier').value,
+                category: document.getElementById('p-cat').value,
+                cost: parseFloat(document.getElementById('p-cost').value),
+                price: parseFloat(document.getElementById('p-price').value),
+                stock: parseInt(document.getElementById('p-stock').value),
+                img: finalImg
+            };
+            DB.saveProduct(p);
+            closeModal();
+            refreshData();
+            window.showToast('تم حفظ المنتج في المستودع');
         };
-        DB.saveProduct(p);
+
+        if(fileInput && fileInput.files.length > 0) {
+            const reader = new FileReader();
+            reader.onload = (ev) => finalizeSave(ev.target.result);
+            reader.readAsDataURL(fileInput.files[0]);
+        } else {
+            finalizeSave(imgVal);
+        }
+    });
+
+    document.getElementById('entity-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        DB.saveEntity(document.getElementById('e-name').value);
         closeModal();
         refreshData();
-        window.showToast('تم حفظ المنتج في المستودع');
+        window.showToast('تم إضافة المؤسسة بنجاح');
     });
+
+    document.getElementById('account-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        DB.saveAccount({
+            user: document.getElementById('a-user').value,
+            pass: document.getElementById('a-pass').value,
+            role: document.getElementById('a-role').value
+        });
+        closeModal();
+        refreshData();
+        window.showToast('تم حفظ الحساب بنجاح');
+    });
+
+    window.deleteAccount = (user) => {
+        if(confirm('تأكيد حذف الحساب نهائياً؟')) {
+            DB.deleteAccount(user);
+            refreshData();
+            window.showToast('تم حذف الحساب');
+        }
+    };
+
+    window.sendAdminChat = () => {
+        const input = document.getElementById('chat-input');
+        if(!input.value.trim()) return;
+        DB.addChatMessage('الإدارة (دعم)', input.value, false);
+        input.value = '';
+        renderChats();
+    };
+
+    window.toggleNotifications = () => {
+        const drop = document.getElementById('notif-dropdown');
+        if(drop) drop.style.display = drop.style.display === 'none' ? 'block' : 'none';
+    };
 
     // Sidebar Links
     document.querySelectorAll('.sidebar .nav-link[data-tab]').forEach(link => {
@@ -312,13 +413,34 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-head').innerText = 'إضافة منتج جديد للمستودع';
         document.getElementById('prod-modal').style.display = 'flex';
     };
+    window.openEntityModal = () => { document.getElementById('entity-form').reset(); document.getElementById('entity-modal').style.display='flex'; };
+    window.openAccountModal = () => { document.getElementById('account-form').reset(); document.getElementById('account-modal').style.display='flex'; };
 
     window.filterOrders = (val) => renderOrders(val);
 
     function checkLowStock() {
         const stats = DB.getProStats();
+        let listHTML = '';
         if (stats.lowStock > 0) {
-            console.warn("Inventory Alert: Low Stock Items Detected");
+            document.getElementById('notif-dot').style.display = 'block';
+            listHTML += `<div style="padding:10px; border-bottom:1px solid var(--border); color:var(--danger);"><i class="fas fa-exclamation-triangle"></i> يوجد ${stats.lowStock} منتجات منخفضة المخزون!</div>`;
         }
+        
+        const pending = DB.getOrders().filter(o => o.status === 'pending');
+        if(pending.length > 0) {
+            document.getElementById('notif-dot').style.display = 'block';
+            listHTML += `<div style="padding:10px; border-bottom:1px solid var(--border); color:var(--success);"><i class="fas fa-shopping-cart"></i> ${pending.length} طلبات جديدة بانتظار المعالجة.</div>`;
+        }
+
+        const openTck = DB.getTickets().filter(t => t.status !== 'resolved');
+        if(openTck.length > 0) {
+            document.getElementById('notif-dot').style.display = 'block';
+            listHTML += `<div style="padding:10px; border-bottom:1px solid var(--border); color:var(--primary);"><i class="fas fa-tools"></i> ${openTck.length} تذاكر صيانة تحتاج تدخل.</div>`;
+        }
+
+        if(!listHTML) listHTML = '<div style="padding:10px; text-align:center;">لا توجد إشعارات جديدة.</div>';
+        
+        const notifList = document.getElementById('notif-list');
+        if(notifList) notifList.innerHTML = listHTML;
     }
 });

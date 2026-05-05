@@ -102,6 +102,8 @@
                 <div class="nav-link" data-tab="inventory"><i class="fas fa-warehouse"></i> المخزون الرقمي</div>
                 <div class="nav-link" data-tab="entities"><i class="fas fa-building"></i> الجهات والمؤسسات</div>
                 <div class="nav-link" data-tab="tickets"><i class="fas fa-tools"></i> تذاكر الصيانة</div>
+                <div class="nav-link" data-tab="accounts"><i class="fas fa-users"></i> إدارة الحسابات</div>
+                <div class="nav-link" data-tab="chat"><i class="fas fa-comments"></i> التواصل المباشر</div>
                 <div class="nav-link" data-tab="audit"><i class="fas fa-shield-alt"></i> سجل الأمان</div>
             </nav>
 
@@ -117,9 +119,13 @@
                 <h2 id="page-title">لوحة المعلومات</h2>
                 <div style="display:flex; gap:15px; align-items:center;">
                     <div id="real-time-clock" style="color:var(--primary); font-family:monospace; font-size:1.4rem; margin-left:1.5rem; letter-spacing:2px; font-weight:900;">00:00:00</div>
-                    <div id="notif-bell" style="position:relative; font-size:1.5rem; color:#666; cursor:pointer;">
+                    <div id="notif-bell" style="position:relative; font-size:1.5rem; color:#666; cursor:pointer;" onclick="toggleNotifications()">
                         <i class="fas fa-bell"></i>
                         <div class="notif-badge" id="notif-dot" style="display:none;"></div>
+                        <div id="notif-dropdown" style="display:none; position:absolute; top:35px; left:0; width:300px; background:var(--surface); border:1px solid var(--border); border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.5); padding:1rem; z-index:500;">
+                            <h4 style="color:var(--gold); border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:10px;">الإشعارات</h4>
+                            <div id="notif-list" style="max-height:250px; overflow-y:auto; font-size:0.85rem; color:#aaa;"></div>
+                        </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px; background:var(--surface); padding:8px 15px; border-radius:50px; border:1px solid var(--border);">
                         <img src="https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=000" style="width:30px; border-radius:50%;">
@@ -171,7 +177,8 @@
                 <div class="tools-bar">
                     <div style="display:flex; gap:10px;">
                         <button class="btn btn-gold" onclick="openProductModal()"><i class="fas fa-plus"></i> إضافة منتج</button>
-                        <button class="btn btn-outline" onclick="backupSystem()"><i class="fas fa-database"></i> نسخة احتياطية</button>
+                        <button class="btn btn-outline" onclick="backupSystem()"><i class="fas fa-download"></i> تصدير نسخة</button>
+                        <label class="btn btn-outline" style="cursor:pointer;"><i class="fas fa-upload"></i> استعادة <input type="file" style="display:none;" id="backup-upload" accept=".json" onchange="restoreSystem(event)"></label>
                     </div>
                 </div>
                 <div class="table-wrap">
@@ -184,6 +191,9 @@
 
             <!-- Tab: Entities -->
             <div id="entities-tab" class="tab-content" style="display:none;">
+                <div class="tools-bar">
+                    <button class="btn btn-gold" onclick="openEntityModal()"><i class="fas fa-plus"></i> إضافة مؤسسة جديدة</button>
+                </div>
                 <div class="table-wrap">
                     <table>
                         <thead><tr><th>اسم المؤسسة / الجامعة</th><th>عدد الطلبات</th><th>إجمالي التعاملات</th><th>الحالة</th></tr></thead>
@@ -199,6 +209,31 @@
                         <thead><tr><th>رقم التذكرة</th><th>المؤسسة</th><th>المشكلة</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr></thead>
                         <tbody id="tickets-tbody"></tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Tab: Accounts -->
+            <div id="accounts-tab" class="tab-content" style="display:none;">
+                <div class="tools-bar">
+                    <button class="btn btn-gold" onclick="openAccountModal()"><i class="fas fa-user-plus"></i> إضافة حساب موظف</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>اسم المستخدم</th><th>الدور (الصلاحية)</th><th>إجراءات</th></tr></thead>
+                        <tbody id="accounts-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Chat -->
+            <div id="chat-tab" class="tab-content" style="display:none;">
+                <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border); display:flex; flex-direction:column; height:60vh;">
+                    <div style="padding:1rem 2rem; border-bottom:1px solid var(--border);"><h3 style="color:var(--gold);"><i class="fas fa-comments"></i> مركز التواصل</h3></div>
+                    <div id="chat-box" style="flex:1; padding:2rem; overflow-y:auto; display:flex; flex-direction:column; gap:15px;"></div>
+                    <div style="padding:1.5rem; border-top:1px solid var(--border); display:flex; gap:10px;">
+                        <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." style="margin:0; flex:1;" onkeypress="if(event.key==='Enter') sendAdminChat()">
+                        <button class="btn btn-gold" onclick="sendAdminChat()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
                 </div>
             </div>
 
@@ -225,8 +260,43 @@
                     <input type="number" id="p-price" placeholder="سعر البيع (JOD)" required>
                 </div>
                 <input type="number" id="p-stock" placeholder="الكمية المتوفرة" required>
+                <input type="file" id="p-img-upload" accept="image/*" style="margin-bottom:1rem; background:transparent; padding:0; border:none;">
                 <div style="display:flex; gap:15px; margin-top:1rem;">
                     <button type="submit" class="btn btn-gold" style="flex:1; justify-content:center;">حفظ البيانات</button>
+                    <button type="button" class="btn btn-outline" style="flex:1; justify-content:center;" onclick="closeModal()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Entity Modal -->
+    <div id="entity-modal" class="modal">
+        <div class="modal-content" style="width:400px;">
+            <h2 style="color:var(--primary); margin-bottom:2rem;">إضافة مؤسسة جديدة</h2>
+            <form id="entity-form">
+                <input type="text" id="e-name" placeholder="اسم الجهة / المؤسسة" required>
+                <div style="display:flex; gap:15px; margin-top:1rem;">
+                    <button type="submit" class="btn btn-gold" style="flex:1; justify-content:center;">إضافة</button>
+                    <button type="button" class="btn btn-outline" style="flex:1; justify-content:center;" onclick="closeModal()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Account Modal -->
+    <div id="account-modal" class="modal">
+        <div class="modal-content" style="width:400px;">
+            <h2 style="color:var(--primary); margin-bottom:2rem;">إضافة حساب</h2>
+            <form id="account-form">
+                <input type="text" id="a-user" placeholder="اسم المستخدم" required>
+                <input type="password" id="a-pass" placeholder="كلمة المرور" required>
+                <select id="a-role" required>
+                    <option value="موظف دعم">موظف دعم فني</option>
+                    <option value="محاسب">محاسب</option>
+                    <option value="مدير عام">مدير عام</option>
+                </select>
+                <div style="display:flex; gap:15px; margin-top:1rem;">
+                    <button type="submit" class="btn btn-gold" style="flex:1; justify-content:center;">حفظ</button>
                     <button type="button" class="btn btn-outline" style="flex:1; justify-content:center;" onclick="closeModal()">إلغاء</button>
                 </div>
             </form>

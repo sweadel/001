@@ -64,9 +64,19 @@ const DB = {
     },
 
     // 4. Supplier & Entity Management
+    getEntitiesList: function() { return this.get('zolngen_entities_list'); },
+    saveEntity: function(name) {
+        let list = this.getEntitiesList();
+        if(!list.includes(name)) {
+            list.push(name);
+            this.set('zolngen_entities_list', list);
+            this.logAction(`تمت إضافة مؤسسة جديدة: ${name}`);
+        }
+    },
     getEntities: function() {
         const orders = this.getOrders();
-        const names = [...new Set(orders.map(o => o.entity))];
+        const customEntities = this.getEntitiesList();
+        const names = [...new Set([...orders.map(o => o.entity), ...customEntities])];
         return names.map(name => ({
             name,
             totalOrders: orders.filter(o => o.entity === name).length,
@@ -80,6 +90,34 @@ const DB = {
         let logs = this.getAuditLog();
         logs.unshift({ date: new Date().toLocaleString('ar-EG'), user: 'Admin-System', action: a });
         this.set('zolngen_audit', logs.slice(0, 200));
+    },
+
+    // 6. Accounts & Users
+    getAccounts: function() {
+        let accs = this.get('zolngen_accounts');
+        if(!accs.length) {
+            accs = [{ user: 'admin', pass: 'admin123', role: 'المدير العام' }];
+            this.set('zolngen_accounts', accs);
+        }
+        return accs;
+    },
+    saveAccount: function(acc) {
+        let accs = this.getAccounts();
+        accs.push(acc);
+        this.set('zolngen_accounts', accs);
+        this.logAction(`تمت إضافة حساب موظف: ${acc.user}`);
+    },
+    deleteAccount: function(user) {
+        let accs = this.getAccounts().filter(a => a.user !== user);
+        this.set('zolngen_accounts', accs);
+    },
+
+    // 7. Chat System
+    getChats: function() { return this.get('zolngen_chats'); },
+    addChatMessage: function(sender, message, isClient = false) {
+        let chats = this.getChats();
+        chats.push({ sender, message, date: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}), isClient });
+        this.set('zolngen_chats', chats);
     },
 
     // 6. Stats Engine (Dynamic)
