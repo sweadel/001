@@ -196,13 +196,9 @@
             <form id="order-form">
                 <input type="text" id="full-name" placeholder="اسم المسؤول المفوض" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
                 <input type="tel" id="phone" placeholder="رقم الهاتف المباشر" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
-                <select id="university" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
-                    <option value="">اختر المؤسسة / الجامعة</option>
-                    <option value="الجامعة الأردنية">الجامعة الأردنية</option>
-                    <option value="جامعة العلوم والتكنولوجيا">جامعة العلوم والتكنولوجيا</option>
-                    <option value="وزارة التربية والتعليم">وزارة التربية والتعليم</option>
-                    <option value="شركة خاصة">شركة خاصة / جهة مستقلة</option>
-                </select>
+                <input type="text" id="doc-id" placeholder="الرقم المرجعي / الوثيقة (الرقم الجامعي أو السجل التجاري)" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
+                <input type="text" id="university" list="entities-list" placeholder="اسم الجهة المستفيدة / المؤسسة / الجامعة" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
+                <datalist id="entities-list"></datalist>
                 <textarea id="notes" placeholder="أي مواصفات خاصة أو ملاحظات إضافية..." rows="3" style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:2rem;"></textarea>
                 <div style="display:flex; gap:1.5rem;">
                     <button type="submit" class="btn btn-gold" style="flex:1; justify-content:center;">إرسال الطلب</button>

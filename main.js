@@ -68,23 +68,41 @@ document.addEventListener('DOMContentLoaded', () => {
             const sm = document.createElement('div');
             sm.id = 'success-modal';
             sm.className = 'success-modal';
+            sm.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; display:none; align-items:center; justify-content:center; backdrop-filter:blur(5px);';
             sm.innerHTML = `
-                <div class="success-content">
-                    <i class="fas fa-check-circle success-icon"></i>
-                    <h2 style="color:var(--gold); margin-bottom:10px;" id="success-title">تم بنجاح</h2>
-                    <p style="color:var(--text-muted); font-size:1.1rem; margin-bottom:5px;">يرجى الاحتفاظ برقم المرجع أدناه لتتبع الحالة:</p>
-                    <div class="success-ref" id="success-ref-code">ORD-0000</div>
-                    <button class="btn btn-gold" style="width:100%; justify-content:center;" onclick="document.getElementById('success-modal').style.display='none'">حسنًا، متابعة</button>
+                <div class="success-content" style="background:var(--surface); padding:3rem; border-radius:20px; text-align:center; border:1px solid var(--gold); max-width:400px; width:90%; box-shadow:0 10px 40px rgba(0,0,0,0.8);">
+                    <i class="fas fa-check-circle success-icon" style="font-size:4rem; color:var(--success); margin-bottom:20px;"></i>
+                    <h2 style="color:var(--gold); margin-bottom:10px;" id="success-title">تم استلام الطلب</h2>
+                    <p style="color:var(--text-muted); font-size:1.1rem; margin-bottom:5px;">هذا هو إيصال وتأكيد طلبكم المعتمد. يرجى الاحتفاظ بالرقم المرجعي:</p>
+                    <div class="success-ref" id="success-ref-code" style="font-size:2rem; font-weight:900; color:#fff; letter-spacing:2px; margin:15px 0;">ORD-0000</div>
+                    <div id="success-details-box"></div>
+                    <button class="btn btn-gold" style="width:100%; justify-content:center; margin-top:20px;" onclick="document.getElementById('success-modal').style.display='none'">موافق، إغلاق الإيصال</button>
                 </div>
             `;
             document.body.appendChild(sm);
         }
     };
     
-    window.showSuccessModal = (title, refCode) => {
+    window.showSuccessModal = (title, orderObj) => {
+        const sm = document.getElementById('success-modal');
         document.getElementById('success-title').innerText = title;
-        document.getElementById('success-ref-code').innerText = refCode;
-        document.getElementById('success-modal').style.display = 'flex';
+        document.getElementById('success-ref-code').innerText = orderObj.id;
+        
+        const detailsBox = document.getElementById('success-details-box');
+        if(detailsBox && orderObj.docId) {
+            detailsBox.innerHTML = `
+                <div style="text-align:right; font-size:0.95rem; color:#ccc; margin-bottom:15px; border-top:1px solid #333; border-bottom:1px solid #333; padding:15px 0;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>الجهة المستفيدة:</span> <strong style="color:#fff;">${orderObj.entity}</strong></div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>الرقم المرجعي للوثيقة:</span> <strong style="color:#fff;">${orderObj.docId}</strong></div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>اسم المسؤول:</span> <strong style="color:#fff;">${orderObj.fullName}</strong></div>
+                    <div style="display:flex; justify-content:space-between; margin-top:15px;"><span>إجمالي القيمة التقديرية:</span> <strong style="color:var(--gold); font-size:1.2rem;">${orderObj.total.toFixed(2)} JOD</strong></div>
+                </div>
+            `;
+        } else if(detailsBox) {
+            detailsBox.innerHTML = ''; // Clear for tickets
+        }
+        
+        sm.style.display = 'flex';
     };
     
     window.showToast = (msg, type = 'success') => {
@@ -279,9 +297,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('order-form')?.addEventListener('submit', (e) => {
         e.preventDefault();
+        const docId = document.getElementById('doc-id')?.value || 'غير محدد';
         const order = DB.placeOrder({
             fullName: document.getElementById('full-name').value,
             phone: document.getElementById('phone').value,
+            docId: docId,
             entity: document.getElementById('university').value,
             notes: document.getElementById('notes').value,
             items: [...cart],
@@ -289,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         cart = []; updateCartUI();
         orderModal.style.display = 'none';
-        window.showSuccessModal('تم استلام طلب التوريد بنجاح', order.id);
+        window.showSuccessModal('تم تأكيد طلب التوريد بنجاح', order);
         e.target.reset();
     });
 
@@ -307,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
             type: typeVal,
             issue: issueVal
         });
-        window.showSuccessModal('تم تسجيل التذكرة الفنية بنجاح', ticket.id);
+        window.showSuccessModal('تم تسجيل التذكرة الفنية بنجاح', ticket);
         e.target.reset();
     });
 
@@ -361,6 +381,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INITIALIZE ---
     renderProducts();
     updateCartUI();
+    
+    // Load Entities for autocomplete
+    if(DB.getEntitiesList) {
+        const ents = DB.getEntitiesList();
+        const dl = document.getElementById('entities-list');
+        if(dl) dl.innerHTML = ents.map(e => `<option value="${e}">`).join('');
+    }
 
     window.generatePDFQuote = () => {
         if (!cart.length) return window.showToast('قائمة التوريد فارغة!', 'error');
