@@ -16,6 +16,10 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; scroll-behavior: smooth; }
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #050505; }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-bright); }
 body { background-color: var(--black); color: var(--white); direction: rtl; overflow-x: hidden; transition: background-color 0.5s, color 0.5s; }
 
 body.light-theme {
@@ -30,6 +34,9 @@ body.light-theme {
 body.light-theme .navbar a { color: var(--white); }
 body.light-theme .hero-content p { color: var(--text-muted); }
 body.light-theme .product-card, body.light-theme .cat-card { box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-color: #e2e8f0; }
+body.light-theme #ai-window { background: #fff !important; border-color: #ddd !important; }
+body.light-theme #ai-chat-box { background: #f9f9f9 !important; }
+body.light-theme #ai-input { background: #fff !important; color: #000 !important; border-color: #ddd !important; }
 
 /* Luxury Reveal Animation */
 .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }

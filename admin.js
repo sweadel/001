@@ -108,6 +108,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentTab === 'client-accounts') renderClientAccounts();
         if (currentTab === 'chat') renderChats();
         if (currentTab === 'audit') renderAudit();
+        
+        // Populate Entity Filter in Orders Tab
+        const entitySelect = document.getElementById('entity-filter');
+        if(entitySelect) {
+            const currentVal = entitySelect.value;
+            const ents = DB.getEntities();
+            entitySelect.innerHTML = '<option value="">جميع المؤسسات والجهات</option>' + ents.map(e => `<option value="${e.name}" ${e.name === currentVal ? 'selected' : ''}>${e.name}</option>`).join('');
+        }
     }
 
     // --- RENDERERS ---
@@ -195,8 +203,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 4. Advanced Table Rendering
-    function renderOrders(filter = '') {
-        const orders = DB.getOrders().filter(o => o.entity.includes(filter) || o.id.includes(filter));
+    function renderOrders() {
+        const searchText = (document.getElementById('order-search')?.value || '').toLowerCase();
+        const entityFilter = document.getElementById('entity-filter')?.value || '';
+        
+        let orders = DB.getOrders();
+
+        if (searchText) {
+            orders = orders.filter(o => o.id.toLowerCase().includes(searchText) || o.entity.toLowerCase().includes(searchText));
+        }
+        
+        if (entityFilter) {
+            orders = orders.filter(o => o.entity === entityFilter);
+        }
         
         let exportBtnHtml = `<button onclick="window.exportOrdersCSV()" class="btn btn-outline" style="font-size:0.8rem; padding:4px 10px; margin-bottom:10px;"><i class="fas fa-file-csv"></i> تصدير الطلبات (CSV)</button>`;
         if(!document.getElementById('export-orders-btn')) {
@@ -317,6 +336,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${e.totalOrders} طلبات</td>
                 <td style="color:var(--primary);">${e.totalValue.toLocaleString()} JOD</td>
                 <td><span class="badge bg-success">عميل نشط</span></td>
+                <td>
+                    <button class="btn btn-outline btn-sm" onclick="window.viewEntityOrders('${e.name}')"><i class="fas fa-eye"></i> عرض الطلبات</button>
+                </td>
             </tr>
         `).join('');
     }
@@ -718,7 +740,17 @@ document.addEventListener('DOMContentLoaded', () => {
     window.openEntityModal = () => { document.getElementById('entity-form').reset(); document.getElementById('entity-modal').style.display='flex'; };
     window.openAccountModal = () => { document.getElementById('account-form').reset(); document.getElementById('account-modal').style.display='flex'; };
 
-    window.filterOrders = (val) => renderOrders(val);
+    window.viewEntityOrders = (entityName) => {
+        const entitySelect = document.getElementById('entity-filter');
+        if(entitySelect) {
+            entitySelect.value = entityName;
+            // Switch tab to orders
+            document.querySelector('.nav-link[data-tab="orders"]').click();
+            window.filterOrders();
+        }
+    };
+
+    window.filterOrders = () => renderOrders();
 
     function checkLowStock() {
         const stats = DB.getProStats();

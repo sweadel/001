@@ -17,6 +17,117 @@ document.addEventListener('DOMContentLoaded', () => {
         document.title = settings.storeName;
     }
 
+    // Language Engine (V31.0)
+    let currentLang = localStorage.getItem('zolngen_lang') || 'ar';
+    const translations = {
+        ar: {
+            admin_pro: 'نظام الإدارة Pro',
+            home: 'الرئيسية',
+            catalog: 'الكتالوج المؤسسي',
+            maintenance: 'بوابة الصيانة',
+            tracking: 'تتبع الطلب',
+            hero_tag: 'THE INSTITUTIONAL STANDARD',
+            hero_title1: 'ZOLNGEN',
+            hero_title2: 'ENTERPRISE',
+            hero_desc: 'تجهيز البنية التحتية التقنية للمؤسسات التعليمية والحكومية بأعلى معايير الفخامة والجودة العالمية.',
+            hero_btn_start: 'بدء التوريد الرسمي',
+            hero_btn_maint: 'طلب صيانة فورية',
+            cat_laptops: 'أجهزة محمولة',
+            cat_desktops: 'أجهزة مكتبية',
+            cat_infra: 'بنية تحتية',
+            cat_periph: 'طابعات وأجهزة',
+            section_products: 'الأجهزة المختارة',
+            section_products_desc: 'أحدث ما توصلت إليه التكنولوجيا من شركائنا العالميين',
+            track_title: 'تتبع حالة طلب التوريد',
+            track_desc: 'أدخل رقم المرجع الخاص بطلبكم لمتابعة حالة التجهيز والشحن اللحظية.',
+            track_placeholder: 'ORD-XXXX',
+            track_btn: 'تتبع الآن',
+            cart_title: 'قائمة التوريد',
+            cart_total: 'إجمالي القيمة التقديرية:',
+            cart_btn_order: 'تقديم طلب توريد رسمي',
+            cart_btn_pdf: 'توليد كشف سعر PDF'
+        },
+        en: {
+            admin_pro: 'Admin Pro System',
+            home: 'Home',
+            catalog: 'Enterprise Catalog',
+            maintenance: 'Maintenance Portal',
+            tracking: 'Order Tracking',
+            hero_tag: 'THE INSTITUTIONAL STANDARD',
+            hero_title1: 'ZOLNGEN',
+            hero_title2: 'ENTERPRISE',
+            hero_desc: 'Equipping technical infrastructure for educational and governmental institutions with the highest standards of luxury and global quality.',
+            hero_btn_start: 'Start Official Procurement',
+            hero_btn_maint: 'Request Immediate Maintenance',
+            cat_laptops: 'Laptops',
+            cat_desktops: 'Workstations',
+            cat_infra: 'Infrastructure',
+            cat_periph: 'Peripherals',
+            section_products: 'Selected Hardware',
+            section_products_desc: 'Latest technology from our global partners',
+            track_title: 'Track Procurement Status',
+            track_desc: 'Enter your reference number to follow processing and shipping status in real-time.',
+            track_placeholder: 'ORD-XXXX',
+            track_btn: 'Track Now',
+            cart_title: 'Procurement List',
+            cart_total: 'Estimated Total Value:',
+            cart_btn_order: 'Submit Official Order',
+            cart_btn_pdf: 'Generate PDF Quote'
+        }
+    };
+
+    window.toggleLanguage = () => {
+        currentLang = currentLang === 'ar' ? 'en' : 'ar';
+        localStorage.setItem('zolngen_lang', currentLang);
+        applyLanguage();
+    };
+
+    function applyLanguage() {
+        const t = translations[currentLang];
+        document.documentElement.lang = currentLang;
+        document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        
+        // Update Static Elements
+        const mappings = {
+            '[href="admin.html"]': t.admin_pro,
+            '.nav-links a:nth-child(1)': t.home,
+            '.nav-links a:nth-child(2)': t.catalog,
+            '.nav-links a:nth-child(3)': t.maintenance,
+            '.nav-links a:nth-child(4)': t.tracking,
+            '.hero-content p:first-child': t.hero_tag,
+            '.hero-content h1': `${t.hero_title1} <br> <span style="font-weight:300; font-size:4.5rem;">${t.hero_title2}</span>`,
+            '.hero-content p:nth-child(3)': t.hero_desc,
+            '.btn-gold[href="products.html"]': t.hero_btn_start,
+            '.btn-outline[href="maintenance.html"]': t.hero_btn_maint,
+            '.cat-card:nth-child(1) h3': t.cat_laptops,
+            '.cat-card:nth-child(2) h3': t.cat_desktops,
+            '.cat-card:nth-child(3) h3': t.cat_infra,
+            '.cat-card:nth-child(4) h3': t.cat_periph,
+            '.section-head h2': t.section_products,
+            '.section-head p': t.section_products_desc,
+            '#tracking h2': t.track_title,
+            '#tracking p': t.track_desc,
+            '#track-id': ['placeholder', t.track_placeholder],
+            '#btn-track': t.track_btn,
+            '#cart-sidebar h2': t.cart_title,
+            '#cart-sidebar span:first-child': t.cart_total,
+            '#btn-order-trigger': t.cart_btn_order,
+            '[onclick="generatePDFQuote()"]': t.cart_btn_pdf
+        };
+
+        Object.entries(mappings).forEach(([selector, value]) => {
+            const el = document.querySelector(selector);
+            if (el) {
+                if (Array.isArray(value)) el.setAttribute(value[0], value[1]);
+                else el.innerHTML = value;
+            }
+        });
+
+        window.showToast(currentLang === 'ar' ? 'تم تحويل اللغة للعربية' : 'Language switched to English');
+    }
+
+    setTimeout(applyLanguage, 100);
+
     // Scroll Progress Indicator
     const progressBar = document.createElement('div');
     progressBar.style.cssText = 'position:fixed; top:0; left:0; height:4px; background:var(--gold); z-index:9999; transition:width 0.2s;';
@@ -172,7 +283,101 @@ document.addEventListener('DOMContentLoaded', () => {
                 topBarRow.insertBefore(btn, topBarRow.firstChild);
             }
         }
+
+        // Antigravity AI Assistant Injection (V31.0)
+        if (!document.getElementById('ai-assistant')) {
+            const ai = document.createElement('div');
+            ai.id = 'ai-assistant';
+            ai.style.cssText = 'position:fixed; bottom:30px; right:110px; z-index:8000;';
+            ai.innerHTML = `
+                <button id="ai-toggle" class="btn btn-gold" style="border-radius:50%; width:60px; height:60px; padding:0; box-shadow:0 10px 20px rgba(0,0,0,0.5); border: 2px solid #fff;" onclick="window.toggleAIChat()"><i class="fas fa-robot" style="font-size:1.8rem;"></i></button>
+                <div id="ai-window" style="display:none; position:absolute; bottom:80px; right:0; width:350px; height:500px; background:var(--surface); border:2px solid var(--gold); border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.8); flex-direction:column; overflow:hidden; backdrop-filter:blur(10px);">
+                    <div style="background:var(--grad); padding:1rem; color:#000; font-weight:900; display:flex; justify-content:space-between; align-items:center;">
+                        <span><i class="fas fa-brain"></i> Antigravity AI (Enterprise)</span>
+                        <button onclick="window.toggleAIChat()" style="background:none; border:none; cursor:pointer;"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div id="ai-chat-box" style="flex:1; padding:1.5rem; overflow-y:auto; display:flex; flex-direction:column; gap:12px; background:#050505;">
+                        <div style="background:rgba(212,175,55,0.1); padding:12px; border-radius:12px; border:1px solid var(--gold); font-size:0.9rem; line-height:1.6;">
+                            مرحباً بك في نظام ZOLNGEN الذكي. أنا مساعدك التقني، كيف يمكنني مساعدتك اليوم في اختيار التجهيزات لمؤسستك؟
+                        </div>
+                    </div>
+                    <div style="padding:1rem; border-top:1px solid #222; display:flex; gap:10px;">
+                        <input type="text" id="ai-input" placeholder="اسألني عن لابتوب، سبيكات، أو أسعار..." style="width:100%; padding:0.8rem; background:#111; border:1px solid #333; border-radius:10px; color:#fff; outline:none;" onkeypress="if(event.key==='Enter') window.sendAIChat()">
+                        <button class="btn btn-gold" style="padding:0 1.2rem;" onclick="window.sendAIChat()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(ai);
+        }
     };
+
+    window.toggleAIChat = () => {
+        const win = document.getElementById('ai-window');
+        if(!win) return;
+        win.style.display = win.style.display === 'none' ? 'flex' : 'none';
+    };
+
+    window.sendAIChat = () => {
+        const input = document.getElementById('ai-input');
+        const box = document.getElementById('ai-chat-box');
+        if(!input || !input.value.trim()) return;
+
+        const userMsg = input.value.trim();
+        input.value = '';
+        
+        // Render User Message
+        box.innerHTML += `<div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; align-self:flex-end; max-width:85%; font-size:0.9rem; border:1px solid #333;">${userMsg}</div>`;
+        box.scrollTop = box.scrollHeight;
+
+        // "AI" Thinking Simulation
+        setTimeout(() => {
+            const q = userMsg.toLowerCase();
+            const products = DB.getProducts();
+            let response = "";
+            let foundProducts = [];
+
+            // 1. Search for specific products
+            foundProducts = products.filter(p => p.name.toLowerCase().includes(q) || (p.category && p.category.toLowerCase().includes(q)));
+
+            if (foundProducts.length > 0 && (q.includes('سعر') || q.includes('price') || q.includes('كم') || q.includes('how much'))) {
+                response = `سعر ${foundProducts[0].name} هو ${foundProducts[0].price} JOD. هل تريد إضافته لقائمة التوريد؟`;
+            } else if (foundProducts.length > 0) {
+                response = `وجدت لك ${foundProducts.length} أجهزة تطابق بحثك. أهمها ${foundProducts[0].name}. يتميز بـ: ${foundProducts[0].specs ? foundProducts[0].specs[0] : 'أداء عالي'}.`;
+            } else if (q.includes('مرحبا') || q.includes('hello') || q.includes('hi')) {
+                response = "أهلاً بك! أنا مساعد ZOLNGEN الذكي. يمكنني مساعدتك في العثور على أجهزة، تتبع طلباتك، أو توجيهك لفتح تذكرة صيانة.";
+            } else if (q.includes('تتبع') || q.includes('track')) {
+                response = "يرجى تزويدي برقم الطلب (مثلاً ORD-1234) وسأبحث لك عن حالته فوراً.";
+            } else if (q.match(/ord-\d{4}/)) {
+                const orderId = q.match(/ord-\d{4}/)[0].toUpperCase();
+                const order = DB.getOrders().find(o => o.id === orderId);
+                if(order) {
+                    response = `الطلب ${orderId} حالته الآن: **${order.status}**. تم تقديمه بتاريخ ${order.date}.`;
+                } else {
+                    response = `عذراً، لم أجد طلباً بالرقم ${orderId}. يرجى التأكد من الرقم.`;
+                }
+            } else if (q.includes('صيانة') || q.includes('support') || q.includes('fix')) {
+                response = "للدعم الفني، يرجى الانتقال لصفحة 'بوابة الصيانة' لفتح تذكرة رسمية. فريقنا سيتصل بك خلال 24 ساعة.";
+            } else {
+                response = "عذراً، أنا أتعلم حالياً. هل يمكنك سؤالي عن منتج معين، أو تتبع طلب (مثلاً: تتبع ORD-1234)؟";
+            }
+
+            // Arabic/English Response Logic (Simulated)
+            if (currentLang === 'en' && !q.match(/[أ-ي]/)) {
+                if (response.includes('سعر')) response = `The price of ${foundProducts[0].name} is ${foundProducts[0].price} JOD. Should I add it to the cart?`;
+                else if (response.includes('وجدت')) response = `I found ${foundProducts.length} devices. The best is ${foundProducts[0].name}. It features ${foundProducts[0].specs ? foundProducts[0].specs[0] : 'high performance'}.`;
+                else if (response.includes('أهلاً')) response = "Welcome! I am ZOLNGEN AI. I can help find hardware, track orders, or open maintenance tickets.";
+                else if (response.includes('حالته')) response = `Order status for ${foundProducts[0]?.id || ''} is currently being checked.`; // Fallback
+                else if (response.includes('ORD-')) {
+                    const orderId = q.match(/ord-\d{4}/) ? q.match(/ord-\d{4}/)[0].toUpperCase() : '';
+                    const order = DB.getOrders().find(o => o.id === orderId);
+                    if(order) response = `Order ${orderId} is currently: **${order.status}**. Placed on ${order.date}.`;
+                    else response = `Sorry, I couldn't find order ${orderId}. Please check the number.`;
+                }
+            }
+
+            box.innerHTML += `<div style="background:rgba(212,175,55,0.1); padding:10px; border-radius:10px; align-self:flex-start; max-width:85%; font-size:0.9rem; border:1px solid var(--gold); border-left:4px solid var(--gold);">${response}</div>`;
+            box.scrollTop = box.scrollHeight;
+        }, 800);
     
     window.showSuccessModal = (title, orderObj) => {
         const sm = document.getElementById('success-modal');
@@ -679,14 +884,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
 
-            // Add My Orders Button if it doesn't exist
-            if(!document.getElementById('my-orders-btn')) {
+            // Add Dashboard & Orders Buttons
+            if(!document.getElementById('my-dashboard-btn')) {
+                const dashBtn = document.createElement('button');
+                dashBtn.id = 'my-dashboard-btn';
+                dashBtn.innerHTML = `<i class="fas fa-chart-line"></i> لوحة تحكم المؤسسة`;
+                dashBtn.style.cssText = `background:var(--grad); border:none; color:#000; padding:8px 15px; border-radius:8px; cursor:pointer; margin-right:10px; font-weight:bold; transition:0.3s;`;
+                dashBtn.onclick = () => location.href = 'client-dashboard.html';
+                parentDiv.insertBefore(dashBtn, btn);
+
                 const myOrdersBtn = document.createElement('button');
                 myOrdersBtn.id = 'my-orders-btn';
                 myOrdersBtn.innerHTML = `<i class="fas fa-receipt"></i> أرشيف الطلبات`;
                 myOrdersBtn.style.cssText = `background:none; border:1px solid var(--gold); color:var(--gold); padding:8px 15px; border-radius:8px; cursor:pointer; margin-right:10px; font-weight:bold; transition:0.3s;`;
                 myOrdersBtn.onclick = window.openMyOrders;
-                parentDiv.insertBefore(myOrdersBtn, btn);
+                parentDiv.insertBefore(myOrdersBtn, dashBtn);
             }
 
             // Pre-fill Order Form

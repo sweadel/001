@@ -178,7 +178,12 @@
             <!-- Tab: Orders -->
             <div id="orders-tab" class="tab-content" style="display:none;">
                 <div class="tools-bar">
-                    <input type="text" class="search-box" placeholder="بحث برقم الطلب أو اسم المؤسسة..." onkeyup="filterOrders(this.value)">
+                    <div style="display:flex; gap:15px; align-items:center;">
+                        <input type="text" id="order-search" class="search-box" style="width:250px;" placeholder="بحث برقم الطلب..." onkeyup="window.filterOrders()">
+                        <select id="entity-filter" class="search-box" style="width:250px; margin-bottom:0;" onchange="window.filterOrders()">
+                            <option value="">جميع المؤسسات والجهات</option>
+                        </select>
+                    </div>
                     <div class="action-btns">
                         <button class="btn btn-outline" onclick="exportOrdersToExcel()"><i class="fas fa-file-excel"></i> تصدير Excel</button>
                         <button class="btn btn-gold" onclick="generateReport()"><i class="fas fa-file-pdf"></i> تقرير شامل</button>
