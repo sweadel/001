@@ -89,6 +89,21 @@
             document.getElementById('inst-title').innerText = acc.inst;
             document.getElementById('client-user-name').innerText = acc.name;
 
+            // Language Support for Dashboard
+            let currentLang = localStorage.getItem('zolngen_lang') || 'ar';
+            const applyDashLang = () => {
+                document.documentElement.lang = currentLang;
+                document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+                const isAr = currentLang === 'ar';
+                document.querySelector('h1').innerText = isAr ? 'بوابة الشريك المؤسسي' : 'Institutional Partner Portal';
+                document.querySelectorAll('.cat-card p')[0].innerText = isAr ? 'إجمالي الطلبات' : 'Total Orders';
+                document.querySelectorAll('.cat-card p')[1].innerText = isAr ? 'إجمالي الإنفاق (JOD)' : 'Total Spend (JOD)';
+                document.querySelectorAll('.cat-card p')[2].innerText = isAr ? 'تذاكر صيانة نشطة' : 'Active Tickets';
+                document.querySelectorAll('.cat-card p')[3].innerText = isAr ? 'خصم المؤسسة المعتمد' : 'Institutional Discount';
+                document.querySelector('h2').innerText = isAr ? 'سجل التوريد الأخير' : 'Recent Procurement History';
+            };
+            applyDashLang();
+
             // Load Data
             const orders = DB.getOrders().filter(o => o.entity === acc.inst);
             const tickets = DB.getTickets().filter(t => t.entity === acc.inst && t.status === 'open');

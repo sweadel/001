@@ -112,14 +112,30 @@ document.addEventListener('DOMContentLoaded', () => {
             '#cart-sidebar h2': t.cart_title,
             '#cart-sidebar span:first-child': t.cart_total,
             '#btn-order-trigger': t.cart_btn_order,
-            '[onclick="generatePDFQuote()"]': t.cart_btn_pdf
+            '[onclick="generatePDFQuote()"]': t.cart_btn_pdf,
+            // Footer & More
+            '.footer-col:nth-child(1) h4': currentLang === 'ar' ? 'عن زولنجين' : 'About ZOLNGEN',
+            '.footer-col:nth-child(2) h4': currentLang === 'ar' ? 'روابط سريعة' : 'Quick Links',
+            '.footer-col:nth-child(3) h4': currentLang === 'ar' ? 'الكتالوج' : 'Catalog',
+            '.footer-col:nth-child(4) h4': currentLang === 'ar' ? 'النشرة البريدية' : 'Newsletter'
         };
 
         Object.entries(mappings).forEach(([selector, value]) => {
             const el = document.querySelector(selector);
             if (el) {
-                if (Array.isArray(value)) el.setAttribute(value[0], value[1]);
-                else el.innerHTML = value;
+                if (Array.isArray(value)) {
+                    el.setAttribute(value[0], value[1]);
+                } else {
+                    // Preserve icon if it exists
+                    const icon = el.querySelector('i');
+                    if (icon) {
+                        el.innerHTML = '';
+                        el.appendChild(icon);
+                        el.appendChild(document.createTextNode(' ' + value));
+                    } else {
+                        el.innerHTML = value;
+                    }
+                }
             }
         });
 
