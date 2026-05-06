@@ -10,6 +10,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderModal = document.getElementById('order-modal');
     
     // --- PREMIUM UX SETUP ---
+    // Load System Settings
+    if (DB.getSettings) {
+        const settings = DB.getSettings();
+        document.documentElement.style.setProperty('--gold', settings.primaryColor);
+        document.title = settings.storeName;
+    }
+
+    // Scroll Progress Indicator
+    const progressBar = document.createElement('div');
+    progressBar.style.cssText = 'position:fixed; top:0; left:0; height:4px; background:var(--gold); z-index:9999; transition:width 0.2s;';
+    document.body.appendChild(progressBar);
+    window.addEventListener('scroll', () => {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        progressBar.style.width = (winScroll / height) * 100 + "%";
+    });
+
     window.setupPremiumUX = () => {
         if (!document.getElementById('toast-container')) {
             const toastCont = document.createElement('div');
@@ -171,6 +188,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>اسم المسؤول:</span> <strong style="color:#fff;">${orderObj.fullName}</strong></div>
                     <div style="display:flex; justify-content:space-between; margin-top:15px;"><span>إجمالي القيمة التقديرية:</span> <strong style="color:var(--gold); font-size:1.2rem;">${orderObj.total.toFixed(2)} JOD</strong></div>
                 </div>
+                <!-- Visual Timeline Tracking -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; position:relative;">
+                    <div style="position:absolute; top:50%; left:10%; right:10%; height:2px; background:#333; z-index:1;"></div>
+                    <div style="position:relative; z-index:2; background:var(--gold); color:#000; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;"><i class="fas fa-check"></i></div>
+                    <div style="position:relative; z-index:2; background:#222; color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;"><i class="fas fa-box"></i></div>
+                    <div style="position:relative; z-index:2; background:#222; color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;"><i class="fas fa-truck"></i></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; color:#888; font-size:0.8rem; margin-top:5px;">
+                    <span>مستلم</span>
+                    <span>قيد التجهيز</span>
+                    <span>مشحون</span>
+                </div>
             `;
         } else if(detailsBox) {
             detailsBox.innerHTML = ''; // Clear for tickets
@@ -270,8 +299,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         targetContainer.innerHTML = products.length ? products.map(p => `
             <div class="product-card reveal active">
-                <div class="img-container" style="cursor:pointer;" onclick="openQuickView('${p.id}')" title="معاينة سريعة">
+                <div class="img-container" style="cursor:pointer; position:relative;" onclick="openQuickView('${p.id}')" title="معاينة سريعة">
                     <img src="${p.img}" alt="${p.name}" onerror="this.src='https://placehold.co/400x400/EEE/31343C?text=Hardware'">
+                    <button onclick="event.stopPropagation(); window.toggleWL('${p.id}')" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.5); border:none; color:${(DB.getWishlist && DB.getWishlist().includes(String(p.id))) ? 'var(--gold)' : '#fff'}; width:35px; height:35px; border-radius:50%; cursor:pointer; font-size:1.2rem; transition:0.3s; z-index:10;"><i class="fas fa-heart"></i></button>
+                    ${p.stock < 10 ? `<span style="position:absolute; top:10px; left:10px; background:var(--danger); color:#fff; padding:2px 8px; border-radius:4px; font-size:0.8rem; z-index:10;">كمية محدودة</span>` : ''}
                 </div>
                 <h3 style="cursor:pointer;" onclick="openQuickView('${p.id}')">${p.name}</h3>
                 <p class="category">${p.category || 'تجهيزات تقنية'}</p>
@@ -283,6 +314,14 @@ document.addEventListener('DOMContentLoaded', () => {
         targetContainer.querySelectorAll('.btn-add').forEach(btn => {
             btn.addEventListener('click', (e) => addToCart(e.target.dataset.id));
         });
+    };
+
+    window.toggleWL = (id) => {
+        if(DB.toggleWishlist) {
+            DB.toggleWishlist(id);
+            window.showToast('تم تحديث المفضلة بنجاح');
+            renderProducts(document.getElementById('prod-search')?.value || '');
+        }
     };
 
     const updateCartUI = () => {
@@ -369,8 +408,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('modal-close')?.addEventListener('click', () => orderModal.style.display = 'none');
 
+    let lastOrderTime = 0;
     document.getElementById('order-form')?.addEventListener('submit', (e) => {
         e.preventDefault();
+        
+        // Spam Protection (60 seconds cooldown)
+        const now = Date.now();
+        if (now - lastOrderTime < 60000) {
+            window.showToast('يرجى الانتظار دقيقة قبل إرسال طلب جديد لحماية النظام', 'error');
+            return;
+        }
+        lastOrderTime = now;
+
         const docId = document.getElementById('doc-id')?.value || 'غير محدد';
         const order = DB.placeOrder({
             fullName: document.getElementById('full-name').value,

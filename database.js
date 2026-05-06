@@ -129,6 +129,25 @@ const DB = {
         this.logAction(`تم تسجيل حساب موظف مؤسسي جديد: ${acc.name} (${acc.inst})`);
     },
 
+    // 9. System Settings & Customization
+    getSettings: function() {
+        return this.get('zolngen_settings').length ? this.get('zolngen_settings')[0] : { storeName: 'ZOLNGEN ENTERPRISE', primaryColor: '#d4af37', darkTheme: true };
+    },
+    saveSettings: function(s) {
+        this.set('zolngen_settings', [s]);
+        this.logAction(`تم تحديث إعدادات النظام بنجاح`);
+    },
+
+    // 10. Wishlist System
+    getWishlist: function() { return this.get('zolngen_wishlist'); },
+    toggleWishlist: function(prodId) {
+        let wl = this.getWishlist();
+        if(wl.includes(prodId)) wl = wl.filter(id => id !== prodId);
+        else wl.push(prodId);
+        this.set('zolngen_wishlist', wl);
+        return wl;
+    },
+
     // 6. Stats Engine (Dynamic)
     getProStats: function() {
         const prods = this.getProducts();

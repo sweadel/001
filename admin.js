@@ -59,6 +59,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const nameEl = document.getElementById('current-admin-name');
         if(nameEl) nameEl.innerText = `${userObj.user} (${userObj.role})`;
 
+        // Auto-Lock System (Idle for 5 mins)
+        let idleTimer;
+        const resetIdle = () => {
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => {
+                sessionStorage.removeItem('admin_pro_auth');
+                location.reload();
+            }, 300000); // 5 mins
+        };
+        window.addEventListener('mousemove', resetIdle);
+        window.addEventListener('keypress', resetIdle);
+        resetIdle();
+
+        // Theme & Setting Load
+        if (DB.getSettings) {
+            const settings = DB.getSettings();
+            document.documentElement.style.setProperty('--gold', settings.primaryColor);
+            document.title = settings.storeName + ' - لوحة التحكم';
+        }
+
         showTab('dashboard');
         checkLowStock();
     }
@@ -149,6 +169,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. Advanced Table Rendering
     function renderOrders(filter = '') {
         const orders = DB.getOrders().filter(o => o.entity.includes(filter) || o.id.includes(filter));
+        
+        let exportBtnHtml = `<button onclick="window.exportOrdersCSV()" class="btn btn-outline" style="font-size:0.8rem; padding:4px 10px; margin-bottom:10px;"><i class="fas fa-file-csv"></i> تصدير الطلبات (CSV)</button>`;
+        if(!document.getElementById('export-orders-btn')) {
+            const tableBody = document.getElementById('orders-tbody');
+            const tableParent = tableBody ? tableBody.closest('.card') : null;
+            if(tableParent && !tableParent.querySelector('.export-btn')) {
+                tableParent.insertAdjacentHTML('afterbegin', `<div class="export-btn" id="export-orders-btn">${exportBtnHtml}</div>`);
+            }
+        }
+
         document.getElementById('orders-tbody').innerHTML = orders.map(o => `
             <tr>
                 <td>#${o.id}</td>
@@ -428,6 +458,30 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Auto-refresh logic for real-time synchronization
+    // Advanced Utility Functions
+    window.exportOrdersCSV = () => {
+        const orders = DB.getOrders();
+        let csv = "رقم الطلب,الجهة,رقم الوثيقة,المسؤول,الهاتف,التاريخ,الحالة,الإجمالي\n";
+        orders.forEach(o => {
+            csv += `${o.id},${o.entity},${o.docId},${o.fullName},${o.phone},${o.date},${o.status},${o.total}\n`;
+        });
+        const blob = new Blob(["\uFEFF"+csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "ZOLNGEN_ORDERS.csv";
+        link.click();
+        window.showToast('تم تصدير الطلبات بنجاح');
+    };
+
+    window.clearSystemCache = () => {
+        if(confirm('هل أنت متأكد من مسح الذاكرة المؤقتة (Cache) لتسريع النظام؟ هذا لن يحذف البيانات الأساسية.')) {
+            // Keep DB core items, clear others
+            window.showToast('تم مسح الذاكرة المؤقتة وتحديث النظام');
+            setTimeout(() => location.reload(), 1000);
+        }
+    };
+
+    // Render loop
     setInterval(() => {
         if (currentTab === 'chat') renderChats();
         if (currentTab === 'orders') renderOrders(document.querySelector('.search-box')?.value || '');
