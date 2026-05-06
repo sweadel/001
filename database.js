@@ -148,6 +148,15 @@ const DB = {
         return wl;
     },
 
+    // 11. Advanced Features (Coupons, Notes)
+    getCoupons: function() { return [{code:'JU2024', discount:0.15}, {code:'ZOLNGEN10', discount:0.10}]; },
+    getInternalNotes: function() { return this.get('zolngen_internal_notes'); },
+    saveInternalNote: function(note) {
+        let notes = this.getInternalNotes();
+        notes.unshift({ text: note, date: new Date().toLocaleString('ar-EG') });
+        this.set('zolngen_internal_notes', notes.slice(0, 50));
+    },
+
     // 6. Stats Engine (Dynamic)
     getProStats: function() {
         const prods = this.getProducts();
@@ -157,16 +166,17 @@ const DB = {
             totalProfit: orders.reduce((acc, o) => acc + (o.profit || 0), 0),
             activeOrders: orders.filter(o => o.status !== 'delivered').length,
             lowStock: prods.filter(p => p.stock < 10).length,
-            inventoryValue: prods.reduce((acc, p) => acc + (p.price * p.stock), 0)
+            inventoryValue: prods.reduce((acc, p) => acc + (p.price * p.stock), 0),
+            openTickets: this.getTickets().filter(t => t.status === 'open').length
         };
     },
 
     seed: function() {
         const initial = [
-            { id: '1', name: 'HP EliteBook 840 G9', price: 1250, cost: 950, stock: 45, category: 'أجهزة محمولة', supplier: 'HP Jordan', img: 'category_laptops.png', specs: ['Intel Core i7-1260P', '16GB DDR5 RAM', '512GB PCIe NVMe SSD', '14" WUXGA Display'] },
-            { id: '2', name: 'Dell Latitude 7430', price: 1180, cost: 880, stock: 5, category: 'أجهزة محمولة', supplier: 'Dell Enterprise', img: 'zolngen_hero_laptop.png', specs: ['Intel Core i5-1245U', '16GB LPDDR5', '256GB SSD', 'Carbon Fiber Chassis'] },
-            { id: '3', name: 'Apple MacBook Pro M2', price: 1850, cost: 1600, stock: 12, category: 'أجهزة محمولة', supplier: 'Apple Authorized', img: 'category_laptops.png', specs: ['Apple M2 Pro Chip', '16GB Unified Memory', '512GB SSD', 'Liquid Retina XDR'] },
-            { id: '4', name: 'Dell PowerEdge R750', price: 4500, cost: 3800, stock: 3, category: 'خوادم وشبكات', supplier: 'Dell Enterprise', img: 'zolngen_hero_laptop.png', specs: ['Dual Intel Xeon Silver', '128GB RDIMM', '4x 2TB SAS SSD', 'Dual Hot-plug PSU'] }
+            { id: '1', name: 'HP EliteBook 840 G9', price: 1250, cost: 950, stock: 45, category: 'أجهزة محمولة', supplier: 'HP Jordan', img: 'category_laptops.png', specs: ['Intel Core i7-1260P', '16GB DDR5 RAM', '512GB PCIe NVMe SSD', '14" WUXGA Display'], rating: 4.8 },
+            { id: '2', name: 'Dell Latitude 7430', price: 1180, cost: 880, stock: 5, category: 'أجهزة محمولة', supplier: 'Dell Enterprise', img: 'zolngen_hero_laptop.png', specs: ['Intel Core i5-1245U', '16GB LPDDR5', '256GB SSD', 'Carbon Fiber Chassis'], rating: 4.5 },
+            { id: '3', name: 'Apple MacBook Pro M2', price: 1850, cost: 1600, stock: 12, category: 'أجهزة محمولة', supplier: 'Apple Authorized', img: 'category_laptops.png', specs: ['Apple M2 Pro Chip', '16GB Unified Memory', '512GB SSD', 'Liquid Retina XDR'], rating: 5.0 },
+            { id: '4', name: 'Dell PowerEdge R750', price: 4500, cost: 3800, stock: 3, category: 'خوادم وشبكات', supplier: 'Dell Enterprise', img: 'zolngen_hero_laptop.png', specs: ['Dual Intel Xeon Silver', '128GB RDIMM', '4x 2TB SAS SSD', 'Dual Hot-plug PSU'], rating: 4.9 }
         ];
         this.set('zolngen_inventory', initial);
         return initial;

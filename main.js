@@ -305,6 +305,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${p.stock < 10 ? `<span style="position:absolute; top:10px; left:10px; background:var(--danger); color:#fff; padding:2px 8px; border-radius:4px; font-size:0.8rem; z-index:10;">كمية محدودة</span>` : ''}
                 </div>
                 <h3 style="cursor:pointer;" onclick="openQuickView('${p.id}')">${p.name}</h3>
+                <div style="color:var(--gold); font-size:0.8rem; margin:5px 0;">
+                    ${'<i class="fas fa-star"></i>'.repeat(Math.floor(p.rating || 5))}
+                    ${(p.rating || 5) % 1 !== 0 ? '<i class="fas fa-star-half-alt"></i>' : ''}
+                    <span style="color:#888;">(${(p.rating || 5).toFixed(1)})</span>
+                </div>
                 <p class="category">${p.category || 'تجهيزات تقنية'}</p>
                 <div class="price">${(p.price || 0).toFixed(2)} د.أ</div>
                 <button class="btn-add" data-id="${p.id}">أضف إلى الطلب</button>
@@ -324,18 +329,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    let appliedDiscount = 0;
+
+    window.applyCoupon = () => {
+        const input = document.getElementById('coupon-code');
+        if(!input || !input.value.trim()) return;
+        const code = input.value.trim().toUpperCase();
+        const coupons = DB.getCoupons ? DB.getCoupons() : [];
+        const valid = coupons.find(c => c.code === code);
+        
+        if(valid) {
+            appliedDiscount = valid.discount;
+            window.showToast(`تم تطبيق خصم المؤسسة: ${valid.discount * 100}% بنجاح`);
+            updateCartUI();
+        } else {
+            window.showToast('كود الخصم غير صالح أو منتهي الصلاحية', 'error');
+            appliedDiscount = 0;
+            updateCartUI();
+        }
+    };
+
     const updateCartUI = () => {
         localStorage.setItem('zolngen_cart', JSON.stringify(cart));
         const totalItems = cart.reduce((acc, i) => acc + i.qty, 0);
         let rawTotal = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
-        let discount = totalItems >= 5 ? rawTotal * 0.1 : 0;
+        
+        // Volume Discount (10% if > 5 items) OR Coupon Discount
+        let discountRate = totalItems >= 5 ? 0.1 : 0;
+        if(appliedDiscount > discountRate) discountRate = appliedDiscount;
+        
+        let finalDiscount = rawTotal * discountRate;
         
         if (cartCount) cartCount.innerText = totalItems;
         if (cartTotalVal) {
-            cartTotalVal.innerText = (rawTotal - discount).toFixed(2);
-            if (discount > 0) {
-                cartTotalVal.innerHTML += `<br><span style="font-size:1rem; color:#2ecc71; display:block; margin-top:10px;">خصم كميات مؤسسية (10%): -${discount.toFixed(2)} JOD</span>`;
-            }
+            cartTotalVal.innerText = (rawTotal - finalDiscount).toFixed(2);
         }
         
         if (cartItemsContainer) {
@@ -428,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
             entity: document.getElementById('university').value,
             notes: document.getElementById('notes').value,
             items: [...cart],
-            total: cart.reduce((acc, i) => acc + (i.price * i.qty), 0)
+            total: cart.reduce((acc, i) => acc + (i.price * i.qty), 0) * (1 - appliedDiscount)
         });
         cart = []; updateCartUI();
         orderModal.style.display = 'none';
@@ -617,6 +644,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!btn) return;
 
         const sessionClient = sessionStorage.getItem('zolngen_client_user');
+        const parentDiv = btn.parentElement;
+
         if (sessionClient) {
             const acc = JSON.parse(sessionClient);
             btn.innerHTML = `<i class="fas fa-user-circle"></i> ${acc.name}`;
@@ -627,6 +656,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.showToast('تم تسجيل الخروج بنجاح');
                 }
             };
+
+            // Add My Orders Button if it doesn't exist
+            if(!document.getElementById('my-orders-btn')) {
+                const myOrdersBtn = document.createElement('button');
+                myOrdersBtn.id = 'my-orders-btn';
+                myOrdersBtn.innerHTML = `<i class="fas fa-receipt"></i> أرشيف الطلبات`;
+                myOrdersBtn.style.cssText = `background:none; border:1px solid var(--gold); color:var(--gold); padding:8px 15px; border-radius:8px; cursor:pointer; margin-right:10px; font-weight:bold; transition:0.3s;`;
+                myOrdersBtn.onclick = window.openMyOrders;
+                parentDiv.insertBefore(myOrdersBtn, btn);
+            }
 
             // Pre-fill Order Form
             if(document.getElementById('full-name')) document.getElementById('full-name').value = acc.name;
@@ -641,12 +680,43 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.innerHTML = `تسجيل المؤسسات`;
             btn.onclick = () => document.getElementById('client-auth-modal').style.display = 'flex';
             
+            // Remove My Orders Button
+            const moBtn = document.getElementById('my-orders-btn');
+            if(moBtn) moBtn.remove();
+
             // Clear Order Form
             if(document.getElementById('full-name')) document.getElementById('full-name').value = '';
             if(document.getElementById('phone')) document.getElementById('phone').value = '';
             if(document.getElementById('doc-id')) document.getElementById('doc-id').value = '';
             if(document.getElementById('university')) document.getElementById('university').value = '';
         }
+    };
+
+    window.openMyOrders = () => {
+        const sessionClient = sessionStorage.getItem('zolngen_client_user');
+        if(!sessionClient) return;
+        const acc = JSON.parse(sessionClient);
+        
+        const orders = DB.getOrders().filter(o => o.entity === acc.inst || o.fullName === acc.name);
+        const listDiv = document.getElementById('my-orders-list');
+        
+        if(listDiv) {
+            listDiv.innerHTML = orders.length ? orders.map(o => `
+                <div style="background:#111; border-left:4px solid var(--gold); padding:20px; border-radius:10px; margin-bottom:15px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <strong style="color:var(--gold); font-size:1.2rem;">رقم الطلب: #${o.id}</strong>
+                        <span style="color:#888;">${o.date}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span>القيمة الإجمالية: <strong>${o.total.toFixed(2)} JOD</strong></span>
+                        <span class="badge bg-${o.status === 'delivered' ? 'success' : 'pending'}">${o.status === 'delivered' ? 'مكتمل' : 'نشط'}</span>
+                    </div>
+                </div>
+            `).join('') : '<p style="text-align:center; color:#888;">لا توجد طلبات سابقة في سجلك المؤسسي.</p>';
+        }
+
+        const modal = document.getElementById('my-orders-modal');
+        if(modal) modal.style.display = 'flex';
     };
 
     // Run auth UI init

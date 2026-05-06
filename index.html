@@ -199,6 +199,10 @@
                 <input type="text" id="doc-id" placeholder="الرقم المرجعي / الوثيقة (الرقم الجامعي أو السجل التجاري)" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
                 <input type="text" id="university" list="entities-list" placeholder="اسم الجهة المستفيدة / المؤسسة / الجامعة" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
                 <datalist id="entities-list"></datalist>
+                <div style="display:flex; gap:10px; margin-bottom:1.2rem;">
+                    <input type="text" id="coupon-code" placeholder="كود الخصم المؤسسي (إن وجد)" style="flex:1; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; text-transform:uppercase;">
+                    <button type="button" class="btn btn-outline" onclick="window.applyCoupon()" style="padding:0 1.5rem;">تطبيق</button>
+                </div>
                 <textarea id="notes" placeholder="أي مواصفات خاصة أو ملاحظات إضافية..." rows="3" style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:2rem;"></textarea>
                 <div style="display:flex; gap:1.5rem;">
                     <button type="submit" class="btn btn-gold" style="flex:1; justify-content:center;">إرسال الطلب</button>
@@ -209,6 +213,17 @@
     </div>
 
 
+
+    <!-- My Orders Modal -->
+    <div id="my-orders-modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+        <div style="background:var(--surface); border:2px solid var(--gold); border-radius:30px; width:95%; max-width:800px; padding:3rem; max-height:80vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <h2 style="color:var(--gold); font-size:2rem;">أرشيف الفواتير والطلبات</h2>
+                <button onclick="document.getElementById('my-orders-modal').style.display='none'" style="background:none; border:none; color:#fff; font-size:2rem; cursor:pointer;">&times;</button>
+            </div>
+            <div id="my-orders-list" style="display:flex; flex-direction:column; gap:15px;"></div>
+        </div>
+    </div>
 
     <script src="database.js"></script>
     <script src="main.js"></script>

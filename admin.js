@@ -161,10 +161,28 @@ document.addEventListener('DOMContentLoaded', () => {
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
         });
 
-        // Mini Audit
+        // Mini Audit & Internal Notes
         const logs = DB.getAuditLog().slice(0, 5);
         document.getElementById('mini-audit').innerHTML = logs.map(l => `<div style="margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:5px;">${l.action} <br><small>${l.date}</small></div>`).join('');
+        
+        window.renderNotes = () => {
+            const notes = DB.getInternalNotes ? DB.getInternalNotes() : [];
+            const box = document.getElementById('internal-notes-box');
+            if(box) {
+                box.innerHTML = notes.map(n => `<div style="margin-bottom:10px; padding-bottom:5px; border-bottom:1px solid #222;"><strong style="color:var(--gold); font-size:0.8rem;">${n.date}</strong><br>${n.text}</div>`).join('') || '<div style="color:#666;">لا توجد ملاحظات داخلية...</div>';
+            }
+        };
+        window.renderNotes();
     }
+
+    window.addNote = () => {
+        const input = document.getElementById('new-note-input');
+        if(!input || !input.value.trim() || !DB.saveInternalNote) return;
+        DB.saveInternalNote(input.value.trim());
+        input.value = '';
+        window.showToast('تم حفظ الملاحظة الداخلية بنجاح');
+        if(window.renderNotes) window.renderNotes();
+    };
 
     // 4. Advanced Table Rendering
     function renderOrders(filter = '') {
@@ -223,19 +241,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderTickets() {
         const tickets = DB.getTickets();
-        document.getElementById('tickets-tbody').innerHTML = tickets.length ? tickets.map(t => `
+        document.getElementById('tickets-tbody').innerHTML = tickets.length ? tickets.map(t => {
+            // SLA Calculation Mock
+            let sla = 'منذ ';
+            if(t.status === 'open') {
+                const hours = Math.floor(Math.random() * 48) + 1; // Mock elapsed hours
+                sla += hours > 24 ? `<span style="color:var(--danger); font-weight:bold;">${hours} ساعة (مخالفة)</span>` : `<span style="color:var(--gold);">${hours} ساعة</span>`;
+            } else sla = '-';
+
+            return `
             <tr>
                 <td>#${t.id.split('-')[1]}</td>
                 <td><strong>${t.entity}</strong></td>
                 <td>${t.issue}</td>
                 <td>${t.date}</td>
+                <td>${sla}</td>
                 <td><span class="badge bg-${t.status === 'resolved' ? 'success' : 'pending'}">${t.status === 'resolved' ? 'تم الحل' : 'مفتوحة'}</span></td>
                 <td>
                     ${t.status !== 'resolved' ? `<button class="btn btn-outline btn-sm" onclick="resolveTicket('${t.id}')"><i class="fas fa-check" style="color:var(--success);"></i> حل المشكلة</button>` : '<span style="color:var(--success); font-weight:800;"><i class="fas fa-check-circle"></i> مغلقة</span>'}
                 </td>
             </tr>
-        `).join('') : '<tr><td colspan="6" style="text-align:center; padding:2rem; color:#666;">لا توجد تذاكر صيانة حالية</td></tr>';
+            `;
+        }).join('') : '<tr><td colspan="7" style="text-align:center; padding:2rem; color:#666;">لا توجد تذاكر صيانة حالية</td></tr>';
     }
+
+    window.bulkCloseTickets = () => {
+        if(confirm('هل أنت متأكد من إغلاق كافة تذاكر الصيانة المفتوحة؟')) {
+            const tickets = DB.getTickets();
+            let count = 0;
+            tickets.forEach(t => {
+                if(t.status === 'open') {
+                    t.status = 'resolved';
+                    count++;
+                }
+            });
+            localStorage.setItem('zolngen_tickets', JSON.stringify(tickets));
+            DB.logAction(`تم إغلاق ${count} تذكرة صيانة بشكل مجمع`);
+            window.showToast(`تم إغلاق ${count} تذكرة بنجاح`);
+            renderTickets();
+        }
+    };
 
     function renderAudit() {
         const logs = DB.getAuditLog();
@@ -481,12 +526,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // System Settings Logic
+    const settingsForm = document.getElementById('settings-form');
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newSettings = {
+                storeName: document.getElementById('set-store-name').value,
+                primaryColor: document.getElementById('set-primary-color').value,
+                darkTheme: true
+            };
+            if(DB.saveSettings) DB.saveSettings(newSettings);
+            window.showToast('تم حفظ الإعدادات... جاري إعادة تشغيل النظام');
+            setTimeout(() => location.reload(), 1500);
+        });
+        
+        // Load initial values to inputs
+        if (DB.getSettings) {
+            const s = DB.getSettings();
+            document.getElementById('set-store-name').value = s.storeName;
+            document.getElementById('set-primary-color').value = s.primaryColor;
+        }
+    }
+
+    // Sound Alert System
+    let previousOrderCount = DB.getOrders().length;
+    const playAlertSound = () => {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.1);
+        } catch(e) {}
+    };
+
     // Render loop
     setInterval(() => {
+        const currentOrders = DB.getOrders();
+        if (currentOrders.length > previousOrderCount) {
+            playAlertSound();
+            window.showToast('تنبيه: تم استلام طلب مؤسسي جديد!', 'success');
+            previousOrderCount = currentOrders.length;
+        }
+
         if (currentTab === 'chat') renderChats();
         if (currentTab === 'orders') renderOrders(document.querySelector('.search-box')?.value || '');
         if (currentTab === 'client-accounts') renderClientAccounts();
-        if (currentTab === 'dashboard') checkLowStock();
+        if (currentTab === 'dashboard') {
+            checkLowStock();
+            if(window.renderNotes) window.renderNotes();
+        }
     }, 3000);
 
     // Sidebar Links
