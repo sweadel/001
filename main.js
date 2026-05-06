@@ -267,36 +267,58 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('qv-modal').style.display = 'flex';
     };
 
-    window.searchProducts = (val) => renderProducts(val);
-
     document.querySelectorAll('.pill').forEach(btn => {
         btn.addEventListener('click', (e) => {
             document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
             e.target.classList.add('active');
             currentCategoryFilter = e.target.dataset.cat;
-            renderProducts(document.getElementById('prod-search')?.value || '');
+            window.applyAdvancedFilters();
         });
     });
 
-    // --- RENDER LOGIC ---
-    const renderProducts = (filter = '') => {
+    window.searchProducts = () => window.applyAdvancedFilters();
+
+    window.applyAdvancedFilters = () => {
         const prodContainer = document.getElementById('product-container');
         const fullProdContainer = document.getElementById('full-product-container');
-        
         const targetContainer = fullProdContainer || prodContainer;
         if (!targetContainer) return;
 
-        let products = DB.getProducts().filter(p => 
-            (p.name.toLowerCase().includes(filter.toLowerCase()) || 
-             (p.category || '').toLowerCase().includes(filter.toLowerCase())) &&
-            (currentCategoryFilter === '' || (p.category || '') === currentCategoryFilter)
-        );
+        const nameFilter = (document.getElementById('prod-search')?.value || '').toLowerCase();
+        const maxPrice = parseFloat(document.getElementById('price-filter')?.value || 100000);
+        const ramFilter = document.getElementById('ram-filter')?.value || '';
+
+        let products = DB.getProducts().filter(p => p.stock > 0);
+
+        products = products.filter(p => {
+            // Category Match
+            if(currentCategoryFilter && p.category !== currentCategoryFilter) return false;
+            
+            // Name Match
+            if(nameFilter && !p.name.toLowerCase().includes(nameFilter) && !(p.category || '').toLowerCase().includes(nameFilter)) return false;
+            
+            // Price Match
+            if(p.price > maxPrice) return false;
+
+            // RAM Specs Match
+            if(ramFilter) {
+                const specs = p.specs ? p.specs.join(' ') : '';
+                if(!specs.includes(ramFilter)) return false; // Mock exact match for simplicity
+            }
+
+            return true;
+        });
 
         // Limit to 4 items on the home page preview
-        if (prodContainer && !fullProdContainer && filter === '') {
+        if (prodContainer && !fullProdContainer && !nameFilter && !currentCategoryFilter) {
             products = products.slice(0, 4);
         }
 
+        renderProductsHTML(products, targetContainer);
+    };
+
+    // --- RENDER LOGIC ---
+    const renderProductsHTML = (products, targetContainer) => {
         targetContainer.innerHTML = products.length ? products.map(p => `
             <div class="product-card reveal active">
                 <div class="img-container" style="cursor:pointer; position:relative;" onclick="openQuickView('${p.id}')" title="معاينة سريعة">
@@ -325,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(DB.toggleWishlist) {
             DB.toggleWishlist(id);
             window.showToast('تم تحديث المفضلة بنجاح');
-            renderProducts(document.getElementById('prod-search')?.value || '');
+            window.applyAdvancedFilters();
         }
     };
 
@@ -529,7 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- INITIALIZE ---
-    renderProducts();
+    window.applyAdvancedFilters();
     updateCartUI();
     
     // Load Entities for autocomplete globally
@@ -707,9 +729,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         <strong style="color:var(--gold); font-size:1.2rem;">رقم الطلب: #${o.id}</strong>
                         <span style="color:#888;">${o.date}</span>
                     </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span>القيمة الإجمالية: <strong>${o.total.toFixed(2)} JOD</strong></span>
-                        <span class="badge bg-${o.status === 'delivered' ? 'success' : 'pending'}">${o.status === 'delivered' ? 'مكتمل' : 'نشط'}</span>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <button class="btn btn-outline btn-sm" onclick="window.printInvoice('${o.id}')"><i class="fas fa-print"></i> طباعة الفاتورة</button>
+                            <span class="badge bg-${o.status === 'delivered' ? 'success' : 'pending'}">${o.status === 'delivered' ? 'مكتمل' : 'نشط'}</span>
+                        </div>
                     </div>
                 </div>
             `).join('') : '<p style="text-align:center; color:#888;">لا توجد طلبات سابقة في سجلك المؤسسي.</p>';
@@ -717,6 +742,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const modal = document.getElementById('my-orders-modal');
         if(modal) modal.style.display = 'flex';
+    };
+
+    window.printInvoice = (orderId) => {
+        const order = DB.getOrders().find(o => String(o.id) === String(orderId));
+        if(!order) return;
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(18); 
+        doc.text("ZOLNGEN ENTERPRISE - OFFICIAL INVOICE", 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Order Number: #${order.id}`, 20, 35);
+        doc.text(`Entity: ${order.entity}`, 20, 45);
+        doc.text(`Date: ${order.date}`, 20, 55);
+        
+        let y = 70;
+        doc.text("Items:", 20, y);
+        y += 10;
+        if(order.items && order.items.length) {
+            order.items.forEach(i => {
+                doc.text(`- ${i.name} (Qty: ${i.qty}) = ${(i.price * i.qty).toFixed(2)} JOD`, 25, y);
+                y += 10;
+            });
+        }
+        
+        y += 10;
+        doc.setFontSize(14);
+        doc.text(`Grand Total: ${order.total.toFixed(2)} JOD`, 20, y);
+        doc.save(`Invoice_${order.id}.pdf`);
+        window.showToast('تم تحميل الفاتورة بنجاح');
     };
 
     // Run auth UI init

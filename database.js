@@ -52,15 +52,21 @@ const DB = {
 
     // 3. Maintenance Ticketing System
     getTickets: function() { return this.get('zolngen_tickets'); },
-    createTicket: function(t) {
+    createTicket: function(data) {
         let tickets = this.getTickets();
-        t.id = 'TCK-' + Date.now();
-        t.status = 'open';
-        t.date = new Date().toLocaleString('ar-EG');
-        tickets.unshift(t);
+        const newTicket = {
+            id: 'TCK-' + Date.now(),
+            entity: data.entity,
+            type: data.type,
+            issue: data.issue,
+            urgency: data.urgency || 'Low',
+            status: 'open',
+            date: new Date().toLocaleString('ar-EG')
+        };
+        tickets.unshift(newTicket);
         this.set('zolngen_tickets', tickets);
-        this.logAction(`Maintenance Ticket Created: ${t.id}`);
-        return t;
+        this.logAction(`Maintenance Ticket Created: ${newTicket.id}`);
+        return newTicket;
     },
 
     // 4. Supplier & Entity Management

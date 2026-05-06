@@ -60,6 +60,12 @@
                         <option value="Network">أعطال في الشبكة</option>
                         <option value="Other">صيانة دورية</option>
                     </select>
+                    <select id="m-urgency-p" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #333; border-radius:12px; color:#fff; margin-bottom:1.5rem; outline:none; appearance:none;">
+                        <option value="" disabled selected>درجة الأهمية / مستوى الخدمة (SLA)</option>
+                        <option value="High">حرجة (توقف كامل للنظام) - استجابة خلال 4 ساعات</option>
+                        <option value="Medium">متوسطة (عطل جزئي) - استجابة خلال 24 ساعة</option>
+                        <option value="Low">منخفضة (استفسار / صيانة دورية) - استجابة خلال 48 ساعة</option>
+                    </select>
                     <textarea id="m-issue-p" rows="6" placeholder="تفاصيل العطل والظواهر المرافقة..." required style="width:100%; padding:1.2rem; background:#000; border:1px solid #333; border-radius:12px; color:#fff; margin-bottom:2rem; outline:none; resize:none;"></textarea>
                     <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; padding:1.2rem; font-size:1.1rem;">إرسال طلب الصيانة</button>
                 </form>

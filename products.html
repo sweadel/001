@@ -64,9 +64,26 @@
             <button class="pill" data-cat="خوادم وشبكات">خوادم وشبكات</button>
             <button class="pill" data-cat="ملحقات">ملحقات</button>
         </div>
-        <div class="filter-bar">
-            <input type="text" id="prod-search" placeholder="ابحث عن جهاز أو فئة..." onkeyup="searchProducts(this.value)">
-            <button class="btn btn-gold" style="padding:0 2rem;"><i class="fas fa-search"></i></button>
+        <!-- Advanced Filters -->
+        <div style="background:#111; padding:20px; border-radius:15px; margin-bottom:30px; display:flex; flex-wrap:wrap; gap:20px; align-items:flex-end;">
+            <div style="flex:1; min-width:200px;">
+                <label style="color:var(--gold); display:block; margin-bottom:10px;">البحث بالاسم</label>
+                <input type="text" id="prod-search" placeholder="ابحث عن أجهزة الخوادم والمحمول..." style="width:100%; padding:15px; background:#000; border:1px solid #333; color:#fff; border-radius:10px;" onkeyup="window.searchProducts(this.value)">
+            </div>
+            <div style="flex:1; min-width:200px;">
+                <label style="color:var(--gold); display:block; margin-bottom:10px;">نطاق السعر (أقل من)</label>
+                <input type="range" id="price-filter" min="100" max="10000" step="100" value="10000" style="width:100%; accent-color:var(--gold);" onchange="document.getElementById('price-val').innerText = this.value + ' JOD'; window.applyAdvancedFilters()">
+                <div style="text-align:left; color:#888; font-size:0.8rem; margin-top:5px;" id="price-val">10000 JOD</div>
+            </div>
+            <div style="flex:1; min-width:200px;">
+                <label style="color:var(--gold); display:block; margin-bottom:10px;">سعة الذاكرة (RAM)</label>
+                <select id="ram-filter" style="width:100%; padding:15px; background:#000; border:1px solid #333; color:#fff; border-radius:10px;" onchange="window.applyAdvancedFilters()">
+                    <option value="">جميع السعات</option>
+                    <option value="16GB">16GB RAM أو أعلى</option>
+                    <option value="32GB">32GB RAM أو أعلى</option>
+                    <option value="128GB">128GB RAM (للخوادم)</option>
+                </select>
+            </div>
         </div>
         
         <div class="products-grid" id="full-product-container">
@@ -109,7 +126,7 @@
                 <datalist id="entities-list"></datalist>
                 <div style="display:flex; gap:10px; margin-bottom:1.2rem;">
                     <input type="text" id="coupon-code" placeholder="كود الخصم المؤسسي (إن وجد)" style="flex:1; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; text-transform:uppercase;">
-                    <button type="button" class="btn btn-outline" onclick="window.applyCoupon()" style="padding:0 1.5rem;">تطبيق</button>
+                <button type="button" class="btn btn-outline" onclick="window.applyCoupon()" style="padding:0 1.5rem;">تطبيق</button>
                 </div>
                 <textarea id="notes" placeholder="أي مواصفات خاصة أو ملاحظات إضافية..." rows="3" style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:2rem;"></textarea>
                 <div style="display:flex; gap:1.5rem;">

@@ -161,6 +161,16 @@ document.addEventListener('DOMContentLoaded', () => {
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
         });
 
+        // Revenue Goal Progress
+        const GOAL = 50000;
+        const progress = Math.min((stats.totalSales / GOAL) * 100, 100);
+        const goalBar = document.getElementById('goal-progress-bar');
+        const goalText = document.getElementById('goal-progress-text');
+        if (goalBar && goalText) {
+            goalBar.style.width = `${progress}%`;
+            goalText.innerText = `${progress.toFixed(1)}%`;
+        }
+
         // Mini Audit & Internal Notes
         const logs = DB.getAuditLog().slice(0, 5);
         document.getElementById('mini-audit').innerHTML = logs.map(l => `<div style="margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:5px;">${l.action} <br><small>${l.date}</small></div>`).join('');
@@ -197,24 +207,82 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        document.getElementById('orders-tbody').innerHTML = orders.map(o => `
+        document.getElementById('orders-tbody').innerHTML = orders.map(o => {
+            let statusBadge = '';
+            let actionBtns = '';
+            
+            if (o.status === 'pending') {
+                statusBadge = '<span class="badge bg-pending">قيد المراجعة</span>';
+                actionBtns = `
+                    <button class="btn btn-outline btn-sm" onclick="window.approveOrder('${o.id}')" style="color:var(--gold); border-color:var(--gold);">موافقة</button>
+                    <button class="btn btn-outline btn-sm" onclick="window.rejectOrder('${o.id}')" style="color:var(--danger); border-color:var(--danger);"><i class="fas fa-times"></i></button>
+                `;
+            } else if (o.status === 'approved') {
+                statusBadge = '<span class="badge" style="background:#2980b9; color:#fff;">موافق عليه / جاري التجهيز</span>';
+                actionBtns = `<button class="btn btn-outline btn-sm" onclick="window.shipOrder('${o.id}')" style="color:#2980b9; border-color:#2980b9;">شحن الطلب</button>`;
+            } else if (o.status === 'shipped') {
+                statusBadge = '<span class="badge" style="background:#f39c12; color:#fff;">تم الشحن</span>';
+                actionBtns = `<button class="btn btn-outline btn-sm" onclick="deliverOrder('${o.id}')">تأكيد الاستلام</button>`;
+            } else if (o.status === 'delivered') {
+                statusBadge = '<span class="badge bg-success">مكتمل</span>';
+                actionBtns = `<span style="color:var(--success); font-weight:bold;"><i class="fas fa-check-double"></i> أُغلق</span>`;
+            } else {
+                statusBadge = '<span class="badge bg-danger">مرفوض</span>';
+                actionBtns = `-`;
+            }
+
+            return `
             <tr>
                 <td>#${o.id}</td>
                 <td><strong>${o.entity}</strong></td>
                 <td>${o.date}</td>
                 <td style="color:var(--primary); font-weight:700;">${o.total.toFixed(2)}</td>
                 <td style="color:var(--success);">${(o.profit || 0).toFixed(2)}</td>
-                <td><span class="badge bg-${o.status === 'delivered' ? 'success' : 'pending'}">${o.status === 'delivered' ? 'مكتمل' : 'نشط'}</span></td>
-                <td><button class="btn btn-outline btn-sm" onclick="deliverOrder('${o.id}')">تسليم</button></td>
+                <td>${statusBadge}</td>
+                <td style="display:flex; gap:5px;">${actionBtns}</td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
     }
+
+    // Advanced Order Workflows
+    window.approveOrder = (id) => {
+        const orders = DB.getOrders();
+        const o = orders.find(x => x.id === id);
+        if(o) { o.status = 'approved'; localStorage.setItem('zolngen_orders', JSON.stringify(orders)); renderOrders(); window.showToast('تمت الموافقة على الطلب بنجاح'); }
+    };
+    window.rejectOrder = (id) => {
+        if(!confirm('هل أنت متأكد من رفض هذا الطلب؟')) return;
+        const orders = DB.getOrders();
+        const o = orders.find(x => x.id === id);
+        if(o) { o.status = 'rejected'; localStorage.setItem('zolngen_orders', JSON.stringify(orders)); renderOrders(); window.showToast('تم رفض الطلب', 'error'); }
+    };
+    window.shipOrder = (id) => {
+        const orders = DB.getOrders();
+        const o = orders.find(x => x.id === id);
+        if(o) { o.status = 'shipped'; localStorage.setItem('zolngen_orders', JSON.stringify(orders)); renderOrders(); window.showToast('تم تحويل حالة الطلب إلى (مشحون)'); }
+    };
 
     function renderInventory() {
         const prods = DB.getProducts();
+        
+        let bulkDeleteHtml = `<button onclick="window.bulkDeleteProducts()" class="btn btn-outline" style="color:var(--danger); border-color:var(--danger); font-size:0.8rem; padding:4px 10px; margin-bottom:10px;"><i class="fas fa-trash-alt"></i> حذف المنتجات المحددة</button>`;
+        if(!document.getElementById('bulk-delete-btn')) {
+            const tableBody = document.getElementById('inventory-tbody');
+            const tableParent = tableBody ? tableBody.closest('.table-wrap') : null;
+            if(tableParent && !tableParent.querySelector('.bulk-btn')) {
+                tableParent.insertAdjacentHTML('afterbegin', `<div class="bulk-btn" id="bulk-delete-btn">${bulkDeleteHtml}</div>`);
+            }
+        }
+
         document.getElementById('inventory-tbody').innerHTML = prods.map(p => `
             <tr class="${p.stock < 10 ? 'low-stock-row' : ''}">
-                <td><strong>${p.name}</strong><br><small>${p.category}</small></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <input type="checkbox" class="prod-checkbox" value="${p.id}">
+                        <div><strong>${p.name}</strong><br><small>${p.category}</small></div>
+                    </div>
+                </td>
                 <td>${p.supplier || 'غير محدد'}</td>
                 <td>${(p.cost || 0).toFixed(2)}</td>
                 <td style="color:var(--primary); font-weight:700;">${p.price.toFixed(2)}</td>
@@ -226,6 +294,20 @@ document.addEventListener('DOMContentLoaded', () => {
             </tr>
         `).join('');
     }
+
+    window.bulkDeleteProducts = () => {
+        const checkboxes = document.querySelectorAll('.prod-checkbox:checked');
+        if(checkboxes.length === 0) return window.showToast('لم يتم تحديد أي منتجات', 'error');
+        if(!confirm(`هل أنت متأكد من حذف ${checkboxes.length} منتج؟`)) return;
+        
+        const idsToDelete = Array.from(checkboxes).map(c => c.value);
+        let products = DB.getProducts();
+        products = products.filter(p => !idsToDelete.includes(p.id));
+        localStorage.setItem('zolngen_products', JSON.stringify(products));
+        DB.logAction(`حذف مجمع لعدد ${checkboxes.length} منتجات`);
+        window.showToast('تم الحذف المجمع بنجاح');
+        renderInventory();
+    };
 
     function renderEntities() {
         const ents = DB.getEntities();
@@ -249,21 +331,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 sla += hours > 24 ? `<span style="color:var(--danger); font-weight:bold;">${hours} ساعة (مخالفة)</span>` : `<span style="color:var(--gold);">${hours} ساعة</span>`;
             } else sla = '-';
 
+            let urgencyBadge = '<span class="badge" style="background:#555;">منخفضة</span>';
+            if (t.urgency === 'High') urgencyBadge = '<span class="badge bg-danger">حرجة</span>';
+            else if (t.urgency === 'Medium') urgencyBadge = '<span class="badge" style="background:#f39c12;">متوسطة</span>';
+
             return `
             <tr>
-                <td>#${t.id.split('-')[1]}</td>
+                <td>#${t.id.split('-')[1]}<br>${urgencyBadge}</td>
                 <td><strong>${t.entity}</strong></td>
                 <td>${t.issue}</td>
                 <td>${t.date}</td>
                 <td>${sla}</td>
                 <td><span class="badge bg-${t.status === 'resolved' ? 'success' : 'pending'}">${t.status === 'resolved' ? 'تم الحل' : 'مفتوحة'}</span></td>
                 <td>
-                    ${t.status !== 'resolved' ? `<button class="btn btn-outline btn-sm" onclick="resolveTicket('${t.id}')"><i class="fas fa-check" style="color:var(--success);"></i> حل المشكلة</button>` : '<span style="color:var(--success); font-weight:800;"><i class="fas fa-check-circle"></i> مغلقة</span>'}
+                    <div style="display:flex; gap:5px; flex-direction:column;">
+                        ${t.status !== 'resolved' ? `<button class="btn btn-outline btn-sm" onclick="resolveTicket('${t.id}')"><i class="fas fa-check" style="color:var(--success);"></i> حل المشكلة</button>` : '<span style="color:var(--success); font-weight:800; text-align:center;"><i class="fas fa-check-circle"></i> مغلقة</span>'}
+                        <button class="btn btn-outline btn-sm" onclick="window.printTicket('${t.id}')"><i class="fas fa-print"></i> طباعة التذكرة</button>
+                    </div>
                 </td>
             </tr>
             `;
         }).join('') : '<tr><td colspan="7" style="text-align:center; padding:2rem; color:#666;">لا توجد تذاكر صيانة حالية</td></tr>';
     }
+
+    window.printTicket = (id) => {
+        const ticket = DB.getTickets().find(t => t.id === id);
+        if(!ticket) return;
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(18); 
+        doc.text("ZOLNGEN - MAINTENANCE TICKET", 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Ticket Number: ${ticket.id}`, 20, 35);
+        doc.text(`Entity: ${ticket.entity}`, 20, 45);
+        doc.text(`Urgency: ${ticket.urgency || 'Low'}`, 20, 55);
+        doc.text(`Date: ${ticket.date}`, 20, 65);
+        doc.text(`Status: ${ticket.status}`, 20, 75);
+        doc.text(`Issue Details:`, 20, 90);
+        doc.setFontSize(10);
+        const splitText = doc.splitTextToSize(ticket.issue, 170);
+        doc.text(splitText, 20, 100);
+        doc.save(`Ticket_${ticket.id}.pdf`);
+    };
 
     window.bulkCloseTickets = () => {
         if(confirm('هل أنت متأكد من إغلاق كافة تذاكر الصيانة المفتوحة؟')) {
@@ -323,6 +432,21 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.toggle('light-mode');
         const isLight = document.body.classList.contains('light-mode');
         document.querySelector('.nav-link[onclick="toggleTheme()"]').innerHTML = isLight ? '<i class="fas fa-sun"></i> الوضع النهاري' : '<i class="fas fa-moon"></i> الوضع الليلي';
+    };
+
+    window.exportInventoryCSV = () => {
+        const prods = DB.getProducts();
+        let csv = "\ufeffالرقم التعريفي,اسم المنتج,الفئة,المورد,سعر التكلفة,سعر البيع,المخزون\n";
+        prods.forEach(p => {
+            csv += `${p.id},"${p.name}","${p.category}","${p.supplier || ''}",${p.cost || 0},${p.price},${p.stock}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `ZOLNGEN_Inventory_${Date.now()}.csv`;
+        link.click();
+        DB.logAction('تصدير بيانات المخزون لملف CSV');
+        window.showToast('تم تصدير المخزون بنجاح');
     };
 
     window.exportOrdersToExcel = () => {
