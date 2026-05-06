@@ -120,6 +120,15 @@ const DB = {
         this.set('zolngen_chats', chats);
     },
 
+    // 8. Client Accounts
+    getClientAccounts: function() { return this.get('zolngen_client_accounts'); },
+    saveClientAccount: function(acc) {
+        let accs = this.getClientAccounts();
+        accs.push(acc);
+        this.set('zolngen_client_accounts', accs);
+        this.logAction(`تم تسجيل حساب موظف مؤسسي جديد: ${acc.name} (${acc.inst})`);
+    },
+
     // 6. Stats Engine (Dynamic)
     getProStats: function() {
         const prods = this.getProducts();

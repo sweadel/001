@@ -85,8 +85,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentTab === 'entities') renderEntities();
         if (currentTab === 'tickets') renderTickets();
         if (currentTab === 'accounts') renderAccounts();
+        if (currentTab === 'client-accounts') renderClientAccounts();
         if (currentTab === 'chat') renderChats();
         if (currentTab === 'audit') renderAudit();
+    }
+
+    // --- RENDERERS ---
+    function renderClientAccounts() {
+        const body = document.getElementById('client-accounts-table-body');
+        if(!body) return;
+        const accs = DB.getClientAccounts() || [];
+        body.innerHTML = accs.map(a => `
+            <tr>
+                <td><span style="background:rgba(212,175,55,0.1); padding:4px 8px; border-radius:4px; color:var(--gold);">${a.inst}</span></td>
+                <td>${a.name}</td>
+                <td>${a.empId}</td>
+                <td style="direction:ltr; text-align:right;">${a.phone}</td>
+                <td>${a.role}</td>
+                <td>${a.user}</td>
+            </tr>
+        `).join('');
     }
 
     // 3. Dashboard Logic (Profit & Charts)
@@ -413,6 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(() => {
         if (currentTab === 'chat') renderChats();
         if (currentTab === 'orders') renderOrders(document.querySelector('.search-box')?.value || '');
+        if (currentTab === 'client-accounts') renderClientAccounts();
         if (currentTab === 'dashboard') checkLowStock();
     }, 3000);
 

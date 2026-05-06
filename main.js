@@ -103,6 +103,58 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             document.body.appendChild(cw);
         }
+
+        // Global Client Auth Modal
+        if (!document.getElementById('client-auth-modal')) {
+            const authMod = document.createElement('div');
+            authMod.id = 'client-auth-modal';
+            authMod.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(10px);';
+            authMod.innerHTML = `
+                <div style="background:var(--surface); border:2px solid var(--gold); border-radius:30px; width:95%; max-width:500px; padding:3rem; max-height:90vh; overflow-y:auto;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                        <h2 style="color:var(--gold); margin:0;" id="auth-modal-title">تسجيل دخول مؤسسي</h2>
+                        <button onclick="document.getElementById('client-auth-modal').style.display='none'" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;"><i class="fas fa-times"></i></button>
+                    </div>
+                    
+                    <div id="client-login-view">
+                        <form id="client-login-form">
+                            <input type="text" id="l-user" placeholder="اسم المستخدم" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem; outline:none;">
+                            <input type="password" id="l-pass" placeholder="كلمة المرور" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.5rem; outline:none;">
+                            <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; padding:1.2rem; margin-bottom:1rem;">تسجيل الدخول</button>
+                            <p style="text-align:center; color:#888;">ليس لديك حساب موظف؟ <a href="javascript:void(0)" onclick="window.toggleAuthView('register')" style="color:var(--gold);">إنشاء حساب</a></p>
+                        </form>
+                    </div>
+
+                    <div id="client-register-view" style="display:none;">
+                        <form id="client-register-form">
+                            <input type="text" id="r-user" placeholder="اسم المستخدم (للدخول)" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem; outline:none;">
+                            <input type="password" id="r-pass" placeholder="كلمة المرور" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem; outline:none;">
+                            <hr style="border-color:#333; margin:1.5rem 0;">
+                            <input type="text" id="r-name" placeholder="الاسم الكامل" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem; outline:none;">
+                            <input type="text" id="r-emp-id" placeholder="الرقم الوظيفي / رقم الموظف" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem; outline:none;">
+                            <input type="tel" id="r-phone" placeholder="رقم الهاتف المباشر" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem; outline:none;">
+                            <input type="text" id="r-inst" list="entities-list" placeholder="الجهة المستفيدة / المؤسسة" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem; outline:none;">
+                            <input type="text" id="r-role" placeholder="المسمى الوظيفي" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:2rem; outline:none;">
+                            <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; padding:1.2rem; margin-bottom:1rem;">التسجيل كموظف معتمد</button>
+                            <p style="text-align:center; color:#888;">لديك حساب بالفعل؟ <a href="javascript:void(0)" onclick="window.toggleAuthView('login')" style="color:var(--gold);">تسجيل الدخول</a></p>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(authMod);
+            
+            // Client Auth UI Setup
+            const topBarRow = document.querySelector('.top-bar-content > div:first-child');
+            if (topBarRow && !document.getElementById('client-auth-btn')) {
+                const btn = document.createElement('button');
+                btn.id = 'client-auth-btn';
+                btn.className = 'btn btn-gold';
+                btn.style.padding = '5px 15px';
+                btn.style.fontSize = '0.8rem';
+                btn.onclick = () => document.getElementById('client-auth-modal').style.display = 'flex';
+                topBarRow.insertBefore(btn, topBarRow.firstChild);
+            }
+        }
     };
     
     window.showSuccessModal = (title, orderObj) => {
@@ -444,7 +496,14 @@ document.addEventListener('DOMContentLoaded', () => {
     window.sendClientChat = () => {
         const input = document.getElementById('client-chat-input');
         if(!input || !input.value.trim()) return;
-        DB.addChatMessage('عميل مؤسسي', input.value, true);
+        
+        let senderName = 'عميل مؤسسي';
+        const sessionClient = sessionStorage.getItem('zolngen_client_user');
+        if (sessionClient) {
+            senderName = JSON.parse(sessionClient).name;
+        }
+
+        DB.addChatMessage(senderName, input.value, true);
         input.value = '';
         window.renderClientChat();
     };
@@ -452,5 +511,96 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(() => {
         if(document.getElementById('chat-window')?.style.display === 'flex') window.renderClientChat();
     }, 2000);
+
+    // --- CLIENT AUTHENTICATION LOGIC ---
+    window.toggleAuthView = (view) => {
+        document.getElementById('client-login-view').style.display = view === 'login' ? 'block' : 'none';
+        document.getElementById('client-register-view').style.display = view === 'register' ? 'block' : 'none';
+        document.getElementById('auth-modal-title').innerText = view === 'login' ? 'تسجيل دخول مؤسسي' : 'تسجيل موظف جديد';
+    };
+
+    document.getElementById('client-register-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const user = document.getElementById('r-user').value;
+        const pass = document.getElementById('r-pass').value;
+        const name = document.getElementById('r-name').value;
+        const empId = document.getElementById('r-emp-id').value;
+        const phone = document.getElementById('r-phone').value;
+        const inst = document.getElementById('r-inst').value;
+        const role = document.getElementById('r-role').value;
+
+        const accounts = DB.getClientAccounts();
+        if (accounts.some(a => a.user === user)) {
+            window.showToast('اسم المستخدم مستخدم مسبقاً', 'error');
+            return;
+        }
+
+        const newAcc = { user, pass, name, empId, phone, inst, role };
+        DB.saveClientAccount(newAcc);
+        DB.saveEntity(inst); // Save as new entity globally
+        sessionStorage.setItem('zolngen_client_user', JSON.stringify(newAcc));
+        
+        document.getElementById('client-auth-modal').style.display = 'none';
+        window.showToast('تم التسجيل وتسجيل الدخول بنجاح');
+        window.updateClientAuthUI();
+        e.target.reset();
+    });
+
+    document.getElementById('client-login-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const u = document.getElementById('l-user').value;
+        const p = document.getElementById('l-pass').value;
+        
+        const acc = DB.getClientAccounts().find(a => a.user === u && a.pass === p);
+        if (acc) {
+            sessionStorage.setItem('zolngen_client_user', JSON.stringify(acc));
+            document.getElementById('client-auth-modal').style.display = 'none';
+            window.showToast(`مرحباً بك ${acc.name}`);
+            window.updateClientAuthUI();
+            e.target.reset();
+        } else {
+            window.showToast('بيانات الدخول غير صحيحة', 'error');
+        }
+    });
+
+    window.updateClientAuthUI = () => {
+        const btn = document.getElementById('client-auth-btn');
+        if (!btn) return;
+
+        const sessionClient = sessionStorage.getItem('zolngen_client_user');
+        if (sessionClient) {
+            const acc = JSON.parse(sessionClient);
+            btn.innerHTML = `<i class="fas fa-user-circle"></i> ${acc.name}`;
+            btn.onclick = () => {
+                if(confirm('هل تريد تسجيل الخروج؟')) {
+                    sessionStorage.removeItem('zolngen_client_user');
+                    window.updateClientAuthUI();
+                    window.showToast('تم تسجيل الخروج بنجاح');
+                }
+            };
+
+            // Pre-fill Order Form
+            if(document.getElementById('full-name')) document.getElementById('full-name').value = acc.name;
+            if(document.getElementById('phone')) document.getElementById('phone').value = acc.phone;
+            if(document.getElementById('doc-id')) document.getElementById('doc-id').value = acc.empId;
+            if(document.getElementById('university')) document.getElementById('university').value = acc.inst;
+
+            // Pre-fill Maintenance Form
+            if(document.getElementById('m-entity-p')) document.getElementById('m-entity-p').value = acc.inst;
+
+        } else {
+            btn.innerHTML = `تسجيل المؤسسات`;
+            btn.onclick = () => document.getElementById('client-auth-modal').style.display = 'flex';
+            
+            // Clear Order Form
+            if(document.getElementById('full-name')) document.getElementById('full-name').value = '';
+            if(document.getElementById('phone')) document.getElementById('phone').value = '';
+            if(document.getElementById('doc-id')) document.getElementById('doc-id').value = '';
+            if(document.getElementById('university')) document.getElementById('university').value = '';
+        }
+    };
+
+    // Run auth UI init
+    setTimeout(window.updateClientAuthUI, 500);
 
 });
