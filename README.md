@@ -1,31 +1,17 @@
-# ZOLNGEN Enterprise Pro (v30.0) 🚀
+# ZOLNGEN Enterprise Pro V31.0
+## The Institutional Technology Ecosystem
 
-## 🌐 Official Enterprise B2B Platform
-Welcome to the production-ready build of ZOLNGEN, the premier institutional hardware procurement system.
+Welcome to the official repository of **ZOLNGEN Enterprise Pro**, the premium B2B procurement and management platform.
 
----
+### 📜 Official Documentation
+For the complete project overview, technical specifications, and feature index in both Arabic and English, please refer to the:
+👉 **[ZOLNGEN MASTER DOCUMENT](ZOLNGEN_MASTER_DOCUMENT.md)**
 
-### 📖 Comprehensive Project Report / التقرير الشامل للمشروع
-We have successfully implemented **43 Advanced Enterprise Features**. For a detailed technical and functional breakdown of all features, workflows, and infrastructure, please refer to our official final report:
-
-**[📄 Open Final Release Report / افتح التقرير الختامي للإصدار النهائي](ZOLNGEN_Enterprise_Report_V30.md)**
-
----
-
-### 🚀 Quick Start / البدء السريع
-1. **Client Access**: Open `index.html` to browse the catalog, use coupons, and place B2B orders.
-2. **Catalog**: Open `products.html` for advanced filtering and hardware configuration.
-3. **Maintenance**: Open `maintenance.html` to open technical support tickets.
-4. **Admin Access**: Open `admin.html` to manage the entire ecosystem (Login: `admin` / Password: `123`).
+### 🚀 Quick Start
+1. Clone the repository.
+2. Open `index.html` to view the Premium Storefront.
+3. Access the **Admin Dashboard** via `admin.html`.
+4. Use the **Antigravity AI Assistant** (Robot icon) for interactive guidance.
 
 ---
-
-### 🛠️ Technical Stack
-- **Engine**: Pure Vanilla JavaScript (ES6+).
-- **Styling**: Premium CSS3 with Glassmorphism & Fluid Grids.
-- **Data**: Localized No-Backend `database.js` (LocalStorage).
-- **Libraries**: Chart.js (Analytics), jsPDF (Documents).
-
----
-*Created with Excellence by Antigravity AI*
-*2026 Production Build*
+*Built with passion by Antigravity AI Assistant.*
