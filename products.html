@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        .page-header { background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('zolngen_premium_hero_laptop.png') center/cover; padding: 120px 0 80px; text-align: center; border-bottom: 1px solid var(--border-gold); }
+        .page-header { background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('zolngen_hero_laptop.png') center/cover; padding: 120px 0 80px; text-align: center; border-bottom: 1px solid var(--border-gold); }
         .page-header h1 { font-size: 3.5rem; color: var(--gold); margin-bottom: 15px; }
         .page-header p { color: #ccc; font-size: 1.2rem; }
         .filter-bar { background: var(--surface); padding: 1.5rem; border-radius: 15px; margin: -30px auto 40px; position: relative; z-index: 10; border: 1px solid var(--border-gold); display: flex; gap: 15px; max-width: 800px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
@@ -102,15 +102,13 @@
         <div style="background:var(--surface); border:2px solid var(--gold); border-radius:30px; width:95%; max-width:600px; padding:4rem;">
             <h2 style="color:var(--gold); text-align:center; margin-bottom:3rem;">تأكيد طلب التوريد</h2>
             <form id="order-form">
-                <input type="text" id="full-name" placeholder="اسم المسؤول" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
-                <input type="tel" id="phone" placeholder="الهاتف" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
-                <select id="university" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
-                    <option value="">الجهة</option>
-                    <option value="الجامعة الأردنية">الجامعة الأردنية</option>
-                    <option value="شركة خاصة">شركة خاصة</option>
-                </select>
+                <input type="text" id="full-name" placeholder="اسم المسؤول المفوض" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
+                <input type="tel" id="phone" placeholder="رقم الهاتف المباشر" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
+                <input type="text" id="doc-id" placeholder="الرقم المرجعي / الوثيقة (الرقم الجامعي أو السجل التجاري)" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
+                <input type="text" id="university" list="entities-list" placeholder="اسم الجهة المستفيدة / المؤسسة / الجامعة" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
+                <textarea id="notes" placeholder="أي مواصفات خاصة أو ملاحظات إضافية..." rows="3" style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:2rem;"></textarea>
                 <div style="display:flex; gap:1.5rem;">
-                    <button type="submit" class="btn btn-gold" style="flex:1; justify-content:center;">إرسال</button>
+                    <button type="submit" class="btn btn-gold" style="flex:1; justify-content:center;">إرسال الطلب</button>
                     <button type="button" class="btn btn-outline" style="flex:1; justify-content:center;" id="modal-close">إلغاء</button>
                 </div>
             </form>

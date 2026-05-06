@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .page-header { background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url('category_desktops_luxury.png') center/cover; padding: 120px 0 80px; text-align: center; border-bottom: 1px solid var(--border-gold); }
+        .page-header { background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url('category_desktops.png') center/cover; padding: 120px 0 80px; text-align: center; border-bottom: 1px solid var(--border-gold); }
         .page-header h1 { font-size: 3.5rem; color: var(--gold); margin-bottom: 15px; }
         .page-header p { color: #ccc; font-size: 1.2rem; max-width: 600px; margin: 0 auto; }
         .maintenance-wrapper { max-width: 800px; margin: -50px auto 100px; background: var(--surface); border: 1px solid var(--border-gold); border-radius: 20px; padding: 4rem; position: relative; z-index: 10; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
@@ -52,7 +52,7 @@
             <h2 style="font-size:2rem; margin-bottom:2rem; text-align:center; color:var(--gold);">فتح تذكرة صيانة رسمية</h2>
             <div class="ticket-form">
                 <form id="maintenance-form-page">
-                    <input type="text" id="m-entity-p" placeholder="الجهة المستفيدة / المؤسسة" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #333; border-radius:12px; color:#fff; margin-bottom:1.5rem; outline:none;">
+                    <input type="text" id="m-entity-p" list="entities-list" placeholder="الجهة المستفيدة / المؤسسة" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #333; border-radius:12px; color:#fff; margin-bottom:1.5rem; outline:none;">
                     <select id="m-type-p" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #333; border-radius:12px; color:#fff; margin-bottom:1.5rem; outline:none;">
                         <option value="">حدد المشكلة التقنية</option>
                         <option value="Hardware">عطل في القطع (Hardware)</option>
