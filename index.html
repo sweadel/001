@@ -3,32 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Enterprise | V99.0 THE SINGULARITY</title>
+    <title>ZOLNGEN Enterprise | V100.0 ULTIMATE</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Unified Modular Styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
-    <style>
-        :root { --gold: #D4AF37; }
-        body { background: #020202; color: #fff; font-family: 'Tajawal', sans-serif; overflow-x: hidden; }
-        .glass { backdrop-filter: blur(50px); border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255,255,255,0.01); }
-        .hero-glow { background: radial-gradient(circle at center, rgba(212, 175, 55, 0.15) 0%, transparent 70%); }
-        #neural-bg { position: fixed; inset: 0; z-index: -1; opacity: 0.3; }
-        .nav-link:hover { color: var(--gold); transform: translateY(-2px); }
-        .cmd-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); z-index: 1000; display: none; opacity: 0; transition: 0.3s; }
-    </style>
 </head>
-<body>
+<body class="lang-ar">
     <canvas id="neural-bg"></canvas>
 
     <!-- Global Search -->
     <div id="cmd-overlay" class="cmd-overlay">
         <div class="max-w-3xl mx-auto mt-20 glass p-4 rounded-3xl border border-gold/30">
             <div class="flex items-center p-6 border-b border-white/5">
-                <i class="fas fa-search text-gold mr-4"></i>
-                <input type="text" id="cmd-input" placeholder="Search EVERYTHING (Ctrl+K)..." class="w-full bg-transparent outline-none text-2xl font-light">
+                <i class="fas fa-bolt text-gold mr-4"></i>
+                <input type="text" id="cmd-input" placeholder="Search Command Center (Ctrl+K)..." class="w-full bg-transparent outline-none text-2xl font-light text-white">
             </div>
             <div id="cmd-results" class="p-6 space-y-4 max-h-[60vh] overflow-y-auto"></div>
         </div>
@@ -37,97 +32,114 @@
     <!-- Navigation -->
     <nav class="fixed top-0 w-full z-50 glass border-b border-white/5 px-12 py-6 flex justify-between items-center">
         <div class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN <span class="text-white font-thin">PRO</span></div>
-        <div class="flex gap-10 text-sm uppercase tracking-widest font-bold">
-            <a href="products.html" class="nav-link transition-all">الكتالوج</a>
-            <a href="maintenance.html" class="nav-link transition-all">الصيانة</a>
-            <a href="client-dashboard.html" class="nav-link transition-all">بوابة العميل</a>
-            <a href="admin.html" class="text-gold border border-gold/30 px-6 py-2 rounded-full hover:bg-gold hover:text-dark transition-all">لوحة القيادة</a>
+        <div class="flex gap-10 text-sm uppercase tracking-widest font-bold items-center">
+            <a href="products.html" class="hover:text-gold transition-all">الكتالوج</a>
+            <a href="maintenance.html" class="hover:text-gold transition-all">الصيانة</a>
+            <div id="nav-auth-links" class="flex gap-4">
+                <!-- Dynamic Auth Links -->
+            </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="h-screen flex flex-col items-center justify-center text-center px-6 relative overflow-hidden hero-glow">
-        <div class="z-10 space-y-8 max-w-5xl">
-            <div class="inline-block glass px-6 py-2 rounded-full border border-gold/20 text-gold text-[10px] tracking-[5px] uppercase">Enterprise Singularity V99.0</div>
-            <h1 class="text-7xl md:text-9xl font-black leading-tight">الذكاء في <span class="text-gold">التوريد</span><br>المؤسسي المطلق</h1>
-            <p class="text-xl text-gray-400 font-light max-w-2xl mx-auto">أقوى منظومة B2B في الشرق الأوسط لإدارة الأجهزة والمعدات التقنية بمعايير عالمية لا تقبل المنافسة.</p>
+    <section class="h-screen flex flex-col items-center justify-center text-center px-6 relative overflow-hidden">
+        <div class="z-10 space-y-8 max-w-5xl animate-in">
+            <div class="inline-block glass px-6 py-2 rounded-full border border-gold/20 text-gold text-[10px] tracking-[5px] uppercase">Enterprise Ultimate V100.0</div>
+            <h1 class="text-7xl md:text-9xl font-black leading-tight">توريد <span class="text-gold">ذكي</span><br>بلا حدود</h1>
+            <p class="text-xl text-gray-400 font-light max-w-2xl mx-auto italic">نظام التوريد المؤسسي الأكثر تطوراً في المنطقة، مصمم للنخبة.</p>
             <div class="flex gap-6 justify-center pt-8">
-                <a href="products.html" class="bg-gold text-dark px-12 py-5 rounded-2xl font-black text-lg hover:scale-110 transition-all shadow-2xl shadow-gold/20">ابدأ التوريد الآن</a>
-                <a href="maintenance.html" class="glass border border-white/10 px-12 py-5 rounded-2xl font-black text-lg hover:bg-white/5 transition-all">مركز الدعم</a>
+                <a href="products.html" class="btn-premium">ابدأ الآن</a>
+                <button onclick="toggleLoginModal()" class="glass border border-white/10 px-12 py-5 rounded-2xl font-black text-lg hover:bg-white/5 transition-all">تسجيل الدخول</button>
             </div>
         </div>
     </section>
 
-    <!-- Project Features -->
-    <section class="py-32 px-12 grid grid-cols-1 md:grid-cols-3 gap-12 max-w-7xl mx-auto">
-        <div class="glass p-12 rounded-[48px] border border-white/5 space-y-6 hover:border-gold/20 transition-all">
-            <i class="fas fa-microchip text-4xl text-gold"></i>
-            <h3 class="text-3xl font-black">أجهزة النخبة</h3>
-            <p class="text-gray-500 leading-relaxed">أحدث التقنيات العالمية من الخوادم والأجهزة المحمولة المختارة بعناية لأداء مؤسسي لا يضاهى.</p>
+    <!-- AI Bot UI -->
+    <div id="bot-window" class="fixed bottom-10 left-10 w-[350px] glass rounded-[32px] border border-white/10 hidden flex-col z-[100] shadow-2xl overflow-hidden">
+        <div class="bg-gold p-4 text-dark font-black flex justify-between">
+            <span>Antigravity AI</span>
+            <button onclick="toggleBot()">×</button>
         </div>
-        <div class="glass p-12 rounded-[48px] border border-white/5 space-y-6 hover:border-gold/20 transition-all">
-            <i class="fas fa-shield-halved text-4xl text-gold"></i>
-            <h3 class="text-3xl font-black">أمان V99.0</h3>
-            <p class="text-gray-500 leading-relaxed">تشفير كامل للبيانات وعقود صيانة (SLA) تضمن استمرارية أعمالك دون توقف لحظة واحدة.</p>
+        <div id="bot-messages" class="h-80 overflow-y-auto p-4 space-y-3 text-xs">
+            <div class="bg-white/5 p-3 rounded-2xl border border-white/5">أهلاً بك! كيف يمكنني مساعدتك اليوم؟</div>
         </div>
-        <div class="glass p-12 rounded-[48px] border border-white/5 space-y-6 hover:border-gold/20 transition-all">
-            <i class="fas fa-chart-pie text-4xl text-gold"></i>
-            <h3 class="text-3xl font-black">تحليلات ذكية</h3>
-            <p class="text-gray-500 leading-relaxed">لوحة تحكم شاملة تعطيك تقارير دقيقة عن استثماراتك التقنية وتتنبأ باحتياجاتك المستقبلية.</p>
+        <div class="p-4 border-t border-white/5 flex gap-2">
+            <input type="text" id="bot-input" placeholder="اسألني أي شيء..." class="flex-1 bg-black/40 border-none p-2 text-xs">
+            <button onclick="sendMessage()" class="bg-gold text-dark p-2 rounded-lg"><i class="fas fa-paper-plane"></i></button>
         </div>
-    </section>
+    </div>
+    <button onclick="toggleBot()" class="fixed bottom-10 left-10 w-16 h-16 bg-gold text-dark rounded-full flex items-center justify-center text-2xl shadow-2xl z-50 hover:scale-110 transition-all"><i class="fas fa-robot"></i></button>
 
-    <footer class="py-20 text-center glass border-t border-white/5">
-        <p class="text-gray-500 text-sm">© 2026 ZOLNGEN ENTERPRISE PRO - THE SINGULARITY V99.0</p>
-    </footer>
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl hidden flex items-center justify-center p-6">
+        <div class="glass p-12 rounded-[48px] max-w-md w-full border border-gold/30">
+            <h3 class="text-3xl font-black mb-8 text-center text-gold">تسجيل الدخول</h3>
+            <div class="space-y-6">
+                <input type="text" id="login-user" placeholder="اسم المستخدم" class="w-full">
+                <input type="password" id="login-pass" placeholder="كلمة المرور" class="w-full">
+                <div class="flex gap-4">
+                    <button onclick="handleLogin(true)" class="flex-1 bg-gold text-dark font-black py-4 rounded-xl">مدير</button>
+                    <button onclick="handleLogin(false)" class="flex-1 border border-white/10 py-4 rounded-xl">عميل</button>
+                </div>
+                <button onclick="toggleLoginModal()" class="w-full text-gray-500 text-sm mt-4">إلغاء</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Modular JS Scripts -->
     <script src="database.js"></script>
+    <script src="auth.js"></script>
+    <script src="bot.js"></script>
+    <script src="ui.js"></script>
+
     <script>
-        // Neural Canvas
-        const canvas = document.getElementById('neural-bg');
-        const ctx = canvas.getContext('2d');
-        let dots = [];
-        function initNeural() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            dots = [];
-            for(let i=0; i<70; i++) dots.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5)*0.4, vy: (Math.random()-0.5)*0.4 });
-        }
-        function drawNeural() {
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle = '#D4AF37';
-            ctx.globalAlpha = 0.15;
-            dots.forEach(d => {
-                d.x += d.vx; d.y += d.vy;
-                if(d.x<0 || d.x>canvas.width) d.vx *= -1;
-                if(d.y<0 || d.y>canvas.height) d.vy *= -1;
-                ctx.beginPath(); ctx.arc(d.x, d.y, 1.5, 0, Math.PI*2); ctx.fill();
-            });
-            requestAnimationFrame(drawNeural);
+        // PAGE SPECIFIC LOGIC
+        function toggleLoginModal() { document.getElementById('login-modal').classList.toggle('hidden'); }
+        function handleLogin(isAdmin) {
+            const u = document.getElementById('login-user').value;
+            const p = document.getElementById('login-pass').value;
+            if (Auth.login(u, p, isAdmin)) {
+                UI.showToast(`أهلاً بك يا ${u}`);
+                window.location.href = isAdmin ? 'admin.html' : 'client-dashboard.html';
+            } else {
+                UI.showToast('خطأ في البيانات!', 'error');
+            }
         }
 
-        // Global Search (Ctrl+K)
-        window.addEventListener('keydown', (e) => {
-            if(e.ctrlKey && e.key === 'k') { e.preventDefault(); toggleSearch(true); }
-            if(e.key === 'Escape') toggleSearch(false);
-        });
-
-        function toggleSearch(show) {
-            const ov = document.getElementById('cmd-overlay');
-            if(show) { ov.style.display = 'block'; setTimeout(() => { ov.style.opacity = '1'; document.getElementById('cmd-input').focus(); }, 10); }
-            else { ov.style.opacity = '0'; setTimeout(() => { ov.style.display = 'none'; }, 300); }
+        function updateNav() {
+            const session = Auth.getSession();
+            const nav = document.getElementById('nav-auth-links');
+            if(session) {
+                nav.innerHTML = `
+                    <a href="${session.role === 'ADMIN' ? 'admin.html' : 'client-dashboard.html'}" class="text-gold font-bold">لوحتي</a>
+                    <button onclick="Auth.logout()" class="text-red-500 text-xs">خروج</button>
+                `;
+            } else {
+                nav.innerHTML = `<button onclick="toggleLoginModal()" class="text-gold border border-gold/30 px-6 py-2 rounded-full hover:bg-gold hover:text-dark transition-all">دخول</button>`;
+            }
         }
 
-        document.getElementById('cmd-input').addEventListener('input', (e) => {
-            const q = e.target.value.toLowerCase();
-            const res = document.getElementById('cmd-results');
-            if(!q) { res.innerHTML = ''; return; }
-            const products = DB.getProducts().filter(p => p.name.toLowerCase().includes(q));
-            res.innerHTML = products.map(p => `<a href="products.html" class="block p-4 hover:bg-gold/10 rounded-xl flex justify-between"><span>📦 ${p.name}</span><span class="text-gold">${p.price} JOD</span></a>`).join('') || '<p class="text-center text-gray-500">لا توجد نتائج مطابقة لذكاء المنظومة</p>';
-        });
+        // Bot Logic
+        function toggleBot() { document.getElementById('bot-window').classList.toggle('hidden'); }
+        function sendMessage() {
+            const input = document.getElementById('bot-input');
+            const box = document.getElementById('bot-messages');
+            if(!input.value) return;
+            
+            box.innerHTML += `<div class="bg-gold/10 p-3 rounded-2xl border border-gold/10 text-right">${input.value}</div>`;
+            const reply = Bot.process(input.value);
+            setTimeout(() => {
+                box.innerHTML += `<div class="bg-white/5 p-3 rounded-2xl border border-white/5">${reply}</div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 500);
+            input.value = '';
+        }
 
-        window.onload = () => { initNeural(); drawNeural(); };
-        window.onresize = initNeural;
+        window.onload = () => {
+            UI.initNeural();
+            UI.initSearch();
+            updateNav();
+        };
     </script>
 </body>
 </html>

@@ -1,0 +1,102 @@
+/* ZOLNGEN ENTERPRISE PRO - GLOBAL STYLES V100.0 */
+:root {
+    --gold: #D4AF37;
+    --platinum: #E5E4E2;
+    --silver: #C0C0C0;
+    --dark: #020202;
+    --surface: #050505;
+    --glass: rgba(255, 255, 255, 0.015);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --accent: var(--gold);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: radial-gradient(circle at 50% 0%, #151515 0%, #020202 100%);
+    color: #fff;
+    font-family: 'Inter', 'Tajawal', sans-serif;
+    overflow-x: hidden;
+}
+
+/* UI Components */
+.glass {
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid var(--glass-border);
+    background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0));
+}
+
+.btn-premium {
+    background: var(--accent);
+    color: #000;
+    font-weight: 900;
+    padding: 1rem 2.5rem;
+    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.15);
+}
+
+.btn-premium:hover {
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.25);
+}
+
+/* Holographic Cards */
+.holo-card {
+    position: relative;
+    overflow: hidden;
+    transition: 0.8s;
+}
+
+.holo-card::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+    transform: rotate(45deg);
+    transition: 0.8s;
+}
+
+.holo-card:hover::before { left: 100%; }
+
+/* Canvas & Overlays */
+#neural-bg { position: fixed; inset: 0; z-index: -1; opacity: 0.25; }
+
+.cmd-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(25px);
+    z-index: 1000;
+    display: none;
+    opacity: 0;
+    transition: 0.4s;
+}
+
+/* Form Styles */
+input, select, textarea {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 14px;
+    color: #fff;
+    outline: none;
+    transition: 0.3s;
+}
+
+input:focus { border-color: var(--gold); background: rgba(255,255,255,0.08); }
+
+/* Animation Classes */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in { animation: fadeInUp 0.8s forwards; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; opacity: 0.3; }
