@@ -138,10 +138,26 @@
             <!-- Tab: Dashboard -->
             <div id="dashboard-tab" class="tab-content">
                 <div class="stat-grid">
-                    <div class="stat-card"><h3>إجمالي المبيعات</h3><p id="stat-sales">0 JOD</p><div class="trend">+12.5% منذ الشهر الماضي</div></div>
-                    <div class="stat-card"><h3>صافي الأرباح</h3><p id="stat-profit">0 JOD</p><div class="trend" style="color:var(--primary)">تقدير تلقائي</div></div>
-                    <div class="stat-card"><h3>طلبات نشطة</h3><p id="stat-active">0</p><div class="trend">بانتظار التسليم</div></div>
-                    <div class="stat-card"><h3>قيمة المخزون</h3><p id="stat-inv-val">0 JOD</p><div class="trend" style="color:var(--danger)" id="low-stock-alert">0 تنبيهات مخزون</div></div>
+                    <div class="stat-card glass-panel reveal active">
+                        <h3>إجمالي المبيعات</h3>
+                        <p id="stat-sales">0 JOD</p>
+                        <div class="trend">+12.5% منذ الشهر الماضي</div>
+                    </div>
+                    <div class="stat-card glass-panel reveal active" style="animation-delay:0.1s">
+                        <h3>صافي الأرباح</h3>
+                        <p id="stat-profit">0 JOD</p>
+                        <div class="trend" id="stat-margin" style="color:var(--primary)">0% هامش ربح</div>
+                    </div>
+                    <div class="stat-card glass-panel reveal active" style="animation-delay:0.2s">
+                        <h3>طلبات نشطة</h3>
+                        <p id="stat-active">0</p>
+                        <div class="trend">بانتظار التسليم</div>
+                    </div>
+                    <div class="stat-card glass-panel reveal active" style="animation-delay:0.3s">
+                        <h3>القيمة الرأسمالية</h3>
+                        <p id="stat-inv-val">0 JOD</p>
+                        <div class="trend" style="color:#888;" id="stat-cost-val">0 JOD تكلفة</div>
+                    </div>
                 </div>
 
                 <div style="display:grid; grid-template-columns: 2fr 1fr; gap:2rem;">

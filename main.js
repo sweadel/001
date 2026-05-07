@@ -19,6 +19,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Language Engine (V31.0)
     let currentLang = localStorage.getItem('zolngen_lang') || 'ar';
+    let comparisonList = [];
+    
+    window.toggleCompare = (id) => {
+        const prod = DB.getProducts().find(p => String(p.id) === String(id));
+        if(!prod) return;
+        
+        if(comparisonList.find(p => p.id === id)) {
+            comparisonList = comparisonList.filter(p => p.id !== id);
+            window.showToast('تمت الإزالة من المقارنة');
+        } else {
+            if(comparisonList.length >= 3) {
+                window.showToast('يمكنك مقارنة 3 أجهزة بحد أقصى', 'error');
+                return;
+            }
+            comparisonList.push(prod);
+            window.showToast('تمت الإضافة للمقارنة');
+        }
+        renderComparisonUI();
+    };
+
+    const renderComparisonUI = () => {
+        const container = document.getElementById('comparison-tray');
+        if(!container) return;
+        container.style.display = comparisonList.length > 0 ? 'flex' : 'none';
+        container.innerHTML = comparisonList.map(p => `
+            <div class="glass-panel" style="padding:10px; min-width:150px; position:relative;">
+                <small>${p.name}</small>
+                <button onclick="toggleCompare('${p.id}')" style="position:absolute; top:-5px; right:-5px; background:var(--danger); border-radius:50%; width:20px; height:20px; border:none; color:#fff; cursor:pointer;">×</button>
+            </div>
+        `).join('') + `<button class="btn-gold" onclick="openComparisonModal()" style="margin-left:auto;">${currentLang === 'ar' ? 'قارن الآن' : 'Compare Now'}</button>`;
+    };
+
+    // --- LANGUAGE ENGINE ---
     const translations = {
         ar: {
             admin_pro: 'نظام الإدارة Pro',
@@ -26,51 +59,49 @@ document.addEventListener('DOMContentLoaded', () => {
             catalog: 'الكتالوج المؤسسي',
             maintenance: 'بوابة الصيانة',
             tracking: 'تتبع الطلب',
-            hero_tag: 'THE INSTITUTIONAL STANDARD',
-            hero_title1: 'ZOLNGEN',
-            hero_title2: 'ENTERPRISE',
-            hero_desc: 'تجهيز البنية التحتية التقنية للمؤسسات التعليمية والحكومية بأعلى معايير الفخامة والجودة العالمية.',
-            hero_btn_start: 'بدء التوريد الرسمي',
-            hero_btn_maint: 'طلب صيانة فورية',
-            cat_laptops: 'أجهزة محمولة',
-            cat_desktops: 'أجهزة مكتبية',
-            cat_infra: 'بنية تحتية',
-            cat_periph: 'طابعات وأجهزة',
-            section_products: 'الأجهزة المختارة',
-            section_products_desc: 'أحدث ما توصلت إليه التكنولوجيا من شركائنا العالميين',
-            track_title: 'تتبع حالة طلب التوريد',
-            track_desc: 'أدخل رقم المرجع الخاص بطلبكم لمتابعة حالة التجهيز والشحن اللحظية.',
-            track_placeholder: 'ORD-XXXX',
+            hero_tag: 'المعيار العالمي لتكنولوجيا المؤسسات',
+            hero_title1: 'مستقبل التوريد',
+            hero_title2: 'الذكي للمؤسسات',
+            hero_desc: 'منصة ZOLNGEN المتكاملة لإدارة الأصول التقنية، الصيانة المتقدمة، والتوريد الصناعي المخصص لكبرى الجامعات والشركات.',
+            hero_btn_start: 'ابدأ التصفح',
+            hero_btn_maint: 'طلب صيانة',
+            cat_laptops: 'أجهزة محمولة Elite',
+            cat_desktops: 'محطات عمل Pro',
+            cat_infra: 'بنية تحتية Enterprise',
+            cat_periph: 'ملحقات ذكية',
+            section_products: 'المخزون المؤسسي المتاح',
+            section_products_desc: 'أجهزة مختارة بعناية لتلبية معايير الجودة والأداء العالي.',
+            track_title: 'تتبع طلبك المؤسسي',
+            track_desc: 'أدخل رقم الطلب (ORD-XXXX) لمتابعة حالة التوريد واللوجستيات في الوقت الفعلي.',
+            track_placeholder: 'رقم الطلب مثال: ORD-1234',
             track_btn: 'تتبع الآن',
-            cart_title: 'قائمة التوريد',
-            cart_total: 'إجمالي القيمة التقديرية:',
-            cart_btn_order: 'تقديم طلب توريد رسمي',
-            cart_btn_pdf: 'توليد كشف سعر PDF'
+            cart_title: 'سلة التوريد المبدئية',
+            cart_total: 'الإجمالي التقديري',
+            cart_btn_order: 'تثبيت طلب التوريد',
+            cart_btn_pdf: 'تحميل كشف الأسعار PDF'
         },
         en: {
             admin_pro: 'Admin Pro System',
             home: 'Home',
-            catalog: 'Enterprise Catalog',
-            maintenance: 'Maintenance Portal',
-            tracking: 'Order Tracking',
-            hero_tag: 'THE INSTITUTIONAL STANDARD',
-            hero_title1: 'ZOLNGEN',
-            hero_title2: 'ENTERPRISE',
-            hero_desc: 'Equipping technical infrastructure for educational and governmental institutions with the highest standards of luxury and global quality.',
-            hero_btn_start: 'Start Official Procurement',
-            hero_btn_maint: 'Request Immediate Maintenance',
-            cat_laptops: 'Laptops',
-            cat_desktops: 'Workstations',
-            cat_infra: 'Infrastructure',
-            cat_periph: 'Peripherals',
-            section_products: 'Selected Hardware',
-            section_products_desc: 'Latest technology from our global partners',
-            track_title: 'Track Procurement Status',
-            track_desc: 'Enter your reference number to follow processing and shipping status in real-time.',
-            track_placeholder: 'ORD-XXXX',
+            catalog: 'Catalog',
+            maintenance: 'Maintenance',
+            tracking: 'Tracking',
+            hero_tag: 'The Global Standard for Enterprise Tech',
+            hero_title1: 'The Future of',
+            hero_title2: 'Institutional Procurement',
+            hero_desc: 'ZOLNGEN’s unified platform for asset management, advanced maintenance, and industrial-scale procurement tailored for elite entities.',
+            hero_btn_start: 'Browse Catalog',
+            hero_btn_maint: 'Request Maintenance',
+            cat_laptops: 'Elite Laptops',
+            cat_desktops: 'Pro Workstations',
+            cat_infra: 'Enterprise Infrastructure',
+            cat_periph: 'Smart Peripherals',
+            section_products: 'Available Institutional Inventory',
+            section_products_desc: 'Carefully curated hardware meeting high-performance standards.',
+            track_title: 'Track Your Institutional Order',
+            track_desc: 'Enter order ID (ORD-XXXX) to monitor supply chain & logistics in real-time.',
+            track_placeholder: 'Order ID e.g., ORD-1234',
             track_btn: 'Track Now',
-            cart_title: 'Procurement List',
-            cart_total: 'Estimated Total Value:',
             cart_btn_order: 'Submit Official Order',
             cart_btn_pdf: 'Generate PDF Quote'
         }

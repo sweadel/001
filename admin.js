@@ -138,10 +138,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Dashboard Logic (Profit & Charts)
     function renderDashboard() {
         const stats = DB.getProStats();
+        
+        // V32.0 Advanced Analytics
+        const totalCost = DB.getProducts().reduce((acc, p) => acc + (p.cost * p.stock), 0);
+        const profitMargin = stats.totalSales > 0 ? ((stats.totalProfit / stats.totalSales) * 100).toFixed(1) : 0;
+
         document.getElementById('stat-sales').innerText = stats.totalSales.toLocaleString() + ' JOD';
         document.getElementById('stat-profit').innerText = stats.totalProfit.toLocaleString() + ' JOD';
         document.getElementById('stat-active').innerText = stats.activeOrders;
         document.getElementById('stat-inv-val').innerText = stats.inventoryValue.toLocaleString() + ' JOD';
+        
+        // Injecting V32 UI components if containers exist
+        const marginEl = document.getElementById('stat-margin');
+        if(marginEl) marginEl.innerText = profitMargin + '%';
+        
+        const costEl = document.getElementById('stat-cost-val');
+        if(costEl) costEl.innerText = totalCost.toLocaleString() + ' JOD';
         
         const alertBox = document.getElementById('low-stock-alert');
         if (stats.lowStock > 0) {
