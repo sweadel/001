@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Master | V103.0 ULTIMATE</title>
+    <title>ZOLNGEN Master | V104.0 OMNI-SYSTEM</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --gold: #D4AF37; --dark: #050505; --glass: rgba(255, 255, 255, 0.03); }
+        :root { --gold: #D4AF37; --dark: #050505; --glass: rgba(255, 255, 255, 0.03); --accent: #1e1e1e; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; cursor: none; scrollbar-width: none; }
         body { background: var(--dark); color: white; overflow-x: hidden; }
         #neural-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.1; }
-        .glass { background: var(--glass); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .sidebar { width: 320px; height: 100vh; position: fixed; right: 0; top: 0; z-index: 150; border-left: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.5s; overflow-y: auto; padding-bottom: 50px; }
-        .main { margin-right: 320px; padding: 60px; min-height: 100vh; }
-        .tab-btn { transition: all 0.3s; opacity: 0.25; border-radius: 12px; margin-bottom: 2px; }
-        .tab-btn.active { opacity: 1; color: var(--gold); background: rgba(212, 175, 55, 0.05); border-right: 4px solid var(--gold); }
+        .glass { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.04); }
+        .sidebar { width: 280px; height: 100vh; position: fixed; right: 0; top: 0; z-index: 200; border-left: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; padding-bottom: 60px; }
+        .main { margin-right: 280px; padding: 50px; min-height: 100vh; }
+        .tab-btn { transition: all 0.3s; opacity: 0.2; border-radius: 10px; margin-bottom: 1px; font-size: 0.7rem; }
+        .tab-btn.active { opacity: 1; color: var(--gold); background: rgba(212, 175, 55, 0.05); border-right: 3px solid var(--gold); }
         .cursor { position: fixed; width: 4px; height: 4px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 1000; mix-blend-mode: difference; }
-        input, select, textarea { background: rgba(255, 255, 255, 0.02) !important; border: 1px solid rgba(255, 255, 255, 0.05) !important; color: white !important; padding: 0.6rem 1rem !important; border-radius: 0.8rem !important; width: 100%; outline: none; font-size: 0.75rem; }
-        .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 7px; font-weight: 900; text-transform: uppercase; }
-        .card-eco { transition: all 0.4s; border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 30px; }
-        .card-eco:hover { border-color: var(--gold); background: rgba(212, 175, 55, 0.02); transform: scale(1.02); }
+        input, select, textarea { background: rgba(255, 255, 255, 0.02) !important; border: 1px solid rgba(255, 255, 255, 0.04) !important; color: white !important; padding: 0.6rem 0.8rem !important; border-radius: 0.8rem !important; width: 100%; outline: none; font-size: 0.7rem; }
+        .card-omni { transition: all 0.3s; border: 1px solid rgba(255, 255, 255, 0.02); border-radius: 24px; padding: 1.5rem; }
+        .card-omni:hover { border-color: var(--gold); background: rgba(212, 175, 55, 0.02); }
+        .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 6px; font-weight: 900; text-transform: uppercase; }
         @media (max-width: 1024px) { .sidebar { transform: translateX(100%); } .main { margin-right: 0; padding: 20px; } .sidebar.open { transform: translateX(0); } }
     </style>
 </head>
@@ -33,206 +33,189 @@
 
     <!-- LOCK SCREEN -->
     <div id="admin-lock-screen" class="fixed inset-0 z-[500] bg-black flex items-center justify-center p-6">
-        <div class="glass p-16 rounded-[60px] max-w-sm w-full border border-gold/10 text-center shadow-2xl">
-            <div class="w-20 h-20 bg-gold text-dark rounded-full flex items-center justify-center text-3xl mx-auto mb-10 shadow-2xl shadow-gold/20"><i class="fas fa-shield-alt"></i></div>
-            <h3 class="text-3xl font-black mb-1 text-gold">ZOLNGEN HQ</h3>
-            <p class="text-gray-700 text-[8px] mb-12 uppercase tracking-[0.4em] font-black">Institutional Core V103.0</p>
-            <div class="space-y-4">
-                <input type="text" id="lock-user" placeholder="Command Access ID" class="text-center">
-                <input type="password" id="lock-pass" placeholder="Security Protocol" onkeydown="if(event.key==='Enter') unlockAdmin()" class="text-center">
+        <div class="glass p-12 rounded-[48px] max-w-sm w-full border border-gold/10 text-center shadow-2xl">
+            <div class="w-16 h-16 bg-gold text-dark rounded-full flex items-center justify-center text-2xl mx-auto mb-8 shadow-2xl shadow-gold/20"><i class="fas fa-lock"></i></div>
+            <h3 class="text-2xl font-black mb-1 text-gold">OMNI-ACCESS</h3>
+            <p class="text-gray-800 text-[7px] mb-10 uppercase tracking-[0.4em] font-black">ZOLNGEN COMMAND HUB V104.0</p>
+            <div class="space-y-3">
+                <input type="text" id="lock-user" placeholder="Access ID" class="text-center">
+                <input type="password" id="lock-pass" placeholder="Security Token" onkeydown="if(event.key==='Enter') unlockAdmin()" class="text-center">
             </div>
-            <button onclick="unlockAdmin()" class="w-full bg-gold text-dark py-5 rounded-2xl font-black mt-10 shadow-xl shadow-gold/20 hover:scale-105 transition-all">Engage Systems</button>
-            <div class="mt-8 text-[8px] text-gray-800 uppercase tracking-widest"><a href="index.html" class="hover:text-white underline">Portal Exit</a></div>
+            <button onclick="unlockAdmin()" class="w-full bg-gold text-dark py-4 rounded-xl font-black mt-8 shadow-xl shadow-gold/20 hover:scale-105 transition-all text-xs">Authorize Engagement</button>
+            <div class="mt-6 text-[7px] text-gray-800 uppercase tracking-widest underline"><a href="index.html">Exit to Portal</a></div>
         </div>
     </div>
 
-    <!-- MASTER UI -->
+    <!-- MASTER OMNI UI -->
     <div id="admin-content" class="hidden">
         <aside id="sidebar" class="sidebar glass p-6">
-            <div class="mb-12 px-4">
-                <h1 class="text-2xl font-black text-gold gold-glow">ZOLNGEN <span class="text-[7px] block text-white/20 uppercase tracking-[0.5em] font-black mt-1">OS V103.0 MASTER</span></h1>
+            <div class="mb-10 px-2">
+                <h1 class="text-xl font-black text-gold gold-glow">ZOLNGEN <span class="text-[6px] block text-white/10 uppercase tracking-[0.4em] font-black mt-1">OMNI-SYSTEM V104.0</span></h1>
             </div>
             <nav class="space-y-1">
-                <p class="text-gray-800 text-[7px] font-black uppercase tracking-[0.3em] mb-3 px-4">Institutional Clusters</p>
-                <button onclick="showTab('overview')" class="tab-btn active w-full text-right p-3 px-5 flex items-center gap-3 text-[11px] font-black"><i class="fas fa-radar w-4"></i> Command Center</button>
-                <button onclick="showTab('supply')" class="tab-btn w-full text-right p-3 px-5 flex items-center gap-3 text-[11px] font-black"><i class="fas fa-microchip w-4"></i> Supply Chain</button>
-                <button onclick="showTab('ops')" class="tab-btn w-full text-right p-3 px-5 flex items-center gap-3 text-[11px] font-black"><i class="fas fa-gears w-4"></i> Operations</button>
-                <button onclick="showTab('hr')" class="tab-btn w-full text-right p-3 px-5 flex items-center gap-3 text-[11px] font-black"><i class="fas fa-id-card-clip w-4"></i> Human Capital</button>
-                <button onclick="showTab('crm')" class="tab-btn w-full text-right p-3 px-5 flex items-center gap-3 text-[11px] font-black"><i class="fas fa-handshake w-4"></i> Enterprise CRM</button>
-                <button onclick="showTab('pulse')" class="tab-btn w-full text-right p-3 px-5 flex items-center gap-3 text-[11px] font-black"><i class="fas fa-heart-pulse w-4"></i> Institutional Pulse</button>
-                <button onclick="showTab('sec')" class="tab-btn w-full text-right p-3 px-5 flex items-center gap-3 text-[11px] font-black"><i class="fas fa-vault w-4"></i> Security & Logs</button>
-                <button onclick="showTab('os')" class="tab-btn w-full text-right p-3 px-5 flex items-center gap-3 text-[11px] font-black"><i class="fas fa-sliders w-4"></i> System OS</button>
+                <p class="text-gray-800 text-[6px] font-black uppercase tracking-[0.3em] mb-2 px-2">Core Sectors</p>
+                <button onclick="showTab('dashboard')" class="tab-btn active w-full text-right p-2 px-4 flex items-center gap-3 font-black"><i class="fas fa-microchip w-3"></i> Dashboard</button>
+                <button onclick="showTab('supply')" class="tab-btn w-full text-right p-2 px-4 flex items-center gap-3 font-black"><i class="fas fa-boxes-stacked w-3"></i> Supply Chain</button>
+                <button onclick="showTab('ops')" class="tab-btn w-full text-right p-2 px-4 flex items-center gap-3 font-black"><i class="fas fa-gears w-3"></i> Operations</button>
+                <button onclick="showTab('hr')" class="tab-btn w-full text-right p-2 px-4 flex items-center gap-3 font-black"><i class="fas fa-id-card w-3"></i> Human Capital</button>
+                <button onclick="showTab('crm')" class="tab-btn w-full text-right p-2 px-4 flex items-center gap-3 font-black"><i class="fas fa-handshake w-3"></i> Enterprise CRM</button>
+                <button onclick="showTab('finance')" class="tab-btn w-full text-right p-2 px-4 flex items-center gap-3 font-black"><i class="fas fa-vault w-3"></i> Financial HQ</button>
+                <button onclick="showTab('pulse')" class="tab-btn w-full text-right p-2 px-4 flex items-center gap-3 font-black"><i class="fas fa-heart-pulse w-3"></i> Institutional Pulse</button>
+                <button onclick="showTab('security')" class="tab-btn w-full text-right p-2 px-4 flex items-center gap-3 font-black"><i class="fas fa-shield-halved w-3"></i> Security & Audit</button>
+                <button onclick="showTab('settings')" class="tab-btn w-full text-right p-2 px-4 flex items-center gap-3 font-black"><i class="fas fa-sliders w-3"></i> Global OS</button>
             </nav>
+            <div class="mt-10 pt-6 border-t border-white/5">
+                <button onclick="Auth.logout()" class="w-full p-3 bg-red-500/5 text-red-500 rounded-lg text-[8px] font-black border border-red-500/10 uppercase tracking-widest">Terminate Access</button>
+            </div>
         </aside>
 
         <main class="main">
-            <header class="flex justify-between items-end mb-16">
+            <header class="flex justify-between items-end mb-12">
                 <div>
-                    <h2 id="tab-title" class="text-5xl font-black tracking-tighter">Command Center</h2>
-                    <p class="text-gray-800 uppercase tracking-[0.5em] text-[8px] font-black mt-3">Deep-State Institutional Orchestration</p>
+                    <h2 id="tab-title" class="text-4xl font-black tracking-tighter">Command Dashboard</h2>
+                    <p class="text-gray-800 uppercase tracking-[0.5em] text-[7px] font-black mt-2">ZOLNGEN Deep-State Orchestration Hub</p>
                 </div>
-                <div class="flex items-center gap-6">
-                    <div class="text-right glass px-6 py-3 rounded-2xl border border-white/5">
-                        <p id="admin-name" class="text-gold font-black text-sm">System Overseer</p>
-                        <small class="text-gray-800 text-[7px] uppercase font-black">Level 5 Access</small>
+                <div class="flex items-center gap-4">
+                    <div class="text-right glass px-5 py-2 rounded-xl border border-white/5">
+                        <p id="admin-name" class="text-gold font-black text-xs">Chief Admin</p>
+                        <small class="text-gray-800 text-[6px] uppercase font-black">Level 10 Master Access</small>
                     </div>
                 </div>
             </header>
 
-            <!-- CLUSTER: OVERVIEW -->
-            <section id="tab-overview" class="tab-content space-y-8">
+            <!-- SECTOR: DASHBOARD -->
+            <section id="tab-dashboard" class="tab-content space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="glass p-6 rounded-3xl border-b-2 border-gold/40">
-                        <p class="text-gray-800 text-[8px] uppercase font-black mb-1">Total Sales</p>
-                        <h3 id="stat-sales" class="text-xl font-black text-gold">0</h3>
+                    <div class="glass p-5 rounded-2xl border-b border-gold/40">
+                        <p class="text-gray-800 text-[7px] uppercase font-black mb-1">Total Assets</p>
+                        <h3 id="stat-sales" class="text-lg font-black text-gold">0</h3>
                     </div>
-                    <div class="glass p-6 rounded-3xl border-b-2 border-green-500/40">
-                        <p class="text-gray-800 text-[8px] uppercase font-black mb-1">Net ROI</p>
-                        <h3 id="stat-profit" class="text-xl font-black text-green-500">0</h3>
+                    <div class="glass p-5 rounded-2xl border-b border-green-500/40">
+                        <p class="text-gray-800 text-[7px] uppercase font-black mb-1">Net ROI</p>
+                        <h3 id="stat-profit" class="text-lg font-black text-green-500">0</h3>
                     </div>
-                    <div class="glass p-6 rounded-3xl border-b-2 border-blue-500/40">
-                        <p class="text-gray-800 text-[8px] uppercase font-black mb-1">Inventory Health</p>
-                        <h3 id="stat-inv" class="text-xl font-black text-blue-400">0</h3>
+                    <div class="glass p-5 rounded-2xl border-b border-blue-500/40">
+                        <p class="text-gray-800 text-[7px] uppercase font-black mb-1">Stock Health</p>
+                        <h3 id="stat-inv" class="text-lg font-black text-blue-400">0</h3>
                     </div>
-                    <div class="glass p-6 rounded-3xl border-b-2 border-purple-500/40">
-                        <p class="text-gray-800 text-[8px] uppercase font-black mb-1">AI Efficiency</p>
-                        <h3 class="text-xl font-black text-purple-500">98.4%</h3>
+                    <div class="glass p-5 rounded-2xl border-b border-purple-500/40">
+                        <p class="text-gray-800 text-[7px] uppercase font-black mb-1">AI Efficiency</p>
+                        <h3 class="text-lg font-black text-purple-500">99.2%</h3>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 glass p-10 rounded-[40px] border border-white/5">
-                        <h4 class="text-[10px] font-black mb-8 uppercase tracking-widest text-gold">Profit Orchestration <span class="text-[7px] text-gray-700 tracking-normal ml-4">V103.0 PREDICTIVE</span></h4>
-                        <canvas id="forecastChart" height="120"></canvas>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass p-8 rounded-[32px] border border-white/5">
+                        <h4 class="text-[8px] font-black mb-6 uppercase tracking-widest text-gold">12-Month Profit Forecasting <span class="text-gray-800 ml-4">AI PREDICTIVE ENGINE</span></h4>
+                        <canvas id="forecastChart" height="100"></canvas>
                     </div>
-                    <div class="glass p-10 rounded-[40px] border border-white/5 space-y-6">
-                        <h4 class="text-[10px] font-black uppercase tracking-widest text-gold">System Health Monitor</h4>
-                        <div id="health-bars" class="space-y-4"></div>
-                        <button onclick="UI.showToast('Scanning System Integrity...')" class="w-full glass py-3 rounded-xl text-[8px] font-black uppercase mt-4">Security Scan</button>
+                    <div class="glass p-8 rounded-[32px] border border-white/5 space-y-6">
+                        <h4 class="text-[8px] font-black uppercase tracking-widest text-gold">System Health Matrix</h4>
+                        <div id="health-grid" class="grid grid-cols-2 gap-4"></div>
                     </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="glass p-6 rounded-3xl"><h5 class="text-[8px] font-black text-gold mb-4 uppercase">Regional Sales Map</h5><div class="h-20 bg-white/2 rounded-xl flex items-center justify-center text-[7px] text-gray-800 uppercase tracking-widest">Global Sync Active</div></div>
+                    <div class="glass p-6 rounded-3xl"><h5 class="text-[8px] font-black text-gold mb-4 uppercase">Product Performance</h5><div id="perf-grid" class="space-y-2"></div></div>
+                    <div class="glass p-6 rounded-3xl"><h5 class="text-[8px] font-black text-gold mb-4 uppercase">Activity Heatmap</h5><div class="h-20 bg-gold/5 rounded-xl border border-gold/10"></div></div>
                 </div>
             </section>
 
-            <!-- CLUSTER: SUPPLY CHAIN -->
-            <section id="tab-supply" class="tab-content hidden space-y-8">
+            <!-- SECTOR: SUPPLY CHAIN -->
+            <section id="tab-supply" class="tab-content hidden space-y-6">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-3xl font-black">Supply Chain Management</h3>
-                    <div class="flex gap-3">
-                        <button onclick="openModal('prod-modal')" class="bg-gold text-dark px-8 py-3 rounded-xl font-black text-[10px]">Add Unit</button>
-                        <button onclick="UI.showToast('Re-calculating inventory valuation...')" class="glass px-5 py-3 rounded-xl text-[10px]"><i class="fas fa-calculator"></i> Valuation</button>
+                    <h3 class="text-2xl font-black">Supply Chain Sector</h3>
+                    <div class="flex gap-2">
+                        <button onclick="openModal('prod-modal')" class="bg-gold text-dark px-6 py-2 rounded-lg font-black text-[9px]">Add Unit</button>
+                        <button onclick="UI.showToast('Generating PO...')" class="glass px-4 py-2 rounded-lg text-[9px]">Auto-Reorder</button>
                     </div>
                 </div>
-                <div class="glass rounded-[35px] overflow-hidden border border-white/5">
-                    <table class="w-full text-right text-[11px]">
-                        <thead class="bg-white/5 text-gray-700 uppercase font-black text-[8px]">
-                            <tr><th class="p-6">المنتج</th><th class="p-6">الفئة</th><th class="p-6">السعر</th><th class="p-6">المخزون</th><th class="p-6">الحالة التوقعية</th><th class="p-6 text-center">إجراءات</th></tr>
+                <div class="glass rounded-[24px] overflow-hidden border border-white/5">
+                    <table class="w-full text-right text-[10px]">
+                        <thead class="bg-white/5 text-gray-700 uppercase font-black text-[7px]">
+                            <tr><th class="p-4">المنتج</th><th class="p-4">الفئة</th><th class="p-4">السعر</th><th class="p-4">المخزون</th><th class="p-4">الحالة</th><th class="p-4 text-center">إجراءات</th></tr>
                         </thead>
                         <tbody id="inv-body"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- CLUSTER: OPERATIONS -->
-            <section id="tab-ops" class="tab-content hidden space-y-8">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-3xl font-black">Operational Orchestration</h3>
-                    <button onclick="UI.showToast('Processing Batch Orders...')" class="bg-white/5 border border-white/10 px-8 py-3 rounded-xl font-black text-[10px] uppercase">Batch Processing</button>
-                </div>
-                <div id="orders-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+            <!-- SECTOR: OPERATIONS -->
+            <section id="tab-ops" class="tab-content hidden space-y-6">
+                <h3 class="text-2xl font-black">Institutional Operations</h3>
+                <div id="orders-grid" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
             </section>
 
-            <!-- CLUSTER: HR -->
-            <section id="tab-hr" class="tab-content hidden space-y-8">
+            <!-- SECTOR: HR -->
+            <section id="tab-hr" class="tab-content hidden space-y-6">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-3xl font-black">Human Capital</h3>
-                    <div class="flex gap-4 items-center">
-                        <span class="text-[9px] text-gold font-black uppercase">Leaderboard Active</span>
-                        <button onclick="openModal('acc-modal')" class="bg-gold text-dark px-8 py-3 rounded-xl font-black text-[10px]">Staff Entry</button>
-                    </div>
+                    <h3 class="text-2xl font-black">Human Capital Sector</h3>
+                    <button onclick="openModal('acc-modal')" class="bg-gold text-dark px-6 py-2 rounded-lg font-black text-[9px]">Register Staff</button>
                 </div>
                 <div id="acc-grid" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
-                <div class="glass p-10 rounded-[40px] border border-white/5">
-                    <h4 class="text-[10px] font-black uppercase text-gold mb-6">Payroll & Benefits</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="payroll-grid"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="glass p-6 rounded-3xl"><h5 class="text-[8px] font-black text-gold mb-4 uppercase">Staff Leaderboard</h5><div id="leaderboard" class="space-y-2"></div></div>
+                    <div class="glass p-6 rounded-3xl"><h5 class="text-[8px] font-black text-gold mb-4 uppercase">Payroll Sync</h5><div id="payroll" class="space-y-2"></div></div>
                 </div>
             </section>
 
-            <!-- CLUSTER: CRM -->
-            <section id="tab-crm" class="tab-content hidden space-y-8">
-                <h3 class="text-3xl font-black">Enterprise CRM Hub</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 glass p-10 rounded-[40px] space-y-6">
-                        <h4 class="text-[10px] font-black uppercase text-gold">Institutional Credit Management</h4>
-                        <div id="credit-grid" class="space-y-4"></div>
+            <!-- SECTOR: CRM -->
+            <section id="tab-crm" class="tab-content hidden space-y-6">
+                <h3 class="text-2xl font-black">Enterprise CRM Suite</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div class="lg:col-span-2 glass p-6 rounded-3xl space-y-4">
+                        <h5 class="text-[8px] font-black text-gold uppercase">Entity Credit & Limits</h5>
+                        <div id="credit-grid" class="grid grid-cols-2 gap-4"></div>
                     </div>
-                    <div class="glass p-10 rounded-[40px] space-y-6">
-                        <h4 class="text-[10px] font-black uppercase text-gold">Messaging Hub</h4>
-                        <select id="chat-select" class="text-[10px]" onchange="loadChat()"></select>
-                        <div id="chat-box" class="h-64 overflow-y-auto flex flex-col p-4 glass rounded-2xl"></div>
+                    <div class="glass p-6 rounded-3xl space-y-4 flex flex-col">
+                        <h5 class="text-[8px] font-black text-gold uppercase">Messaging Terminal</h5>
+                        <select id="chat-select" class="text-[9px]" onchange="loadChat()"></select>
+                        <div id="chat-box" class="flex-1 min-h-[150px] overflow-y-auto flex flex-col p-3 glass rounded-xl"></div>
                         <div class="flex gap-2">
-                            <input type="text" id="chat-input" placeholder="Official Message..." class="text-[10px]">
-                            <button onclick="sendChat()" class="bg-gold text-dark px-6 rounded-xl"><i class="fas fa-paper-plane"></i></button>
+                            <input type="text" id="chat-input" placeholder="Secure Message..." class="text-[9px]">
+                            <button onclick="sendChat()" class="bg-gold text-dark px-4 rounded-lg"><i class="fas fa-paper-plane"></i></button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- CLUSTER: PULSE -->
-            <section id="tab-pulse" class="tab-content hidden space-y-8">
-                <h3 class="text-3xl font-black">Institutional Pulse</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="glass p-10 rounded-[40px] space-y-6">
-                        <h4 class="text-[10px] font-black uppercase text-gold">Compliance & Licenses</h4>
-                        <div id="compliance-list" class="space-y-4"></div>
-                    </div>
-                    <div class="glass p-10 rounded-[40px] space-y-6">
-                        <h4 class="text-[10px] font-black uppercase text-gold">Internal Announcements</h4>
-                        <div id="ann-board" class="space-y-4"></div>
-                        <button onclick="UI.showToast('Announcement Published')" class="w-full glass py-4 rounded-xl text-[9px] font-black uppercase">Publish Note</button>
-                    </div>
+            <!-- SECTOR: FINANCE -->
+            <section id="tab-finance" class="tab-content hidden space-y-6">
+                <h3 class="text-2xl font-black">Financial HQ</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="glass p-6 rounded-3xl space-y-4"><h5 class="text-[8px] font-black text-gold uppercase">Currency Engine</h5><div class="text-[9px]">1 JOD = 1.41 USD</div><button class="w-full glass py-2 text-[8px] uppercase">Toggle EUR</button></div>
+                    <div class="glass p-6 rounded-3xl space-y-4"><h5 class="text-[8px] font-black text-gold uppercase">Tax Config</h5><div class="flex justify-between text-[9px]"><span>VAT</span><span>16%</span></div><div class="flex justify-between text-[9px]"><span>Customs</span><span>5%</span></div></div>
+                    <div class="glass p-6 rounded-3xl space-y-4"><h5 class="text-[8px] font-black text-gold uppercase">Discount Engine</h5><button onclick="UI.showToast('Promo Code Active')" class="w-full bg-gold/10 text-gold py-2 rounded-lg text-[8px] uppercase font-black">Create Institutional Coupon</button></div>
                 </div>
             </section>
 
-            <!-- CLUSTER: SECURITY -->
-            <section id="tab-sec" class="tab-content hidden space-y-8">
-                <h3 class="text-3xl font-black">Security & Audit Logs</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 glass p-10 rounded-[40px] max-h-[60vh] overflow-y-auto space-y-2" id="logs-container"></div>
+            <!-- SECTOR: PULSE -->
+            <section id="tab-pulse" class="tab-content hidden space-y-6">
+                <h3 class="text-2xl font-black">Institutional Pulse</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="glass p-6 rounded-3xl"><h5 class="text-[8px] font-black text-gold mb-4 uppercase">Compliance & SLAs</h5><div id="compliance" class="space-y-3"></div></div>
+                    <div class="glass p-6 rounded-3xl"><h5 class="text-[8px] font-black text-gold mb-4 uppercase">Announcements</h5><div id="ann-board" class="space-y-3"></div><button class="w-full glass py-2 text-[8px] font-black uppercase mt-4">Post Note</button></div>
+                </div>
+            </section>
+
+            <!-- SECTOR: SECURITY -->
+            <section id="tab-security" class="tab-content hidden space-y-6">
+                <h3 class="text-2xl font-black">Security & Data Audit</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div class="lg:col-span-2 glass p-6 rounded-3xl max-h-[50vh] overflow-y-auto space-y-1" id="logs-container"></div>
                     <div class="space-y-4">
-                        <div class="glass p-8 rounded-[35px] border border-gold/10">
-                            <h4 class="text-[9px] font-black text-gold mb-4 uppercase">Data Protection</h4>
-                            <button onclick="UI.showToast('Generating Snapshot...')" class="w-full bg-white/5 py-4 rounded-xl text-[9px] font-black uppercase mb-3">Backup Database</button>
-                            <button onclick="UI.showToast('Restore Point Loaded')" class="w-full border border-white/10 py-4 rounded-xl text-[9px] font-black uppercase">Restore Session</button>
-                        </div>
-                        <div class="glass p-8 rounded-[35px] border border-red-500/10">
-                            <h4 class="text-[9px] font-black text-red-500 mb-4 uppercase">Access Violations</h4>
-                            <div class="text-[8px] text-gray-800">0 critical violations in last 24h.</div>
-                        </div>
+                        <div class="glass p-5 rounded-2xl border border-red-500/10"><h6 class="text-[7px] font-black text-red-500 mb-2 uppercase">Vulnerability Scan</h6><div class="text-[8px] text-gray-800 italic">No threats in last 48h.</div></div>
+                        <div class="glass p-5 rounded-2xl border border-gold/10"><h6 class="text-[7px] font-black text-gold mb-2 uppercase">Backup & Recovery</h6><button onclick="UI.showToast('Snapshot Saved')" class="w-full bg-white/2 py-2 rounded-lg text-[8px] font-black uppercase mb-2">Save Snapshot</button><button class="w-full border border-white/5 py-2 rounded-lg text-[8px] font-black uppercase">Restore Session</button></div>
                     </div>
                 </div>
             </section>
 
-            <!-- CLUSTER: OS -->
-            <section id="tab-os" class="tab-content hidden space-y-8">
-                <h3 class="text-3xl font-black">System Operating OS</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="glass p-10 rounded-[40px] space-y-6">
-                        <h4 class="text-[10px] font-black text-gold uppercase">Institutional Identity</h4>
-                        <input type="text" value="ZOLNGEN HQ Jordan" class="text-[10px]">
-                        <div class="flex gap-2">
-                            <div class="w-10 h-10 bg-gold rounded-xl"></div>
-                            <div class="w-10 h-10 bg-white/10 rounded-xl"></div>
-                            <div class="w-10 h-10 bg-blue-500/20 rounded-xl"></div>
-                        </div>
-                    </div>
-                    <div class="glass p-10 rounded-[40px] space-y-6">
-                        <h4 class="text-[10px] font-black text-gold uppercase">System Orchestration</h4>
-                        <div class="flex justify-between items-center"><span class="text-[10px]">Maintenance Mode</span><div class="w-10 h-5 bg-white/10 rounded-full relative"><div class="absolute left-1 top-1 w-3 h-3 bg-gray-600 rounded-full"></div></div></div>
-                        <div class="flex justify-between items-center"><span class="text-[10px]">AI Profit Optimization</span><div class="w-10 h-5 bg-gold/20 rounded-full relative"><div class="absolute right-1 top-1 w-3 h-3 bg-gold rounded-full"></div></div></div>
-                    </div>
-                    <div class="glass p-10 rounded-[40px] space-y-6">
-                        <h4 class="text-[10px] font-black text-red-500 uppercase">Emergency Protocol</h4>
-                        <button onclick="if(confirm('Wipe all data?')){localStorage.clear();location.reload();}" class="w-full bg-red-500/10 text-red-500 py-4 rounded-xl text-[9px] font-black uppercase">Deep Wipe Cache</button>
-                    </div>
+            <!-- SECTOR: SETTINGS -->
+            <section id="tab-settings" class="tab-content hidden space-y-6">
+                <h3 class="text-2xl font-black">Global OS Settings</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="glass p-6 rounded-3xl space-y-4"><h5 class="text-[8px] font-black text-gold uppercase">Identity Branding</h5><input type="text" value="ZOLNGEN HQ Jordan" class="text-[9px]"><div class="flex gap-2"><div class="w-6 h-6 bg-gold rounded-md"></div><div class="w-6 h-6 bg-white/10 rounded-md"></div></div></div>
+                    <div class="glass p-6 rounded-3xl space-y-4"><h5 class="text-[8px] font-black text-gold uppercase">AI Protocols</h5><div class="flex justify-between text-[9px]"><span>Auto-Pricing</span><span class="text-green-500">ON</span></div><div class="flex justify-between text-[9px]"><span>Predictive Stock</span><span class="text-green-500">ON</span></div></div>
+                    <div class="glass p-6 rounded-3xl space-y-4"><h5 class="text-[8px] font-black text-red-500 uppercase">Wipe Protocol</h5><button onclick="if(confirm('Wipe everything?')){localStorage.clear();location.reload();}" class="w-full bg-red-500/10 text-red-500 py-3 rounded-xl text-[8px] font-black uppercase">Deep Format Storage</button></div>
                 </div>
             </section>
         </main>
@@ -240,22 +223,22 @@
 
     <!-- MODALS -->
     <div id="modal-bg" class="fixed inset-0 z-[600] bg-black/98 backdrop-blur-3xl hidden flex items-center justify-center p-6">
-        <div id="prod-modal" class="glass p-12 rounded-[50px] max-w-lg w-full border border-gold/10 hidden">
-            <h3 class="text-3xl font-black mb-8 text-gold">Unit Provisioning</h3>
-            <form id="prod-form" class="space-y-4">
-                <input type="hidden" id="p-id"><input type="text" id="p-name" placeholder="Hardware Model ID"><input type="text" id="p-cat" placeholder="Functional Cluster">
-                <div class="grid grid-cols-2 gap-4"><input type="number" id="p-price" placeholder="Institutional Price"><input type="number" id="p-stock" placeholder="Unit Count"></div>
-                <button type="submit" class="w-full bg-gold text-dark py-5 rounded-2xl font-black mt-8 shadow-2xl">Sync to Repository</button>
-                <button type="button" onclick="closeModal()" class="w-full text-gray-800 text-[9px] uppercase font-black mt-4">Abort Process</button>
+        <div id="prod-modal" class="glass p-10 rounded-[40px] max-w-sm w-full border border-gold/10 hidden">
+            <h3 class="text-2xl font-black mb-6 text-gold">Unit Provisioning</h3>
+            <form id="prod-form" class="space-y-3">
+                <input type="hidden" id="p-id"><input type="text" id="p-name" placeholder="Hardware ID"><input type="text" id="p-cat" placeholder="Category">
+                <div class="grid grid-cols-2 gap-3"><input type="number" id="p-price" placeholder="MSRP"><input type="number" id="p-stock" placeholder="Qty"></div>
+                <button type="submit" class="w-full bg-gold text-dark py-4 rounded-xl font-black mt-6 shadow-2xl text-[10px]">Sync to Repo</button>
+                <button type="button" onclick="closeModal()" class="w-full text-gray-800 text-[8px] uppercase font-black mt-4">Abort</button>
             </form>
         </div>
-        <div id="acc-modal" class="glass p-12 rounded-[50px] max-w-lg w-full border border-gold/10 hidden">
-            <h3 class="text-3xl font-black mb-8 text-gold">Staff Authentication</h3>
-            <form id="acc-form" class="space-y-4">
-                <input type="text" id="a-user" placeholder="Staff Username"><input type="text" id="a-name" placeholder="Legal Name"><input type="password" id="a-pass" placeholder="Security Token">
-                <select id="a-role"><option value="ADMIN">ADMINISTRATOR</option><option value="STAFF">TECHNICAL STAFF</option></select>
-                <button type="submit" class="w-full bg-gold text-dark py-5 rounded-2xl font-black mt-8">Authorize Access</button>
-                <button type="button" onclick="closeModal()" class="w-full text-gray-800 text-[9px] uppercase font-black mt-4">Cancel</button>
+        <div id="acc-modal" class="glass p-10 rounded-[40px] max-w-sm w-full border border-gold/10 hidden">
+            <h3 class="text-2xl font-black mb-6 text-gold">Staff Auth</h3>
+            <form id="acc-form" class="space-y-3">
+                <input type="text" id="a-user" placeholder="Staff ID"><input type="text" id="a-name" placeholder="Full Legal Name"><input type="password" id="a-pass" placeholder="Secure Key">
+                <select id="a-role"><option value="ADMIN">ADMIN</option><option value="STAFF">TECHNICAL</option></select>
+                <button type="submit" class="w-full bg-gold text-dark py-4 rounded-xl font-black mt-6 text-[10px]">Grant Access</button>
+                <button type="button" onclick="closeModal()" class="w-full text-gray-800 text-[8px] font-black mt-4">Cancel</button>
             </form>
         </div>
     </div>
@@ -265,15 +248,19 @@
         const cur = document.querySelector('.cursor');
         document.addEventListener('mousemove', e => { gsap.to(cur, { x: e.clientX, y: e.clientY, duration: 0.1 }); });
 
-        // V103.0 ULTIMATE ORCHESTRATION
+        // V104.0 OMNI-SYNCHRONIZATION
         checkInit = () => {
             const s = Auth.getSession();
             if(s && s.role === 'ADMIN') {
-                gsap.to('#admin-lock-screen', { opacity: 0, y: -50, scale: 1.1, duration: 1.5, ease: "expo.out", onComplete: () => {
+                gsap.to('#admin-lock-screen', { opacity: 0, scale: 1.2, filter: 'blur(20px)', duration: 1, ease: "power4.out", onComplete: () => {
                     document.getElementById('admin-lock-screen').style.display = 'none';
                     document.getElementById('admin-content').classList.remove('hidden');
                     renderAdmin();
                 }});
+                document.getElementById('admin-name').innerText = s.name;
+            } else {
+                document.getElementById('admin-lock-screen').style.display = 'flex';
+                document.getElementById('admin-content').classList.add('hidden');
             }
         };
 
@@ -282,7 +269,7 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-' + id).classList.remove('hidden');
             event.currentTarget.classList.add('active');
-            const titles = { overview: 'Command Center', supply: 'Supply Chain Cluster', ops: 'Operational Center', hr: 'Human Capital', crm: 'Enterprise CRM Hub', pulse: 'Institutional Pulse', sec: 'Security & Logs', os: 'System Operating OS' };
+            const titles = { dashboard: 'Command Dashboard', supply: 'Supply Chain Sector', ops: 'Operations Hub', hr: 'Human Capital', crm: 'Enterprise CRM Suite', finance: 'Financial HQ', pulse: 'Institutional Pulse', security: 'Security & Audit', settings: 'Global OS Settings' };
             document.getElementById('tab-title').innerText = titles[id];
             renderAdmin();
         }
@@ -293,96 +280,64 @@
             document.getElementById('stat-profit').innerText = (stats.totalSales * 0.25).toLocaleString() + ' JOD';
             document.getElementById('stat-inv').innerText = stats.inventoryValue.toLocaleString() + ' JOD';
 
-            // Health Bars Simulation
-            document.getElementById('health-bars').innerHTML = `
-                <div class="space-y-2"><div class="flex justify-between text-[9px] font-black"><span>CPU LOAD</span><span>${Math.floor(Math.random()*20)+10}%</span></div><div class="h-1 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-gold w-[15%]"></div></div></div>
-                <div class="space-y-2"><div class="flex justify-between text-[9px] font-black"><span>MEM SYNC</span><span>${Math.floor(Math.random()*15)+20}%</span></div><div class="h-1 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-blue-500 w-[25%]"></div></div></div>
-            `;
+            // Health Matrix Simulation
+            document.getElementById('health-grid').innerHTML = ['CPU LOAD', 'MEMORY SYNC', 'DB LATENCY', 'AI UPTIME'].map(h => `
+                <div class="space-y-1">
+                    <div class="flex justify-between text-[7px] font-black"><span>${h}</span><span>${Math.floor(Math.random()*20)+10}%</span></div>
+                    <div class="h-1 bg-white/2 rounded-full overflow-hidden"><div class="h-full bg-gold" style="width: ${Math.floor(Math.random()*40)+20}%"></div></div>
+                </div>
+            `).join('');
 
-            // Inventory Cluster
+            // Inventory Rendering
             const invBody = document.getElementById('inv-body');
-            const prods = DB.getProducts();
-            invBody.innerHTML = prods.map(p => `
+            invBody.innerHTML = DB.getProducts().map(p => `
                 <tr class="border-b border-white/5 hover:bg-white/2 transition-all">
-                    <td class="p-6 font-black">${p.name}</td>
-                    <td class="p-6 text-gray-800 uppercase font-black text-[7px] tracking-widest">${p.category}</td>
-                    <td class="p-6 text-gold font-black">${p.price} JOD</td>
-                    <td class="p-6 font-mono text-xs ${p.stock < 10 ? 'text-red-500 font-black' : ''}">${p.stock}</td>
-                    <td class="p-6"><span class="status-badge ${p.stock > 10 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}">Predictive OK</span></td>
-                    <td class="p-6 text-center flex gap-4 justify-center">
-                        <button onclick="editP('${p.id}')" class="text-gray-800 hover:text-gold transition-all"><i class="fas fa-microchip"></i></button>
+                    <td class="p-4 font-black">${p.name}</td>
+                    <td class="p-4 text-gray-800 uppercase font-black text-[6px] tracking-widest">${p.category}</td>
+                    <td class="p-4 text-gold font-black">${p.price} JOD</td>
+                    <td class="p-4 font-mono text-[9px] ${p.stock < 10 ? 'text-red-500 font-black' : ''}">${p.stock} Units</td>
+                    <td class="p-4"><span class="status-badge ${p.stock > 10 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}">Operational</span></td>
+                    <td class="p-4 text-center">
+                        <button onclick="editP('${p.id}')" class="text-gray-800 hover:text-gold mr-3 transition-all"><i class="fas fa-microchip"></i></button>
                         <button onclick="if(confirm('Terminate?')){DB.deleteProduct('${p.id}');renderAdmin();}" class="text-red-500/20 hover:text-red-500 transition-all"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             `).join('');
 
-            // Operations Cluster
-            const ordersGrid = document.getElementById('orders-grid');
-            ordersGrid.innerHTML = DB.getOrders().map(o => `
-                <div class="glass p-6 rounded-[35px] border border-white/5 card-eco">
-                    <div class="flex justify-between items-start mb-4"><span class="status-badge ${o.status==='pending'?'bg-gold/20 text-gold':'bg-blue-500/20 text-blue-500'}">${o.status}</span><span class="text-[7px] text-gray-800">${o.id}</span></div>
-                    <h5 class="text-sm font-black">${o.entity}</h5>
-                    <p class="text-[7px] text-gray-800 uppercase mt-1">${o.date}</p>
-                    <div class="mt-6 flex justify-between items-center"><span class="text-xl font-black text-gold">${o.total} JOD</span><button class="w-8 h-8 glass rounded-lg flex items-center justify-center text-[10px]"><i class="fas fa-file-invoice"></i></button></div>
+            // CRM Credit Grid
+            document.getElementById('credit-grid').innerHTML = DB.getOrders().slice(0, 4).map(o => `
+                <div class="bg-white/2 p-3 rounded-xl flex justify-between items-center">
+                    <span class="text-[8px] font-bold">${o.entity}</span>
+                    <span class="text-[8px] text-gold font-black">Credit: 25K JOD</span>
                 </div>
             `).join('');
 
-            // Human Capital Cluster
+            // HR Section
             const accGrid = document.getElementById('acc-grid');
             accGrid.innerHTML = DB.getAccounts().map(a => `
-                <div class="glass p-6 rounded-[30px] border border-white/5 relative group card-eco">
+                <div class="glass p-5 rounded-[24px] border border-white/5 relative group card-omni">
                     <div class="absolute top-0 left-0 w-1 h-full ${a.role==='ADMIN'?'bg-gold':'bg-blue-500'}"></div>
-                    <h5 class="font-black text-xs">${a.name}</h5>
+                    <h5 class="font-black text-[10px]">${a.name}</h5>
                     <p class="text-[7px] text-gray-800 uppercase mt-1">${a.role}</p>
-                    <button onclick="if(confirm('Revoke Access?')){DB.deleteAccount('${a.user}');renderAdmin();}" class="mt-4 text-red-500/30 text-[7px] opacity-0 group-hover:opacity-100 transition-all underline">Revoke</button>
+                    <button onclick="if(confirm('Revoke?')){DB.deleteAccount('${a.user}');renderAdmin();}" class="mt-4 text-red-500/30 text-[7px] opacity-0 group-hover:opacity-100 transition-all">Revoke</button>
                 </div>
             `).join('');
 
-            // Payroll Simulation
-            document.getElementById('payroll-grid').innerHTML = DB.getAccounts().slice(0, 3).map(a => `
-                <div class="bg-white/2 p-4 rounded-2xl flex justify-between items-center border border-white/5">
-                    <span class="text-[10px] font-bold">${a.name}</span>
-                    <span class="text-[10px] font-black text-green-500">2,500 JOD</span>
-                </div>
-            `).join('');
-
-            // Compliance Cluster
-            document.getElementById('compliance-list').innerHTML = `
-                <div class="flex justify-between items-center glass p-4 rounded-2xl border border-gold/10">
-                    <span class="text-[10px] font-black">Institutional License v2.6</span>
-                    <span class="status-badge bg-green-500/20 text-green-500 font-black">Active</span>
-                </div>
-                <div class="flex justify-between items-center glass p-4 rounded-2xl border border-white/5">
-                    <span class="text-[10px] font-black">Hardware Compliance Certification</span>
-                    <span class="status-badge bg-gold/20 text-gold font-black">Renewing</span>
-                </div>
+            // Pulse: Compliance & Announcements
+            document.getElementById('compliance').innerHTML = `
+                <div class="flex justify-between items-center text-[8px] font-black p-3 bg-white/2 rounded-xl"><span>SLA Performance</span><span class="text-green-500">99.8%</span></div>
+                <div class="flex justify-between items-center text-[8px] font-black p-3 bg-white/2 rounded-xl"><span>Safety Protocol</span><span class="text-gold">ACTIVE</span></div>
             `;
-
-            // Credit Management
-            document.getElementById('credit-grid').innerHTML = DB.getOrders().slice(0, 3).map(o => `
-                <div class="flex justify-between items-center text-[10px] font-bold p-4 bg-white/2 rounded-2xl">
-                    <span>${o.entity}</span>
-                    <span class="text-gold font-black">Limit: 50,000 JOD</span>
-                </div>
-            `).join('');
-
-            // Announcement Board
-            document.getElementById('ann-board').innerHTML = `
-                <div class="bg-gold/5 p-4 rounded-2xl border border-gold/10 text-[10px] leading-relaxed">
-                    <p class="font-black text-gold mb-2">SYSTEM UPGRADE SUCCESSFUL</p>
-                    <p class="text-gray-700">All institutional clusters are now operating on V103.0 Master protocol.</p>
-                </div>
-            `;
+            document.getElementById('ann-board').innerHTML = `<div class="bg-gold/5 p-3 rounded-xl border border-gold/10 text-[8px] text-gray-800">ALL CLUSTERS NOW ON V104.0 PROTOCOL.</div>`;
 
             // Security Logs
             const logsBox = document.getElementById('logs-container');
-            const logs = DB.get('zolngen_audit') || [];
-            logsBox.innerHTML = logs.map(l => `
-                <div class="flex justify-between text-[7px] font-black border-b border-white/2 py-3 px-2 hover:bg-white/2 transition-all">
-                    <span class="text-gold uppercase tracking-widest">${l.action}</span>
+            logsBox.innerHTML = (DB.get('zolngen_audit') || []).map(l => `
+                <div class="flex justify-between text-[7px] font-black border-b border-white/2 py-3 px-2">
+                    <span class="text-gold uppercase">${l.action}</span>
                     <span class="text-gray-800">${l.date}</span>
                 </div>
-            `).join('') || '<p class="text-center text-gray-800 py-10 text-[8px] uppercase tracking-[0.5em]">No log data</p>';
+            `).join('') || '<p class="text-center text-gray-800 py-10 text-[8px] uppercase tracking-widest">No Logs</p>';
 
             renderChart();
         }
@@ -394,8 +349,8 @@
             if(window.myChart) window.myChart.destroy();
             window.myChart = new Chart(ctx, {
                 type: 'line',
-                data: { labels: ['Q1', 'Q2', 'Q3', 'Q4'], datasets: [{ data: [stats.totalSales*0.3, stats.totalSales*0.6, stats.totalSales, stats.totalSales*1.7], borderColor: '#D4AF37', borderWidth: 1.5, tension: 0.5, fill: true, backgroundColor: 'rgba(212, 175, 55, 0.05)', pointRadius: 0 }] },
-                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#333', font: { size: 7 } } } } }
+                data: { labels: ['Q1', 'Q2', 'Q3', 'Q4'], datasets: [{ data: [stats.totalSales*0.2, stats.totalSales*0.5, stats.totalSales, stats.totalSales*1.9], borderColor: '#D4AF37', borderWidth: 1, tension: 0.6, fill: true, backgroundColor: 'rgba(212, 175, 55, 0.05)', pointRadius: 0 }] },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#222', font: { size: 6 } } } } }
             });
         }
 
