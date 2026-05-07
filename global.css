@@ -25,26 +25,19 @@
     transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* HYBRID CURSOR - ALWAYS VISIBLE */
-body {
-    cursor: default !important; /* Restore native cursor for reliability */
-    background: var(--bg);
-    color: var(--text);
-    overflow-x: hidden;
-}
-
+/* CUSTOM CURSOR SYSTEM - ULTIMATE VISIBILITY */
 .cursor-glow {
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
     background: var(--gold);
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
-    z-index: 99999;
+    z-index: 1000000; /* SUPREME DEPTH */
     mix-blend-mode: difference;
-    filter: blur(8px);
-    opacity: 0.6;
-    transition: transform 0.1s ease-out;
+    filter: blur(10px);
+    opacity: 0.8;
+    transition: transform 0.05s ease-out;
 }
 
 /* PREMIUM SCROLLBAR */
@@ -55,8 +48,9 @@ body {
 /* UTILITIES */
 .glass {
     background: var(--glass);
-    backdrop-filter: blur(30px);
+    backdrop-filter: blur(50px); /* DEEPER GLASS */
     border: 1px solid var(--border);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
 }
 
 .gold-glow {

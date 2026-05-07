@@ -1,76 +1,64 @@
-/* database.js - ZOLNGEN SINGULARITY DB V107.0 */
-const DB = {
-    init: function() {
-        if(!localStorage.getItem('zolngen_prods')) this.seed();
-    },
-    
-    get: (key) => JSON.parse(localStorage.getItem(key)) || [],
-    set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
-    
-    seed: function() {
-        const prods = [
-            { id: 'Z1', name: 'ZOLNGEN Server X1', category: 'Computing', price: 15000, stock: 12, ar_ready: true },
-            { id: 'Z2', name: 'Quantum Laptop Pro', category: 'Workstations', price: 3500, stock: 45, ar_ready: true },
-            { id: 'Z3', name: 'Neural Network Hub', category: 'Networking', price: 8000, stock: 8, ar_ready: false }
-        ];
-        const orders = [
-            { id: 'ORD-882', entity: 'Jordan Ministry of Tech', total: 45000, status: 'shipped', date: '2026-05-01' },
-            { id: 'ORD-901', entity: 'Zain HQ Jordan', total: 12000, status: 'pending', date: '2026-05-06' }
-        ];
-        const accounts = [
-            { user: 'admin', pass: 'admin123', name: 'System Master', role: 'ADMIN', level: 99 },
-            { user: 'staff1', pass: 'staff123', name: 'Ahmad Tech', role: 'STAFF', level: 5 }
-        ];
-        const audit = [
-            { action: 'SYSTEM_BOOT', user: 'SYSTEM', date: new Date().toLocaleString() },
-            { action: 'ADMIN_LOGIN', user: 'admin', date: new Date().toLocaleString() }
-        ];
-        const blockchain = [
-            { hash: '0x7dd8638b...', prev: '0x00000000...', data: 'Genesis Block Created' },
-            { hash: '0xba0e889c...', prev: '0x7dd8638b...', data: 'V107.0 Singularity Update' }
-        ];
+/* database.js - ZOLNGEN OMNI-DATABASE V123.0 (ACTUAL LOGIC) */
+const ZolngenDB = {
+    key: "zolngen_enterprise_data",
 
-        this.set('zolngen_prods', prods);
-        this.set('zolngen_orders', orders);
-        this.set('zolngen_accounts', accounts);
-        this.set('zolngen_audit', audit);
-        this.set('zolngen_blockchain', blockchain);
+    // INITIAL SEED DATA
+    seed: {
+        products: [
+            { id: "Z-001", name: "ZOLNGEN Quantum Blade", category: "Hardware", price: 15000, stock: 12, status: "Active" },
+            { id: "Z-002", name: "Nebula Core Processor", category: "Core Unit", price: 8500, stock: 5, status: "Active" },
+            { id: "Z-003", name: "Obsidian Shield Wall", category: "Security", price: 4200, stock: 20, status: "Active" }
+        ],
+        sales: [],
+        audit: [],
+        tickets: []
     },
 
-    getProducts: function() { return this.get('zolngen_prods'); },
-    getOrders: function() { return this.get('zolngen_orders'); },
-    getAccounts: function() { return this.get('zolngen_accounts'); },
-    
-    saveProduct: function(p) {
-        let prods = this.getProducts();
-        const idx = prods.findIndex(x => x.id === p.id);
-        if(idx > -1) prods[idx] = p; else prods.push(p);
-        this.set('zolngen_prods', prods);
-        this.log('PRODUCT_UPDATE', p.name);
+    // INITIALIZE DB
+    init() {
+        if (!localStorage.getItem(this.key)) {
+            localStorage.setItem(this.key, JSON.stringify(this.seed));
+            console.log("[DB] System Seeded Successfully.");
+        }
     },
 
-    deleteProduct: function(id) {
-        let prods = this.getProducts();
-        this.set('zolngen_prods', prods.filter(x => x.id !== id));
-        this.log('PRODUCT_DELETE', id);
+    // GET ALL DATA
+    getData() {
+        return JSON.parse(localStorage.getItem(this.key));
     },
 
-    log: function(action, details) {
-        let logs = this.get('zolngen_audit');
-        logs.unshift({ action, details, date: new Date().toLocaleString() });
-        this.set('zolngen_audit', logs.slice(0, 50));
+    // SAVE DATA
+    saveData(data) {
+        localStorage.setItem(this.key, JSON.stringify(data));
+        // Trigger a custom event for real-time UI sync
+        window.dispatchEvent(new Event('zolngen_db_update'));
     },
 
-    getProStats: function() {
-        const prods = this.getProducts();
-        const orders = this.getOrders();
-        return {
-            totalSales: orders.reduce((sum, o) => sum + o.total, 0),
-            inventoryValue: prods.reduce((sum, p) => sum + (p.price * p.stock), 0),
-            activeStaff: this.getAccounts().length,
-            systemHealth: 99.8
-        };
+    // CRUD: CREATE PRODUCT
+    addProduct(product) {
+        const data = this.getData();
+        data.products.push(product);
+        this.saveData(data);
+        SecurityCore.logAction("ADD_PRODUCT", `Added ${product.name}`);
+    },
+
+    // CRUD: DELETE PRODUCT
+    deleteProduct(id) {
+        const data = this.getData();
+        data.products = data.products.filter(p => p.id !== id);
+        this.saveData(data);
+        SecurityCore.logAction("DELETE_PRODUCT", `Deleted product ID: ${id}`);
+    },
+
+    // CRUD: UPDATE STOCK
+    updateStock(id, amount) {
+        const data = this.getData();
+        const p = data.products.find(p => p.id === id);
+        if (p) {
+            p.stock = amount;
+            this.saveData(data);
+        }
     }
 };
 
-DB.init();
+ZolngenDB.init();

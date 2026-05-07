@@ -1,4 +1,4 @@
-/* i18n.js - ZOLNGEN GLOBAL TRANSLATION ENGINE V105.0 */
+/* i18n.js - ZOLNGEN GLOBAL TRANSLATION ENGINE V123.0 (MASTER CORRECTION) */
 const translations = {
     ar: {
         title: "ZOLNGEN Enterprise Pro",
@@ -85,13 +85,14 @@ const I18n = {
     
     init: function() {
         this.apply();
+        this.listen();
     },
     
     setLang: function(l) {
         this.lang = l;
         localStorage.setItem('zolngen_lang', l);
         this.apply();
-        location.reload();
+        // location.reload(); // Removed to avoid refresh, using live apply instead
     },
     
     t: function(key) {
@@ -108,6 +109,19 @@ const I18n = {
                 el.placeholder = this.t(key);
             } else {
                 el.innerText = this.t(key);
+            }
+        });
+    },
+
+    listen: function() {
+        // CROSS-TAB SYNC
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'zolngen_lang') {
+                this.lang = e.newValue;
+                this.apply();
+            }
+            if (e.key === 'zolngen_theme') {
+                document.documentElement.setAttribute('data-theme', e.newValue);
             }
         });
     }
