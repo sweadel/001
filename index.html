@@ -3,143 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Enterprise | V100.0 ULTIMATE</title>
-    
+    <title>ZOLNGEN Enterprise | V100.4 MASTER</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Unified Modular Styles -->
     <link rel="stylesheet" href="styles.css">
-
-    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        #mobile-menu { transform: translateY(-100%); transition: 0.5s cubic-bezier(0.85, 0, 0.15, 1); }
+        #mobile-menu.open { transform: translateY(0); }
+    </style>
 </head>
-<body class="lang-ar">
+<body class="overflow-x-hidden">
     <canvas id="neural-bg"></canvas>
 
-    <!-- Global Search -->
-    <div id="cmd-overlay" class="cmd-overlay">
-        <div class="max-w-3xl mx-auto mt-20 glass p-4 rounded-3xl border border-gold/30">
-            <div class="flex items-center p-6 border-b border-white/5">
-                <i class="fas fa-bolt text-gold mr-4"></i>
-                <input type="text" id="cmd-input" placeholder="Search Command Center (Ctrl+K)..." class="w-full bg-transparent outline-none text-2xl font-light text-white">
-            </div>
-            <div id="cmd-results" class="p-6 space-y-4 max-h-[60vh] overflow-y-auto"></div>
-        </div>
-    </div>
-
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 glass border-b border-white/5 px-12 py-6 flex justify-between items-center">
-        <div class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN <span class="text-white font-thin">PRO</span></div>
-        <div class="flex gap-10 text-sm uppercase tracking-widest font-bold items-center">
-            <a href="products.html" class="hover:text-gold transition-all">الكتالوج</a>
-            <a href="maintenance.html" class="hover:text-gold transition-all">الصيانة</a>
-            <div id="nav-auth-links" class="flex gap-4">
-                <!-- Dynamic Auth Links -->
+    <nav class="fixed w-full z-[1000] p-6 lg:p-10">
+        <div class="max-w-7xl mx-auto glass rounded-full px-8 py-4 flex justify-between items-center border border-white/5">
+            <a href="index.html" class="text-2xl font-black text-gold tracking-tighter">ZOLNGEN <span class="text-white font-thin">PRO</span></a>
+            <div class="hidden lg:flex gap-12 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
+                <a href="products.html" class="hover:text-gold transition-all">المنتجات</a>
+                <a href="maintenance.html" class="hover:text-gold transition-all">الصيانة</a>
+                <a href="admin.html" class="hover:text-gold transition-all">الإدارة</a>
+            </div>
+            <div class="flex gap-4 items-center">
+                <button id="login-btn" onclick="UI.toggleLogin()" class="bg-white/5 border border-white/10 px-6 py-2 rounded-full text-[10px] font-bold uppercase hover:bg-gold hover:text-dark transition-all">دخول</button>
+                <button onclick="toggleMobileMenu()" class="lg:hidden text-gold text-xl"><i class="fas fa-bars"></i></button>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="h-screen flex flex-col items-center justify-center text-center px-6 relative overflow-hidden">
-        <div class="z-10 space-y-8 max-w-5xl animate-in">
-            <div class="inline-block glass px-6 py-2 rounded-full border border-gold/20 text-gold text-[10px] tracking-[5px] uppercase">Enterprise Ultimate V100.0</div>
-            <h1 class="text-7xl md:text-9xl font-black leading-tight">توريد <span class="text-gold">ذكي</span><br>بلا حدود</h1>
-            <p class="text-xl text-gray-400 font-light max-w-2xl mx-auto italic">نظام التوريد المؤسسي الأكثر تطوراً في المنطقة، مصمم للنخبة.</p>
-            <div class="flex gap-6 justify-center pt-8">
-                <a href="products.html" class="btn-premium">ابدأ الآن</a>
-                <button onclick="toggleLoginModal()" class="glass border border-white/10 px-12 py-5 rounded-2xl font-black text-lg hover:bg-white/5 transition-all">تسجيل الدخول</button>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 z-[999] bg-black/95 backdrop-blur-3xl flex flex-col items-center justify-center space-y-8 lg:hidden">
+        <a href="products.html" class="text-3xl font-black text-white hover:text-gold">المنتجات</a>
+        <a href="maintenance.html" class="text-3xl font-black text-white hover:text-gold">الصيانة</a>
+        <a href="admin.html" class="text-3xl font-black text-white hover:text-gold">الإدارة</a>
+        <button onclick="toggleMobileMenu()" class="mt-12 text-gold"><i class="fas fa-times text-4xl"></i></button>
+    </div>
+
+    <!-- Hero -->
+    <section class="h-screen flex items-center justify-center text-center p-6 relative">
+        <div class="space-y-12 animate-in relative z-10">
+            <div class="inline-block px-6 py-2 glass rounded-full border border-gold/20 text-[10px] font-bold text-gold uppercase tracking-widest mb-6">Institutional Excellence V100.4</div>
+            <h1 class="text-5xl lg:text-[120px] font-black leading-none tracking-tighter">THE <span class="text-gold">MASTER</span><br>SYSTEM.</h1>
+            <p class="max-w-xl mx-auto text-gray-500 text-sm lg:text-lg font-light leading-relaxed">منظومة ZOLNGEN المتكاملة لإدارة التوريد والخدمات اللوجستية للمؤسسات الحكومية والخاصة.</p>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center pt-8">
+                <a href="products.html" class="bg-gold text-dark px-12 py-5 rounded-full font-black text-sm shadow-2xl shadow-gold/20 hover:scale-105 transition-all">تصفح الأجهزة</a>
+                <a href="maintenance.html" class="glass border border-white/10 px-12 py-5 rounded-full font-black text-sm hover:bg-white/5 transition-all">طلب صيانة</a>
             </div>
         </div>
     </section>
 
-    <!-- AI Bot UI -->
-    <div id="bot-window" class="fixed bottom-10 left-10 w-[350px] glass rounded-[32px] border border-white/10 hidden flex-col z-[100] shadow-2xl overflow-hidden">
-        <div class="bg-gold p-4 text-dark font-black flex justify-between">
-            <span>Antigravity AI</span>
-            <button onclick="toggleBot()">×</button>
-        </div>
-        <div id="bot-messages" class="h-80 overflow-y-auto p-4 space-y-3 text-xs">
-            <div class="bg-white/5 p-3 rounded-2xl border border-white/5">أهلاً بك! كيف يمكنني مساعدتك اليوم؟</div>
-        </div>
-        <div class="p-4 border-t border-white/5 flex gap-2">
-            <input type="text" id="bot-input" placeholder="اسألني أي شيء..." class="flex-1 bg-black/40 border-none p-2 text-xs">
-            <button onclick="sendMessage()" class="bg-gold text-dark p-2 rounded-lg"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </div>
-    <button onclick="toggleBot()" class="fixed bottom-10 left-10 w-16 h-16 bg-gold text-dark rounded-full flex items-center justify-center text-2xl shadow-2xl z-50 hover:scale-110 transition-all"><i class="fas fa-robot"></i></button>
-
-    <!-- Login Modal -->
-    <div id="login-modal" class="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl hidden flex items-center justify-center p-6">
-        <div class="glass p-12 rounded-[48px] max-w-md w-full border border-gold/30">
-            <h3 class="text-3xl font-black mb-8 text-center text-gold">تسجيل الدخول</h3>
-            <div class="space-y-6">
-                <input type="text" id="login-user" placeholder="اسم المستخدم" class="w-full">
-                <input type="password" id="login-pass" placeholder="كلمة المرور" class="w-full">
-                <div class="flex gap-4">
-                    <button onclick="handleLogin(true)" class="flex-1 bg-gold text-dark font-black py-4 rounded-xl">مدير</button>
-                    <button onclick="handleLogin(false)" class="flex-1 border border-white/10 py-4 rounded-xl">عميل</button>
-                </div>
-                <button onclick="toggleLoginModal()" class="w-full text-gray-500 text-sm mt-4">إلغاء</button>
+    <!-- Bot & Login Widgets -->
+    <div id="bot-widget" class="fixed bottom-10 left-10 z-[500] hidden">
+        <div class="glass w-[350px] h-[500px] rounded-[40px] flex flex-col overflow-hidden border border-gold/20 shadow-2xl">
+            <div class="p-6 bg-gold text-dark flex justify-between items-center">
+                <span class="font-black">Antigravity AI</span>
+                <button onclick="UI.toggleBot()" class="opacity-50 hover:opacity-100">×</button>
+            </div>
+            <div id="bot-messages" class="flex-1 p-6 overflow-y-auto space-y-4 text-xs"></div>
+            <div class="p-6 border-t border-white/5 flex gap-2">
+                <input type="text" id="bot-input" placeholder="اسأل عن المبيعات أو المخزون..." class="flex-1 bg-white/5 p-4 rounded-xl border border-white/10 outline-none">
+                <button onclick="handleBotChat()" class="bg-gold text-dark w-12 rounded-xl"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </div>
 
-    <!-- Modular JS Scripts -->
+    <button onclick="UI.toggleBot()" class="fixed bottom-10 left-10 w-16 h-16 bg-gold text-dark rounded-2xl flex items-center justify-center text-2xl shadow-2xl hover:scale-110 transition-all z-[499]"><i class="fas fa-robot"></i></button>
+
+    <div id="login-modal" class="fixed inset-0 z-[2000] bg-black/95 backdrop-blur-3xl hidden flex items-center justify-center p-6">
+        <div class="glass p-12 rounded-[48px] max-w-sm w-full border border-gold/30 text-center">
+            <h3 class="text-3xl font-black mb-8">تسجيل الدخول</h3>
+            <input type="text" id="login-user" placeholder="اسم المستخدم" class="w-full mb-4">
+            <input type="password" id="login-pass" placeholder="كلمة المرور" class="w-full mb-8">
+            <button onclick="attemptLogin()" class="w-full bg-gold text-dark py-4 rounded-xl font-black mb-4">دخول آمن</button>
+            <button onclick="UI.toggleLogin()" class="text-gray-500 text-xs hover:text-white">إلغاء</button>
+        </div>
+    </div>
+
     <script src="database.js"></script>
     <script src="auth.js"></script>
     <script src="bot.js"></script>
     <script src="ui.js"></script>
-
     <script>
-        // PAGE SPECIFIC LOGIC
-        function toggleLoginModal() { document.getElementById('login-modal').classList.toggle('hidden'); }
-        function handleLogin(isAdmin) {
+        function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('open'); }
+        
+        function attemptLogin() {
             const u = document.getElementById('login-user').value;
             const p = document.getElementById('login-pass').value;
-            if (Auth.login(u, p, isAdmin)) {
-                UI.showToast(`أهلاً بك يا ${u}`);
-                window.location.href = isAdmin ? 'admin.html' : 'client-dashboard.html';
+            if(Auth.login(u, p)) {
+                UI.showToast('تم الدخول بنجاح');
+                setTimeout(() => window.location.href = (Auth.getSession().role === 'ADMIN' ? 'admin.html' : 'client-dashboard.html'), 1000);
             } else {
-                UI.showToast('خطأ في البيانات!', 'error');
+                UI.showToast('بيانات غير صحيحة');
             }
         }
 
-        function updateNav() {
-            const session = Auth.getSession();
-            const nav = document.getElementById('nav-auth-links');
-            if(session) {
-                nav.innerHTML = `
-                    <a href="${session.role === 'ADMIN' ? 'admin.html' : 'client-dashboard.html'}" class="text-gold font-bold">لوحتي</a>
-                    <button onclick="Auth.logout()" class="text-red-500 text-xs">خروج</button>
-                `;
-            } else {
-                nav.innerHTML = `<button onclick="toggleLoginModal()" class="text-gold border border-gold/30 px-6 py-2 rounded-full hover:bg-gold hover:text-dark transition-all">دخول</button>`;
-            }
-        }
-
-        // Bot Logic
-        function toggleBot() { document.getElementById('bot-window').classList.toggle('hidden'); }
-        function sendMessage() {
+        function handleBotChat() {
             const input = document.getElementById('bot-input');
             const box = document.getElementById('bot-messages');
             if(!input.value) return;
-            
-            box.innerHTML += `<div class="bg-gold/10 p-3 rounded-2xl border border-gold/10 text-right">${input.value}</div>`;
+            box.innerHTML += `<div class="text-right text-gold font-bold">أنت: ${input.value}</div>`;
             const reply = Bot.process(input.value);
-            setTimeout(() => {
-                box.innerHTML += `<div class="bg-white/5 p-3 rounded-2xl border border-white/5">${reply}</div>`;
-                box.scrollTop = box.scrollHeight;
-            }, 500);
-            input.value = '';
+            box.innerHTML += `<div class="bg-white/5 p-3 rounded-2xl">ZOLNGEN: ${reply}</div>`;
+            input.value = ''; box.scrollTop = box.scrollHeight;
         }
 
-        window.onload = () => {
-            UI.initNeural();
-            UI.initSearch();
-            updateNav();
-        };
+        window.onload = () => { UI.initNeural(); };
     </script>
 </body>
 </html>

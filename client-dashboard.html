@@ -3,26 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Institutional Portal | V100.1 ULTIMATE</title>
-    
+    <title>Institutional Portal | V100.4 MASTER</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
     <style>
-        .tier-card { border-radius: 40px; transition: 0.5s; }
-        .Platinum { border: 2px solid #E5E4E2; box-shadow: 0 0 50px rgba(229, 228, 226, 0.15); }
-        .Gold { border: 2px solid #D4AF37; box-shadow: 0 0 50px rgba(212, 175, 55, 0.15); }
-        .Silver { border: 2px solid #C0C0C0; box-shadow: 0 0 50px rgba(192, 192, 192, 0.15); }
-        .chat-bubble { max-width: 80%; padding: 12px; border-radius: 16px; margin-bottom: 8px; font-size: 12px; }
+        .Platinum { border: 2px solid #E5E4E2; box-shadow: 0 0 50px rgba(229, 228, 226, 0.2); }
+        .Gold { border: 2px solid #D4AF37; box-shadow: 0 0 50px rgba(212, 175, 55, 0.2); }
+        .Silver { border: 2px solid #C0C0C0; box-shadow: 0 0 50px rgba(192, 192, 192, 0.2); }
+        .chat-bubble { max-width: 85%; padding: 12px 16px; border-radius: 20px; font-size: 13px; }
         .sent { background: var(--gold); color: #000; align-self: flex-end; }
         .received { background: rgba(255,255,255,0.05); color: #fff; align-self: flex-start; }
     </style>
 </head>
-<body class="p-8">
+<body class="p-6 lg:p-12">
     <canvas id="neural-bg"></canvas>
 
     <!-- AUTH GUARD -->
@@ -30,50 +26,50 @@
     <script src="auth.js"></script>
     <script>Auth.checkAccess('CLIENT');</script>
 
-    <div id="dashboard" class="max-w-7xl mx-auto space-y-12">
-        <header class="flex justify-between items-center">
-            <div>
-                <h2 class="text-4xl font-black" id="entity-name">Partner Portal</h2>
-                <p class="text-gray-500 text-sm">V100.1 Institutional Experience</p>
+    <div class="max-w-7xl mx-auto space-y-12">
+        <header class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-center md:text-right">
+                <h2 id="client-name" class="text-4xl font-black">Portal</h2>
+                <p class="text-gray-500 uppercase tracking-widest text-[10px] mt-2">Partner Ecosystem V100.4</p>
             </div>
             <div class="flex gap-4 items-center">
-                <span id="tier-badge" class="px-6 py-2 rounded-full text-[10px] font-black uppercase">LOADING TIER...</span>
-                <button onclick="Auth.logout()" class="text-red-500 hover:underline text-xs">خروج</button>
+                <span id="tier-badge" class="px-8 py-2 rounded-full text-[10px] font-black uppercase bg-white/5">LOADING...</span>
+                <button onclick="Auth.logout()" class="text-red-500 text-xs hover:underline">خروج</button>
             </div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="glass p-10 rounded-[40px] text-center tier-card" id="main-tier-card">
-                <p class="text-gray-500 text-xs mb-2 uppercase tracking-widest">Total Investment</p>
-                <h3 class="text-4xl font-black text-gold" id="total-spend">0 JOD</h3>
+            <div id="tier-card" class="glass p-12 rounded-[48px] text-center transition-all duration-500">
+                <p class="text-gray-500 text-[10px] uppercase mb-2 tracking-widest">Investment</p>
+                <h3 id="total-spend" class="text-4xl font-black text-gold">0 JOD</h3>
             </div>
-            <div class="glass p-10 rounded-[40px] text-center">
-                <p class="text-gray-500 text-xs mb-2 uppercase tracking-widest">Procurement Orders</p>
-                <h3 class="text-4xl font-black" id="total-orders">0</h3>
+            <div class="glass p-12 rounded-[48px] text-center border border-white/5">
+                <p class="text-gray-500 text-[10px] uppercase mb-2 tracking-widest">Active Tickets</p>
+                <h3 id="active-tickets" class="text-4xl font-black">0</h3>
             </div>
-            <div class="glass p-10 rounded-[40px] text-center border-b-4 border-green-500/30">
-                <p class="text-gray-500 text-xs mb-2 uppercase tracking-widest">System Health</p>
-                <h3 class="text-4xl font-black text-green-500">99.9%</h3>
+            <div class="glass p-12 rounded-[48px] text-center border-b-4 border-green-500/30">
+                <p class="text-gray-500 text-[10px] uppercase mb-2 tracking-widest">Security Level</p>
+                <h3 class="text-4xl font-black text-green-500 uppercase">Class A</h3>
             </div>
         </div>
 
         <div class="grid lg:grid-cols-2 gap-12">
-            <!-- Order History -->
-            <div class="glass p-10 rounded-[40px] border border-white/5 space-y-6">
-                <h4 class="text-xl font-bold">سجل التوريد</h4>
-                <div id="orders-list" class="space-y-4 max-h-[400px] overflow-y-auto pr-2"></div>
+            <!-- Order Feed -->
+            <div class="glass p-10 rounded-[48px] border border-white/5">
+                <h4 class="text-xl font-bold mb-8">سجل العمليات</h4>
+                <div id="order-list" class="space-y-4 max-h-[400px] overflow-y-auto"></div>
             </div>
 
-            <!-- Live Chat with HQ -->
-            <div class="glass p-10 rounded-[40px] border border-white/5 flex flex-col h-[500px]">
-                <h4 class="text-xl font-bold mb-6 flex justify-between">
-                    الدردشة مع المركز 
-                    <span class="text-[10px] text-gold animate-pulse">● LIVE</span>
+            <!-- HQ Support Chat -->
+            <div class="glass p-10 rounded-[48px] border border-white/5 flex flex-col h-[500px]">
+                <h4 class="text-xl font-bold mb-8 flex justify-between items-center">
+                    التواصل مع المركز 
+                    <span class="text-[8px] px-3 py-1 bg-green-500/10 text-green-500 rounded-full animate-pulse">متصل الآن</span>
                 </h4>
-                <div id="chat-box" class="flex-1 overflow-y-auto flex flex-col space-y-2 mb-6"></div>
-                <div class="flex gap-2">
-                    <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." class="flex-1 bg-white/5 border border-white/10 p-4 rounded-xl text-xs outline-none focus:border-gold">
-                    <button onclick="sendMsg()" class="bg-gold text-dark px-6 rounded-xl font-black text-xs">إرسال</button>
+                <div id="chat-box" class="flex-1 overflow-y-auto flex flex-col space-y-4 mb-8"></div>
+                <div class="flex gap-4">
+                    <input type="text" id="chat-input" placeholder="اطلب مساعدة أو استفسر عن طلب..." class="flex-1">
+                    <button onclick="sendMsg()" class="bg-gold text-dark px-8 rounded-2xl font-black"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
@@ -81,30 +77,36 @@
 
     <script src="ui.js"></script>
     <script>
-        function renderClient() {
+        function renderPortal() {
             const session = Auth.getSession();
             const entity = session.user;
-            
-            document.getElementById('entity-name').innerText = entity;
-            
+            document.getElementById('client-name').innerText = entity;
+
             const tier = DB.getTier(entity);
             const badge = document.getElementById('tier-badge');
             badge.innerText = `${tier} TIER`;
-            badge.className = `px-6 py-2 rounded-full text-[10px] font-black uppercase bg-white/10 ${tier}`;
-            document.getElementById('main-tier-card').className = `glass p-10 rounded-[40px] text-center tier-card ${tier}`;
+            badge.className = `px-8 py-2 rounded-full text-[10px] font-black uppercase ${tier}`;
+            document.getElementById('tier-card').className = `glass p-12 rounded-[48px] text-center transition-all ${tier}`;
 
             const orders = DB.getOrders().filter(o => o.entity === entity);
             document.getElementById('total-spend').innerText = orders.reduce((a,b) => a+b.total, 0).toLocaleString() + ' JOD';
-            document.getElementById('total-orders').innerText = orders.length;
+            
+            const tickets = DB.getTickets().filter(t => t.entity === entity && t.status === 'open');
+            document.getElementById('active-tickets').innerText = tickets.length;
 
-            const list = document.getElementById('orders-list');
+            const list = document.getElementById('order-list');
             list.innerHTML = orders.map(o => `
-                <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
-                    <span class="text-xs">${o.id} - ${o.date}</span>
-                    <span class="font-black text-gold text-sm">${o.total} JOD</span>
-                    <span class="text-[8px] uppercase px-2 py-1 bg-white/5 rounded-md">${o.status}</span>
+                <div class="flex justify-between items-center p-6 bg-white/5 rounded-3xl border border-white/5 hover:border-gold/30 transition-all">
+                    <div class="text-xs">
+                        <p class="font-bold text-gold mb-1">ID: ${o.id}</p>
+                        <p class="opacity-50">${o.date}</p>
+                    </div>
+                    <div class="text-left">
+                        <p class="font-black">${o.total} JOD</p>
+                        <p class="text-[8px] uppercase px-2 py-1 bg-white/10 rounded mt-1">${o.status}</p>
+                    </div>
                 </div>
-            `).join('') || '<p class="text-center text-gray-500 py-10">لا توجد طلبات سابقة</p>';
+            `).join('') || '<p class="text-center text-gray-700 py-20">لا توجد عمليات مسجلة</p>';
 
             loadChat();
         }
@@ -116,7 +118,7 @@
             box.innerHTML = msgs.map(m => `
                 <div class="chat-bubble ${m.sender === session.user ? 'sent' : 'received'}">
                     <p>${m.text}</p>
-                    <small class="text-[8px] block mt-1 opacity-50">${m.date}</small>
+                    <small class="text-[7px] block mt-1 opacity-40">${m.date}</small>
                 </div>
             `).join('');
             box.scrollTop = box.scrollHeight;
@@ -127,15 +129,10 @@
             const input = document.getElementById('chat-input');
             if(!input.value) return;
             DB.sendMessage({ sender: session.user, receiver: 'ADMIN', text: input.value, entity: session.user });
-            input.value = '';
-            loadChat();
+            input.value = ''; loadChat();
         }
 
-        window.onload = () => {
-            UI.initNeural();
-            renderClient();
-            setInterval(loadChat, 3000); // Poll for new messages every 3s
-        };
+        window.onload = () => { UI.initNeural(); renderPortal(); setInterval(loadChat, 4000); };
     </script>
 </body>
 </html>

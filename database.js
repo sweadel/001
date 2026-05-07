@@ -104,39 +104,32 @@ const DB = {
         this.set('zolngen_audit', logs.slice(0, 200));
     },
 
-    // V100.1 - ACCOUNTS & PERMISSIONS
-    getAccounts: function() { return this.get('zolngen_accounts').length ? this.get('zolngen_accounts') : [{user:'admin', pass:'admin123', role:'ADMIN', name:'المدير العام'}]; },
+    // V100.4 - SOPHISTICATED ACCOUNTS
+    getAccounts: function() { 
+        let accs = this.get('zolngen_accounts');
+        if(!accs.length) {
+            accs = [
+                {user:'admin', pass:'admin123', role:'ADMIN', name:'المدير العام', email:'ceo@zolngen.com'},
+                {user:'staff1', pass:'staff123', role:'STAFF', name:'أحمد خالد (مبيعات)', email:'ahmad@zolngen.com'}
+            ];
+            this.set('zolngen_accounts', accs);
+        }
+        return accs;
+    },
     saveAccount: function(acc) {
         let accs = this.getAccounts();
         const idx = accs.findIndex(a => a.user === acc.user);
-        if(idx > -1) accs[idx] = acc; else accs.push(acc);
+        if(idx > -1) accs[idx] = { ...accs[idx], ...acc }; else accs.push(acc);
         this.set('zolngen_accounts', accs);
-        this.logAction(`Account Updated: ${acc.user}`);
-    },
-    deleteAccount: function(user) {
-        let accs = this.getAccounts().filter(a => a.user !== user);
-        this.set('zolngen_accounts', accs);
-        this.logAction(`Account Deleted: ${user}`);
+        this.logAction(`Account Optimized: ${acc.user}`);
     },
 
-    // V100.1 - LIVE SUPPORT CHAT
+    // V100.4 - UNIFIED MESSAGING CORE
     getMessages: function(entity) {
-        return this.get('zolngen_messages').filter(m => m.entity === entity || m.receiver === entity);
-    },
-    sendMessage: function(msg) {
-        let msgs = this.get('zolngen_messages');
-        msgs.push({
-            id: Date.now(),
-            sender: msg.sender,
-            receiver: msg.receiver || 'ADMIN',
-            text: msg.text,
-            date: new Date().toLocaleString('ar-EG'),
-            entity: msg.entity
-        });
-        this.set('zolngen_messages', msgs);
+        return this.get('zolngen_messages').filter(m => m.entity === entity || m.receiver === entity || m.sender === 'ADMIN');
     },
 
-    // REFINED STATS (V100.1 Accuracy)
+    // V100.4 - STATS ACCURACY (Float Precision)
     getProStats: function() {
         const prods = this.getProducts();
         const orders = this.getOrders();
@@ -144,7 +137,7 @@ const DB = {
         return {
             totalSales: Number(orders.reduce((acc, o) => acc + o.total, 0).toFixed(2)),
             totalProfit: Number(orders.reduce((acc, o) => acc + (o.profit || 0), 0).toFixed(2)),
-            activeOrders: orders.filter(o => o.status === 'pending' || o.status === 'processing').length,
+            activeOrders: orders.filter(o => ['pending', 'processing'].includes(o.status)).length,
             lowStock: prods.filter(p => p.stock < 10).length,
             inventoryValue: Number(prods.reduce((acc, p) => acc + (p.price * p.stock), 0).toFixed(2)),
             openTickets: tickets.filter(t => t.status === 'open').length
@@ -153,13 +146,17 @@ const DB = {
 
     seed: function() {
         const initial = [
-            { id: 'PRD-1', name: 'HP EliteBook 840 G9', price: 1250, cost: 950, stock: 45, category: 'أجهزة محمولة', img: 'hp.png', specs: 'Intel i7, 16GB RAM, 512GB SSD' },
-            { id: 'PRD-2', name: 'Dell Latitude 7430', price: 1180, cost: 880, stock: 5, category: 'أجهزة محمولة', img: 'hp.png', specs: 'Intel i5, 16GB RAM, 256GB SSD' },
-            { id: 'PRD-3', name: 'MacBook Pro M2', price: 1850, cost: 1600, stock: 12, category: 'أجهزة محمولة', img: 'mac.png', specs: 'Apple M2, 16GB Unified Memory, 512GB SSD' },
-            { id: 'PRD-4', name: 'PowerEdge R750', price: 4500, cost: 3800, stock: 3, category: 'خوادم', img: 'dell.png', specs: 'Dual Xeon, 128GB RAM, 8TB Storage' }
+            { id: 'PRD-1', name: 'HP EliteBook 840 G9', price: 1250, cost: 950, stock: 45, category: 'أجهزة محمولة', img: 'hp.png' },
+            { id: 'PRD-2', name: 'Dell Latitude 7430', price: 1180, cost: 880, stock: 5, category: 'أجهزة محمولة', img: 'hp.png' },
+            { id: 'PRD-3', name: 'MacBook Pro M2', price: 1850, cost: 1600, stock: 12, category: 'أجهزة محمولة', img: 'mac.png' },
+            { id: 'PRD-4', name: 'PowerEdge R750', price: 4500, cost: 3800, stock: 3, category: 'خوادم', img: 'dell.png' },
+            { id: 'PRD-5', name: 'ThinkPad X1 Carbon', price: 1650, cost: 1300, stock: 20, category: 'أجهزة محمولة', img: 'hp.png' }
         ];
         this.set('zolngen_inventory', initial);
-        if(!localStorage.getItem('zolngen_accounts')) this.set('zolngen_accounts', [{user:'admin', pass:'admin123', role:'ADMIN', name:'المدير العام'}]);
+        this.set('zolngen_accounts', [
+            {user:'admin', pass:'admin123', role:'ADMIN', name:'المدير العام', email:'ceo@zolngen.com'},
+            {user:'staff1', pass:'staff123', role:'STAFF', name:'أحمد خالد', email:'ahmad@zolngen.com'}
+        ]);
         return initial;
     }
 };

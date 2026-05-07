@@ -1,75 +1,72 @@
-/* ZOLNGEN UI ORCHESTRATOR V100.0 */
+/* ZOLNGEN UI ORCHESTRATOR V100.4 - THE MASTER ENGINE */
 const UI = {
     initNeural: function() {
         const canvas = document.getElementById('neural-bg');
-        if(!canvas) return;
+        if (!canvas) return;
         const ctx = canvas.getContext('2d');
-        let dots = [];
-        const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+        let particles = [];
+        
+        const resize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
         window.addEventListener('resize', resize);
         resize();
 
-        for(let i=0; i<60; i++) dots.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3 });
-
-        const draw = () => {
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--gold') || '#D4AF37';
-            ctx.globalAlpha = 0.15;
-            dots.forEach(d => {
-                d.x += d.vx; d.y += d.vy;
-                if(d.x<0 || d.x>canvas.width) d.vx *= -1;
-                if(d.y<0 || d.y>canvas.height) d.vy *= -1;
-                ctx.beginPath(); ctx.arc(d.x, d.y, 1.5, 0, Math.PI*2); ctx.fill();
-            });
-            requestAnimationFrame(draw);
-        };
-        draw();
-    },
-
-    initSearch: function() {
-        window.addEventListener('keydown', (e) => {
-            if(e.ctrlKey && e.key === 'k') { e.preventDefault(); this.toggleSearch(true); }
-            if(e.key === 'Escape') this.toggleSearch(false);
-        });
-
-        const input = document.getElementById('cmd-input');
-        if(input) {
-            input.addEventListener('input', (e) => {
-                const q = e.target.value.toLowerCase();
-                const res = document.getElementById('cmd-results');
-                if(!q) { res.innerHTML = ''; return; }
-                const products = DB.getProducts().filter(p => p.name.toLowerCase().includes(q));
-                res.innerHTML = products.map(p => `
-                    <a href="products.html" class="block p-4 hover:bg-gold/10 rounded-xl flex justify-between items-center transition-all">
-                        <span>📦 ${p.name}</span>
-                        <span class="text-gold font-bold">${p.price} JOD</span>
-                    </a>
-                `).join('') || '<p class="text-center text-gray-500 py-4">No results found...</p>';
-            });
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(212, 175, 55, 0.15)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
-    },
 
-    toggleSearch: function(show) {
-        const ov = document.getElementById('cmd-overlay');
-        if(!ov) return;
-        if(show) { 
-            ov.style.display = 'block'; 
-            setTimeout(() => { ov.style.opacity = '1'; document.getElementById('cmd-input').focus(); }, 10); 
-        } else { 
-            ov.style.opacity = '0'; 
-            setTimeout(() => { ov.style.display = 'none'; }, 300); 
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
         }
+        animate();
     },
 
-    showToast: function(msg, type = 'success') {
-        const t = document.createElement('div');
-        t.className = `fixed bottom-10 right-10 glass px-8 py-4 rounded-2xl font-black z-[1000] border-l-4 shadow-2xl transition-all ${type === 'success' ? 'border-gold text-gold' : 'border-red-500 text-red-500'}`;
-        t.innerText = msg;
-        document.body.appendChild(t);
-        gsap.from(t, { x: 100, opacity: 0 });
-        setTimeout(() => {
-            gsap.to(t, { x: 100, opacity: 0, onComplete: () => t.remove() });
-        }, 3000);
+    showToast: function(msg) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-10 right-10 glass px-8 py-4 rounded-2xl border border-gold/30 text-gold font-bold z-[3000] animate-in';
+        toast.innerHTML = `<i class="fas fa-check-circle ml-3"></i> ${msg}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    },
+
+    toggleBot: function() {
+        const bot = document.getElementById('bot-widget');
+        bot.classList.toggle('hidden');
+        gsap.from(bot, { y: 50, opacity: 0, duration: 0.5, ease: "power4.out" });
+    },
+
+    toggleLogin: function() {
+        const modal = document.getElementById('login-modal');
+        modal.classList.toggle('hidden');
+        if(!modal.classList.contains('hidden')) {
+            gsap.from(modal.children[0], { scale: 0.8, opacity: 0, duration: 0.4 });
+        }
     }
 };
 
