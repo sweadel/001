@@ -3,236 +3,654 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | التجهيزات التقنية الفاخرة للمؤسسات</title>
-    <link rel="stylesheet" href="index.css">
+    <title>ZOLNGEN Enterprise Pro | V41.0 Elite SPA</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: '#D4AF37',
+                        goldBright: '#F9E5A7',
+                        dark: '#050505',
+                        surface: '#0A0A0B',
+                        glass: 'rgba(255, 255, 255, 0.03)',
+                        glassBorder: 'rgba(255, 255, 255, 0.08)',
+                    },
+                    fontFamily: {
+                        ar: ['Tajawal', 'sans-serif'],
+                        en: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- GSAP & Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glassBorder); }
+        .gold-glow:hover { box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); border-color: #D4AF37; }
+        .transition-ultra { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .particle { position: fixed; background: #D4AF37; border-radius: 50%; opacity: 0.1; pointer-events: none; z-index: 0; }
+        
+        /* Custom Scroll Progress Bar */
+        #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #D4AF37, #F9E5A7); z-index: 9999; width: 0%; transition: width 0.1s; }
+        
+        .section-hidden { display: none; opacity: 0; transform: translateY(20px); }
+        .section-active { display: block; animation: fadeInUp 0.6s forwards; }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body { background-color: #050505; color: white; overflow-x: hidden; }
+        .lang-en { font-family: 'Inter', sans-serif; direction: ltr; }
+        .lang-ar { font-family: 'Tajawal', sans-serif; direction: rtl; }
+    </style>
 </head>
-<body>
+<body class="lang-ar">
 
-    <!-- 1. Top Bar -->
-    <div class="top-bar">
-        <div class="container top-bar-content">
-            <div style="display: flex; gap: 2.5rem; align-items: center;">
-                <a href="admin.html" style="color:inherit; text-decoration:none;"><i class="fas fa-lock"></i> نظام الإدارة Pro</a>
-                <button onclick="window.toggleLanguage()" style="background:none; border:none; color:inherit; cursor:pointer; font-family:inherit; font-weight:800;">AR | EN</button>
-            </div>
-            <div style="display: flex; gap: 2rem; align-items: center;">
-                <i class="fas fa-phone-alt" style="color:var(--gold);"></i> <span>+962 79 000 0000</span>
-            </div>
+    <div id="scroll-progress"></div>
+    <div id="particles-container"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-glassBorder px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <h1 class="text-2xl font-black tracking-tighter text-gold">ZOLNGEN <span class="font-light text-white text-sm uppercase tracking-[0.3em]">Enterprise</span></h1>
         </div>
-    </div>
-
-    <!-- 2. Navigation -->
-    <nav class="navbar">
-        <div class="container nav-content">
-            <a href="index.html" class="nav-logo">
-                <img src="zolngen_logo.png" alt="ZOLNGEN" style="height:55px;" onerror="this.src='https://ui-avatars.com/api/?name=Z&background=D4AF37&color=000'">
-            </a>
-            <div class="nav-links">
-                <a href="index.html" class="active">الرئيسية</a>
-                <a href="products.html">الكتالوج المؤسسي</a>
-                <a href="maintenance.html">بوابة الصيانة</a>
-                <a href="#tracking">تتبع الطلب</a>
-            </div>
-            <div style="display:flex; align-items:center; gap:1.5rem;">
-                <button onclick="document.body.classList.toggle('light-theme')" style="background:none; border:none; color:var(--gold); font-size:1.2rem; cursor:pointer;" title="تبديل الإضاءة">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <button id="cart-trigger" style="background:none; border:none; color:var(--gold); font-size:1.5rem; cursor:pointer; position:relative;">
-                    <i class="fas fa-shopping-basket"></i>
-                    <span id="cart-count" style="position:absolute; top:-8px; right:-8px; background:var(--white); color:#000; font-size:0.7rem; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900;">0</span>
-                </button>
-            </div>
+        <div class="hidden md:flex gap-8 text-sm font-medium uppercase tracking-widest text-gray-400">
+            <a href="javascript:void(0)" onclick="showSection('home')" class="hover:text-gold transition-colors" data-t="home">الرئيسية</a>
+            <a href="javascript:void(0)" onclick="showSection('products')" class="hover:text-gold transition-colors" data-t="catalog">الكتالوج</a>
+            <a href="javascript:void(0)" onclick="showSection('maintenance')" class="hover:text-gold transition-colors" data-t="maintenance">الصيانة</a>
+            <a href="javascript:void(0)" onclick="showSection('admin')" class="hover:text-gold transition-colors" data-t="admin_pro">الإدارة Pro</a>
+        </div>
+        <div class="flex items-center gap-6">
+            <button onclick="toggleLanguage()" class="bg-gold/10 text-gold px-4 py-1 rounded-full text-xs border border-gold/20 hover:bg-gold/20 transition-all">AR | EN</button>
+            <button onclick="toggleCart()" class="relative text-xl hover:text-gold transition-colors">
+                <i class="fa-solid fa-shopping-bag"></i>
+                <span id="cart-badge" class="absolute -top-2 -right-2 bg-gold text-dark text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">0</span>
+            </button>
+            <button onclick="showSection('client-portal')" class="text-xl hover:text-gold transition-colors"><i class="fa-solid fa-user-tie"></i></button>
         </div>
     </nav>
 
-    <!-- 3. Cinematic Hero -->
-    <header id="home" class="hero">
-        <div class="particles-js" id="hero-particles"></div>
-        <div class="container hero-grid">
-            <div class="hero-content reveal">
-                <p style="color:var(--gold); font-weight:800; letter-spacing:4px; margin-bottom:1rem;">THE INSTITUTIONAL STANDARD</p>
-                <h1>ZOLNGEN <br> <span style="font-weight:300; font-size:4.5rem;">ENTERPRISE</span></h1>
-                <p>تجهيز البنية التحتية التقنية للمؤسسات التعليمية والحكومية بأعلى معايير الفخامة والجودة العالمية.</p>
-                <div style="display:flex; gap:1.5rem;">
-                    <a href="products.html" class="btn btn-gold">بدء التوريد الرسمي <i class="fas fa-arrow-left"></i></a>
-                    <a href="maintenance.html" class="btn btn-outline">طلب صيانة فورية</a>
+    <!-- MAIN CONTENT -->
+    <main class="pt-24 min-h-screen relative z-10">
+
+        <!-- SECTION: HOME -->
+        <section id="home" class="section-active max-w-7xl mx-auto px-6 py-12">
+            <div class="grid lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
+                <div class="space-y-8">
+                    <p class="text-gold tracking-[0.4em] uppercase text-xs font-bold" data-t="hero_tag">المعيار العالمي لتكنولوجيا المؤسسات</p>
+                    <h2 class="text-6xl md:text-8xl font-black leading-tight" data-t="hero_title">مستقبل التوريد <br><span class="text-gold font-light">الذكي</span></h2>
+                    <p class="text-gray-400 text-lg max-w-xl" data-t="hero_desc">منصة ZOLNGEN المتكاملة لإدارة الأصول التقنية، الصيانة المتقدمة، والتوريد الصناعي المخصص لكبرى الجامعات والشركات.</p>
+                    <div class="flex gap-4 pt-6">
+                        <button onclick="showSection('products')" class="bg-gold text-dark font-black px-10 py-4 rounded-xl hover:bg-goldBright transition-all shadow-lg shadow-gold/20" data-t="hero_btn_start">ابدأ التصفح</button>
+                        <button onclick="showSection('maintenance')" class="border border-white/20 px-10 py-4 rounded-xl hover:bg-white/5 transition-all" data-t="hero_btn_maint">طلب صيانة</button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="absolute -inset-4 bg-gold/10 blur-3xl rounded-full"></div>
+                    <img src="zolngen_hero_laptop.png" class="relative z-10 w-full drop-shadow-2xl animate-pulse" alt="Hero Hardware" onerror="this.src='https://placehold.co/600x400/0A0A0B/D4AF37?text=Elite+Hardware'">
                 </div>
             </div>
-            <div class="hero-visual reveal" style="transition-delay:0.3s;">
-                <img src="zolngen_hero_laptop.png" alt="Laptop" style="width:100%; filter: drop-shadow(0 0 30px rgba(212,175,55,0.2)); will-change: transform;">
-            </div>
-        </div>
-    </header>
 
-    <!-- 4. Categories Interactive -->
-    <div class="container">
-        <div class="cat-grid">
-            <div class="cat-card reveal" style="transition-delay:0.1s;">
-                <i class="fas fa-laptop"></i>
-                <h3>أجهزة محمولة</h3>
-                <p>LAPTOPS</p>
+            <!-- Categories -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-24">
+                <div class="glass p-8 rounded-3xl border border-glassBorder gold-glow cursor-pointer group" onclick="showSection('products', 'laptops')">
+                    <i class="fa-solid fa-laptop text-4xl text-gold mb-6 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold text-xl mb-2" data-t="cat_laptops">أجهزة محمولة Elite</h3>
+                    <p class="text-gray-500 text-sm">Business grade portables</p>
+                </div>
+                <div class="glass p-8 rounded-3xl border border-glassBorder gold-glow cursor-pointer group" onclick="showSection('products', 'desktops')">
+                    <i class="fa-solid fa-desktop text-4xl text-gold mb-6 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold text-xl mb-2" data-t="cat_desktops">محطات عمل Pro</h3>
+                    <p class="text-gray-500 text-sm">High performance compute</p>
+                </div>
+                <div class="glass p-8 rounded-3xl border border-glassBorder gold-glow cursor-pointer group" onclick="showSection('products', 'infra')">
+                    <i class="fa-solid fa-server text-4xl text-gold mb-6 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold text-xl mb-2" data-t="cat_infra">بنية تحتية Enterprise</h3>
+                    <p class="text-gray-500 text-sm">Server & network core</p>
+                </div>
+                <div class="glass p-8 rounded-3xl border border-glassBorder gold-glow cursor-pointer group" onclick="showSection('products', 'periph')">
+                    <i class="fa-solid fa-print text-4xl text-gold mb-6 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold text-xl mb-2" data-t="cat_periph">ملحقات ذكية</h3>
+                    <p class="text-gray-500 text-sm">Peripherals & addons</p>
+                </div>
             </div>
-            <div class="cat-card reveal" style="transition-delay:0.2s;">
-                <i class="fas fa-desktop"></i>
-                <h3>أجهزة مكتبية</h3>
-                <p>WORKSTATIONS</p>
+        </section>
+
+        <!-- SECTION: PRODUCTS -->
+        <section id="products" class="section-hidden max-w-7xl mx-auto px-6 py-12">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <h2 class="text-4xl font-black mb-2" data-t="section_products">المخزون المؤسسي المتاح</h2>
+                    <p class="text-gray-500" data-t="section_products_desc">أجهزة مختارة بعناية لتلبية معايير الجودة والأداء العالي.</p>
+                </div>
+                <div class="flex gap-4">
+                    <input type="text" id="prod-search" placeholder="بحث..." class="bg-surface border border-glassBorder rounded-xl px-4 py-2 focus:border-gold outline-none">
+                    <select id="prod-filter" class="bg-surface border border-glassBorder rounded-xl px-4 py-2 focus:border-gold outline-none">
+                        <option value="all">الكل</option>
+                        <option value="أجهزة محمولة">أجهزة محمولة</option>
+                        <option value="خوادم وشبكات">خوادم وشبكات</option>
+                    </select>
+                </div>
             </div>
-            <div class="cat-card reveal" style="transition-delay:0.3s;">
-                <i class="fas fa-server"></i>
-                <h3>بنية تحتية</h3>
-                <p>SERVERS & NETWORKS</p>
+            <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Products dynamically injected -->
             </div>
-            <div class="cat-card reveal" style="transition-delay:0.4s;">
-                <i class="fas fa-print"></i>
-                <h3>طابعات وأجهزة</h3>
-                <p>PERIPHERALS</p>
+        </section>
+
+        <!-- SECTION: MAINTENANCE -->
+        <section id="maintenance" class="section-hidden max-w-4xl mx-auto px-6 py-12">
+            <div class="glass p-12 rounded-[40px] border border-glassBorder">
+                <h2 class="text-4xl font-black text-center mb-8" data-t="maintenance">بوابة الصيانة والدعم الفني</h2>
+                <form id="maint-form" class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-2">اسم المؤسسة</label>
+                            <input type="text" name="entity" required class="w-full bg-black/50 border border-white/10 rounded-xl p-4 focus:border-gold outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-2">نوع الجهاز</label>
+                            <input type="text" name="device" required class="w-full bg-black/50 border border-white/10 rounded-xl p-4 focus:border-gold outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">وصف المشكلة التقنية</label>
+                        <textarea name="issue" rows="4" required class="w-full bg-black/50 border border-white/10 rounded-xl p-4 focus:border-gold outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">درجة الأهمية (SLA)</label>
+                        <select name="urgency" class="w-full bg-black/50 border border-white/10 rounded-xl p-4 focus:border-gold outline-none">
+                            <option value="low">منخفضة (استجابة خلال 48 ساعة)</option>
+                            <option value="med">متوسطة (استجابة خلال 12 ساعة)</option>
+                            <option value="high">حرجة (استجابة فورية - VIP)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-gold text-dark font-black py-5 rounded-2xl hover:bg-goldBright transition-all">إرسال بلاغ الصيانة</button>
+                </form>
+                <div id="maint-success" class="hidden mt-8 p-6 bg-green-500/10 border border-green-500/20 rounded-2xl text-green-500 text-center">
+                    تم استلام بلاغكم بنجاح. رقم التذكرة: <span id="tck-num" class="font-bold"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ADMIN -->
+        <section id="admin" class="section-hidden max-w-7xl mx-auto px-6 py-12">
+            <div class="flex justify-between items-center mb-12">
+                <h2 class="text-4xl font-black">Admin Command Center <span class="text-gold font-light text-xl italic px-4">Pro V41.0</span></h2>
+                <div class="flex gap-4">
+                    <button onclick="exportData()" class="text-xs bg-white/5 border border-white/10 px-4 py-2 rounded-lg hover:bg-white/10 transition-all">Export JSON</button>
+                    <button onclick="localStorage.clear(); location.reload();" class="text-xs bg-red-500/10 text-red-500 border border-red-500/20 px-4 py-2 rounded-lg hover:bg-red-500/20 transition-all">System Reset</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                <div class="glass p-8 rounded-3xl border border-glassBorder">
+                    <p class="text-gray-500 text-xs uppercase tracking-widest mb-2">Total Sales</p>
+                    <h3 id="admin-sales" class="text-3xl font-black text-gold">0 JOD</h3>
+                    <div class="mt-4 w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-gold w-2/3"></div>
+                    </div>
+                </div>
+                <div class="glass p-8 rounded-3xl border border-glassBorder">
+                    <p class="text-gray-500 text-xs uppercase tracking-widest mb-2">Net Profit</p>
+                    <h3 id="admin-profit" class="text-3xl font-black text-green-500">0 JOD</h3>
+                    <p class="text-[10px] text-green-500/50 mt-2">Estimated Margin: 15%</p>
+                </div>
+                <div class="glass p-8 rounded-3xl border border-glassBorder">
+                    <p class="text-gray-500 text-xs uppercase tracking-widest mb-2">Inventory Value</p>
+                    <h3 id="admin-inv" class="text-3xl font-black">0 JOD</h3>
+                </div>
+                <div class="glass p-8 rounded-3xl border border-glassBorder">
+                    <p class="text-gray-500 text-xs uppercase tracking-widest mb-2">Active Tickets</p>
+                    <h3 id="admin-tickets" class="text-3xl font-black text-blue-400">0</h3>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 glass p-8 rounded-3xl border border-glassBorder">
+                    <h4 class="text-xl font-bold mb-6">Recent Enterprise Orders</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right">
+                            <thead>
+                                <tr class="text-gray-500 border-b border-white/5">
+                                    <th class="py-4 px-2">Order ID</th>
+                                    <th class="py-4 px-2">Entity</th>
+                                    <th class="py-4 px-2">Total</th>
+                                    <th class="py-4 px-2">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-orders-table">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="space-y-8">
+                    <div class="glass p-8 rounded-3xl border border-glassBorder border-red-500/20">
+                        <h4 class="text-red-500 font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Low Stock Sentinel</h4>
+                        <div id="low-stock-list" class="space-y-4">
+                            <!-- Items list -->
+                        </div>
+                    </div>
+                    <div class="glass p-8 rounded-3xl border border-glassBorder">
+                        <h4 class="text-gold font-bold mb-4">Audit Log</h4>
+                        <div id="audit-log" class="space-y-3 text-xs text-gray-500 max-h-60 overflow-y-auto">
+                            <!-- Logs -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: CLIENT PORTAL -->
+        <section id="client-portal" class="section-hidden max-w-4xl mx-auto px-6 py-12">
+            <div id="client-login" class="glass p-12 rounded-[40px] border border-glassBorder text-center max-w-md mx-auto">
+                <i class="fa-solid fa-user-lock text-5xl text-gold mb-6"></i>
+                <h2 class="text-3xl font-black mb-4">Institutional Portal</h2>
+                <p class="text-gray-500 mb-8">Access your dedicated procurement dashboard</p>
+                <div class="space-y-4">
+                    <input type="text" id="client-user" placeholder="اسم المستخدم" class="w-full bg-black border border-white/10 rounded-xl p-4 focus:border-gold outline-none">
+                    <input type="password" id="client-pass" placeholder="كلمة المرور" class="w-full bg-black border border-white/10 rounded-xl p-4 focus:border-gold outline-none">
+                    <button onclick="clientLogin()" class="w-full bg-gold text-dark font-black py-4 rounded-xl">تسجيل الدخول الآمن</button>
+                </div>
+                <p class="text-[10px] text-gray-600 mt-6 uppercase tracking-widest">Authorized Access Only</p>
+            </div>
+            
+            <div id="client-dashboard" class="hidden space-y-12">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-4xl font-black" id="client-entity-name">University of Jordan</h2>
+                        <p class="text-gold" id="client-user-welcome">Welcome back, Sarah Ahmed</p>
+                    </div>
+                    <button onclick="clientLogout()" class="text-red-500 border border-red-500/20 px-6 py-2 rounded-full hover:bg-red-500/10 transition-all">Log Out</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass p-8 rounded-3xl text-center">
+                        <p class="text-gray-500 text-xs mb-2">Orders Placed</p>
+                        <h3 id="client-order-count" class="text-4xl font-black">0</h3>
+                    </div>
+                    <div class="glass p-8 rounded-3xl text-center border-gold/30">
+                        <p class="text-gray-500 text-xs mb-2">Total Spend</p>
+                        <h3 id="client-spend" class="text-4xl font-black text-gold">0 JOD</h3>
+                    </div>
+                    <div class="glass p-8 rounded-3xl text-center">
+                        <p class="text-gray-500 text-xs mb-2">Maintenance Health</p>
+                        <h3 class="text-4xl font-black text-green-500">98.4%</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SHOPPING CART -->
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-[400px] bg-dark glass border-l border-glassBorder z-[60] transform translate-x-full transition-transform duration-500 p-8 flex flex-col">
+        <div class="flex justify-between items-center mb-12">
+            <h3 class="text-2xl font-black text-gold" data-t="cart_title">سلة التوريد المبدئية</h3>
+            <button onclick="toggleCart()" class="text-2xl hover:text-red-500 transition-colors">×</button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto space-y-6">
+            <!-- Items -->
+        </div>
+        <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
+            <div class="flex justify-between text-gray-500">
+                <span>Subtotal</span>
+                <span id="cart-subtotal">0 JOD</span>
+            </div>
+            <div class="flex justify-between text-green-500 text-sm hidden" id="discount-row">
+                <span>Volume Discount (10%)</span>
+                <span id="cart-discount">-0 JOD</span>
+            </div>
+            <div class="flex justify-between text-2xl font-black border-t border-white/5 pt-4">
+                <span data-t="cart_total">الإجمالي التقديري</span>
+                <span id="cart-total" class="text-gold">0 JOD</span>
+            </div>
+            <button onclick="processOrder()" class="w-full bg-gold text-dark font-black py-5 rounded-2xl shadow-xl shadow-gold/20 mt-4">إتمام طلب التوريد</button>
+            <button onclick="window.print()" class="w-full text-xs text-gray-500 uppercase tracking-widest hover:text-white transition-colors" data-t="cart_btn_pdf">Download Quote PDF</button>
+        </div>
+    </div>
+
+    <!-- AI CHAT BOT -->
+    <div id="ai-bot" class="fixed bottom-8 right-8 z-[100]">
+        <button onclick="toggleAI()" class="w-16 h-16 bg-gold rounded-full shadow-2xl flex items-center justify-center text-dark text-2xl hover:scale-110 transition-transform relative">
+            <i class="fa-solid fa-robot"></i>
+            <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-dark animate-ping"></span>
+        </button>
+        <div id="ai-window" class="absolute bottom-20 right-0 w-[350px] h-[500px] bg-dark glass border border-gold/20 rounded-3xl shadow-2xl overflow-hidden flex flex-col transform scale-0 origin-bottom-right transition-transform duration-300">
+            <div class="bg-gold p-4 text-dark flex justify-between items-center">
+                <span class="font-bold">Antigravity AI Assistant</span>
+                <button onclick="toggleAI()">×</button>
+            </div>
+            <div id="ai-messages" class="flex-1 p-6 overflow-y-auto space-y-4 text-sm scrollbar-hide">
+                <div class="bg-white/5 p-3 rounded-2xl rounded-bl-none text-gray-300">
+                    أهلاً بك! أنا مساعد زولنجين الذكي. كيف يمكنني مساعدتك في تتبع طلبك أو اختيار أجهزتك اليوم؟
+                </div>
+            </div>
+            <div class="p-4 border-t border-white/5 flex gap-2">
+                <input type="text" id="ai-input" placeholder="اكتب سؤالك هنا..." class="flex-1 bg-black/50 border border-white/10 rounded-full px-4 py-2 outline-none focus:border-gold">
+                <button onclick="sendAI()" class="bg-gold text-dark w-10 h-10 rounded-full flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
     </div>
 
-    <!-- 5. Products Section -->
-    <section id="products" class="container section">
-        <div class="section-head reveal">
-            <h2>الأجهزة المختارة</h2>
-            <p style="color:#666; margin-top:10px;">أحدث ما توصلت إليه التكنولوجيا من شركائنا العالميين</p>
-            <div></div>
-        </div>
-        <div class="products-grid" id="product-container">
-            <!-- Dynamic Inject -->
-        </div>
-    </section>
-
-    <!-- 6. Maintenance Banner -->
-    <section id="maintenance" class="container section">
-        <div class="reveal">
-            <div class="maintenance-box" style="display:flex; flex-direction:column; text-align:center; padding:5rem;">
-                <h2 style="font-size:2.5rem; margin-bottom:1.5rem; color:var(--gold);">مركز الدعم التقني والصيانة</h2>
-                <p style="color:#ccc; font-size:1.2rem; margin-bottom:2rem; max-width:600px; margin-left:auto; margin-right:auto;">هل تواجه مشكلة تقنية في الأجهزة الموردة؟ فريق ZOLNGEN الفني جاهز لتقديم الدعم الفوري والصيانة في موقع مؤسستكم.</p>
-                <a href="maintenance.html" class="btn btn-gold" style="width:fit-content; margin:0 auto; padding:1.2rem 4rem;">الانتقال لمركز الصيانة وفتح تذكرة</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- 7. Tracking Section -->
-    <section id="tracking" class="container section" style="text-align:center;">
-        <div class="reveal" style="max-width:800px; margin:0 auto;">
-            <h2 style="font-size:2.8rem; margin-bottom:2rem;">تتبع حالة طلب التوريد</h2>
-            <p style="color:#666; margin-bottom:3rem;">أدخل رقم المرجع الخاص بطلبكم لمتابعة حالة التجهيز والشحن اللحظية.</p>
-            <div style="display:flex; gap:1rem; background:var(--surface); padding:10px; border-radius:20px; border:1px solid var(--border-gold);">
-                <input type="text" id="track-id" placeholder="ORD-XXXX" style="flex:1; border:none; background:transparent; padding:1.2rem; color:#fff; font-size:1.5rem; font-weight:800; text-align:center; outline:none;">
-                <button id="btn-track" class="btn btn-gold" style="padding:0 3rem;">تتبع الآن</button>
-            </div>
-            <div id="track-result"></div>
-        </div>
-    </section>
-
-    <!-- 8. Institutional Footer -->
-    <footer class="footer">
-        <div class="container footer-grid reveal">
-            <div class="footer-col">
-                <img src="zolngen_logo.png" style="height:60px; margin-bottom:2.5rem;" onerror="this.src='https://ui-avatars.com/api/?name=Z&background=D4AF37&color=000'">
-                <p style="line-height:2; color:#666;">ZOLNGEN هي الشريك التقني الأول للمؤسسات الكبرى في الشرق الأوسط. نلتزم بتقديم حلول متكاملة تدمج بين التكنولوجيا المتقدمة والفخامة المؤسسية.</p>
-                <div style="display:flex; gap:1.5rem; margin-top:3rem;">
-                    <a href="javascript:void(0)" style="color:var(--gold); font-size:1.5rem;" title="قريباً"><i class="fab fa-linkedin"></i></a>
-                    <a href="javascript:void(0)" style="color:var(--gold); font-size:1.5rem;" title="قريباً"><i class="fab fa-twitter"></i></a>
-                    <a href="javascript:void(0)" style="color:var(--gold); font-size:1.5rem;" title="قريباً"><i class="fab fa-facebook"></i></a>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h4>خدماتنا</h4>
-                <ul>
-                    <li><a href="products.html">توريد لابتوبات الأعمال</a></li>
-                    <li><a href="products.html">تجهيز المختبرات الحاسوبية</a></li>
-                    <li><a href="products.html">أنظمة الشبكات والسيرفرات</a></li>
-                    <li><a href="products.html">حلول الطباعة المركزية</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>روابط هامة</h4>
-                <ul>
-                    <li><a href="products.html">تقديم طلب توريد</a></li>
-                    <li><a href="maintenance.html">فتح تذكرة صيانة</a></li>
-                    <li><a href="index.html#tracking">تتبع حالة الطلب</a></li>
-                    <li><a href="admin.html">بوابة الإدارة المركزية</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>تواصل معنا</h4>
-                <ul style="color:#555;">
-                    <li style="display:flex; align-items:center; gap:15px;"><i class="fas fa-map-marker-alt" style="color:var(--gold);"></i> عمان، المملكة الأردنية الهاشمية</li>
-                    <li style="display:flex; align-items:center; gap:15px;"><i class="fas fa-envelope" style="color:var(--gold);"></i> b2b@zolngen.com</li>
-                    <li style="display:flex; align-items:center; gap:15px;"><i class="fas fa-clock" style="color:var(--gold);"></i> 8:00 ص - 6:00 م (السبت-الخميس)</li>
-                </ul>
-            </div>
-        </div>
-        <div class="container" style="text-align:center; padding-top:60px; margin-top:60px; border-top:1px solid #111; color:#333; font-size:0.9rem;">
-            جميع الحقوق محفوظة لشركة ZOLNGEN ENTERPRISE © 2024
-        </div>
-    </footer>
-
-    <!-- Side Cart -->
-    <div id="cart-sidebar" style="position:fixed; top:0; right:-450px; width:420px; height:100%; background:var(--surface); z-index:6000; transition:0.5s; padding:3rem; border-left:1px solid var(--border-gold); display:flex; flex-direction:column; box-shadow: -20px 0 50px rgba(0,0,0,0.5);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3rem;">
-            <h2 style="color:var(--gold);">قائمة التوريد</h2>
-            <button id="cart-close" style="background:none; border:none; color:#fff; font-size:2.5rem; cursor:pointer;">&times;</button>
-        </div>
-        <div id="cart-items" style="flex:1; overflow-y:auto; padding-left:10px;"></div>
-        <div style="padding-top:2rem; border-top:1px solid #222;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:2.5rem;">
-                <span style="color:#666;">إجمالي القيمة التقديرية:</span>
-                <span style="color:var(--gold); font-weight:900; font-size:1.8rem;"><span id="cart-total-val">0</span> د.أ</span>
-            </div>
-            <button class="btn btn-gold" style="width:100%; justify-content:center;" id="btn-order-trigger">تقديم طلب توريد رسمي</button>
-            <button class="btn btn-outline" style="width:100%; justify-content:center; margin-top:10px;" onclick="generatePDFQuote()">توليد كشف سعر PDF</button>
-        </div>
-    </div>
-
-    <!-- Order Modal -->
-    <div id="order-modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
-        <div style="background:var(--surface); border:2px solid var(--gold); border-radius:30px; width:95%; max-width:600px; padding:4rem;">
-            <h2 style="color:var(--gold); text-align:center; margin-bottom:3rem; font-size:2.2rem;">تأكيد طلب التوريد المؤسسي</h2>
-            <form id="order-form">
-                <input type="text" id="full-name" placeholder="اسم المسؤول المفوض" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
-                <input type="tel" id="phone" placeholder="رقم الهاتف المباشر" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
-                <input type="text" id="doc-id" placeholder="الرقم المرجعي / الوثيقة (الرقم الجامعي أو السجل التجاري)" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
-                <input type="text" id="university" list="entities-list" placeholder="اسم الجهة المستفيدة / المؤسسة / الجامعة" required style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:1.2rem;">
-                <datalist id="entities-list"></datalist>
-                <div style="display:flex; gap:10px; margin-bottom:1.2rem;">
-                    <input type="text" id="coupon-code" placeholder="كود الخصم المؤسسي (إن وجد)" style="flex:1; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; text-transform:uppercase;">
-                    <button type="button" class="btn btn-outline" onclick="window.applyCoupon()" style="padding:0 1.5rem;">تطبيق</button>
-                </div>
-                <textarea id="notes" placeholder="أي مواصفات خاصة أو ملاحظات إضافية..." rows="3" style="width:100%; padding:1.2rem; background:#000; border:1px solid #222; border-radius:12px; color:#fff; margin-bottom:2rem;"></textarea>
-                <div style="display:flex; gap:1.5rem;">
-                    <button type="submit" class="btn btn-gold" style="flex:1; justify-content:center;">إرسال الطلب</button>
-                    <button type="button" class="btn btn-outline" style="flex:1; justify-content:center;" id="modal-close">إلغاء</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-
-
-    <!-- My Orders Modal -->
-    <div id="my-orders-modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
-        <div style="background:var(--surface); border:2px solid var(--gold); border-radius:30px; width:95%; max-width:800px; padding:3rem; max-height:80vh; overflow-y:auto;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-                <h2 style="color:var(--gold); font-size:2rem;">أرشيف الفواتير والطلبات</h2>
-                <button onclick="document.getElementById('my-orders-modal').style.display='none'" style="background:none; border:none; color:#fff; font-size:2rem; cursor:pointer;">&times;</button>
-            </div>
-            <div id="my-orders-list" style="display:flex; flex-direction:column; gap:15px;"></div>
-        </div>
-    </div>
-
+    <!-- DB ENGINE & LOGIC -->
     <script src="database.js"></script>
-    <script src="main.js"></script>
     <script>
-        // Reveal Logic
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        // SPA NAVIGATION
+        function showSection(id, filter = 'all') {
+            document.querySelectorAll('section').forEach(s => s.classList.replace('section-active', 'section-hidden'));
+            const active = document.getElementById(id);
+            active.classList.replace('section-hidden', 'section-active');
+            
+            if(id === 'products') {
+                document.getElementById('prod-filter').value = filter;
+                renderProducts(filter);
+            }
+            if(id === 'admin') renderAdmin();
+            if(id === 'client-portal') {
+                if(sessionStorage.getItem('zolngen_client_user')) {
+                    document.getElementById('client-login').classList.add('hidden');
+                    document.getElementById('client-dashboard').classList.remove('hidden');
+                    renderClientDashboard();
+                } else {
+                    document.getElementById('client-login').classList.remove('hidden');
+                    document.getElementById('client-dashboard').classList.add('hidden');
+                }
+            }
+            window.scrollTo(0, 0);
+            
+            // GSAP Animations on section entry
+            gsap.from(`#${id} > *`, { opacity: 0, y: 30, duration: 0.6, stagger: 0.1, ease: "power2.out" });
+        }
+
+        // LANGUAGE ENGINE
+        const trans = {
+            ar: { home: 'الرئيسية', catalog: 'الكتالوج', maintenance: 'الصيانة', admin_pro: 'الإدارة Pro', hero_tag: 'المعيار العالمي لتكنولوجيا المؤسسات', hero_title: 'مستقبل التوريد الذكي', hero_desc: 'منصة ZOLNGEN المتكاملة لإدارة الأصول التقنية، الصيانة المتقدمة، والتوريد الصناعي المخصص لكبرى الجامعات والشركات.', hero_btn_start: 'ابدأ التصفح', hero_btn_maint: 'طلب صيانة', cat_laptops: 'أجهزة محمولة Elite', cat_desktops: 'محطات عمل Pro', cat_infra: 'بنية تحتية Enterprise', cat_periph: 'ملحقات ذكية', section_products: 'المخزون المؤسسي المتاح', section_products_desc: 'أجهزة مختارة بعناية لتلبية معايير الجودة والأداء العالي.', cart_title: 'سلة التوريد المبدئية', cart_total: 'الإجمالي التقديري' },
+            en: { home: 'Home', catalog: 'Catalog', maintenance: 'Maintenance', admin_pro: 'Admin Pro', hero_tag: 'The Institutional Tech Standard', hero_title: 'The Future of Smart Supply', hero_desc: 'ZOLNGEN unified platform for asset management, advanced maintenance, and industrial-scale procurement.', hero_btn_start: 'Browse Catalog', hero_btn_maint: 'Maintenance', cat_laptops: 'Elite Laptops', cat_desktops: 'Pro Workstations', cat_infra: 'Enterprise Servers', cat_periph: 'Smart Addons', section_products: 'Institutional Inventory', section_products_desc: 'Hand-picked premium hardware for elite scale.', cart_title: 'Procurement Cart', cart_total: 'Estimated Total' }
+        };
+
+        function toggleLanguage() {
+            const body = document.body;
+            const current = body.classList.contains('lang-ar') ? 'ar' : 'en';
+            const next = current === 'ar' ? 'en' : 'ar';
+            
+            body.classList.replace(`lang-${current}`, `lang-${next}`);
+            body.dir = next === 'ar' ? 'rtl' : 'ltr';
+            
+            document.querySelectorAll('[data-t]').forEach(el => {
+                const key = el.getAttribute('data-t');
+                if(trans[next][key]) el.innerText = trans[next][key];
+            });
+            localStorage.setItem('zolngen_lang', next);
+        }
+
+        // PRODUCT ENGINE
+        let cart = JSON.parse(localStorage.getItem('zolngen_cart')) || [];
+        function renderProducts(filter = 'all') {
+            const grid = document.getElementById('product-grid');
+            const products = DB.getProducts();
+            const filtered = filter === 'all' ? products : products.filter(p => p.category.includes(filter));
+            
+            grid.innerHTML = filtered.map(p => `
+                <div class="glass p-6 rounded-3xl border border-glassBorder hover:border-gold/50 transition-ultra group relative overflow-hidden">
+                    <img src="${p.img}" class="w-full h-48 object-contain mb-4 group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/400x300/0A0A0B/D4AF37?text=HW'">
+                    <div class="space-y-1">
+                        <h4 class="font-bold">${p.name}</h4>
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest">${p.category}</p>
+                    </div>
+                    <div class="flex justify-between items-center mt-6">
+                        <span class="text-xl font-black text-gold">${p.price} JOD</span>
+                        <button onclick="addToCart('${p.id}')" class="bg-gold/10 text-gold w-10 h-10 rounded-full flex items-center justify-center hover:bg-gold hover:text-dark transition-all"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    ${p.stock < 5 ? '<span class="absolute top-4 left-4 bg-red-500 text-[8px] font-bold px-2 py-1 rounded">LOW STOCK</span>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function addToCart(id) {
+            const p = DB.getProducts().find(x => x.id === id);
+            const exists = cart.find(x => x.id === id);
+            if(exists) exists.qty++;
+            else cart.push({...p, qty: 1});
+            updateCart();
+        }
+
+        function updateCart() {
+            localStorage.setItem('zolngen_cart', JSON.stringify(cart));
+            document.getElementById('cart-badge').innerText = cart.reduce((a, b) => a + b.qty, 0);
+            
+            const list = document.getElementById('cart-items');
+            list.innerHTML = cart.map(i => `
+                <div class="flex gap-4 items-center">
+                    <img src="${i.img}" class="w-12 h-12 glass rounded-lg" onerror="this.src='https://placehold.co/50x50/111/D4AF37'">
+                    <div class="flex-1">
+                        <h5 class="text-xs font-bold">${i.name}</h5>
+                        <p class="text-[10px] text-gold">${i.price} JOD x ${i.qty}</p>
+                    </div>
+                    <button onclick="removeFromCart('${i.id}')" class="text-gray-600 hover:text-red-500">×</button>
+                </div>
+            `).join('');
+            
+            const subtotal = cart.reduce((a, b) => a + (b.price * b.qty), 0);
+            const totalItems = cart.reduce((a, b) => a + b.qty, 0);
+            const discount = totalItems >= 5 ? subtotal * 0.1 : 0;
+            
+            document.getElementById('cart-subtotal').innerText = subtotal.toFixed(2) + ' JOD';
+            document.getElementById('cart-total').innerText = (subtotal - discount).toFixed(2) + ' JOD';
+            
+            const dr = document.getElementById('discount-row');
+            if(discount > 0) {
+                dr.classList.remove('hidden');
+                document.getElementById('cart-discount').innerText = '-' + discount.toFixed(2) + ' JOD';
+            } else {
+                dr.classList.add('hidden');
+            }
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            updateCart();
+        }
+
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        // ADMIN ENGINE
+        function renderAdmin() {
+            const stats = DB.getProStats();
+            document.getElementById('admin-sales').innerText = stats.totalSales.toLocaleString() + ' JOD';
+            document.getElementById('admin-profit').innerText = stats.totalProfit.toLocaleString() + ' JOD';
+            document.getElementById('admin-inv').innerText = stats.inventoryValue.toLocaleString() + ' JOD';
+            document.getElementById('admin-tickets').innerText = stats.openTickets;
+            
+            const ordersTable = document.getElementById('admin-orders-table');
+            ordersTable.innerHTML = DB.getOrders().slice(0, 5).map(o => `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <td class="py-4 text-[10px] font-mono text-gray-500">${o.id}</td>
+                    <td class="py-4 text-xs font-bold">${o.entity || 'Individual'}</td>
+                    <td class="py-4 text-gold font-black">${o.total} JOD</td>
+                    <td class="py-4"><span class="bg-gold/10 text-gold text-[8px] px-2 py-1 rounded uppercase">${o.status}</span></td>
+                </tr>
+            `).join('');
+            
+            const lowStock = document.getElementById('low-stock-list');
+            const lowItems = DB.getProducts().filter(p => p.stock < 10);
+            lowStock.innerHTML = lowItems.map(p => `
+                <div class="flex justify-between items-center text-xs">
+                    <span>${p.name}</span>
+                    <span class="text-red-500 font-bold">${p.stock} Left</span>
+                </div>
+            `).join('');
+
+            const audit = document.getElementById('audit-log');
+            audit.innerHTML = DB.getAuditLog().slice(0, 10).map(l => `
+                <div class="border-l border-gold/30 pl-3 py-1">
+                    <p class="text-white">${l.action}</p>
+                    <small>${l.date}</small>
+                </div>
+            `).join('');
+        }
+
+        // AI ENGINE
+        function toggleAI() {
+            const win = document.getElementById('ai-window');
+            win.classList.toggle('scale-0');
+            win.classList.toggle('scale-100');
+        }
+
+        function sendAI() {
+            const input = document.getElementById('ai-input');
+            const val = input.value.trim();
+            if(!val) return;
+            
+            const box = document.getElementById('ai-messages');
+            box.innerHTML += `<div class="bg-gold/20 p-3 rounded-2xl rounded-br-none text-right text-white self-end ml-12">${val}</div>`;
+            input.value = '';
+            
+            // Sim AI logic
+            setTimeout(() => {
+                let reply = "عذراً، لم أفهم طلبك تماماً. هل تريد الاستفسار عن حالة طلب (ORD-XXXX) أو طلب صيانة؟";
+                if(val.includes('ORD-') || val.includes('طلب')) {
+                    const id = val.match(/ORD-\d+/);
+                    if(id) {
+                        const ord = DB.getOrders().find(o => o.id === id[0]);
+                        reply = ord ? `الطلب ${id[0]} حالته حالياً هي: ${ord.status}. سيصلكم خلال 3 أيام عمل.` : "عذراً، رقم الطلب غير موجود في سجلاتنا.";
+                    }
+                }
+                box.innerHTML += `<div class="bg-white/5 p-3 rounded-2xl rounded-bl-none text-gray-300 mr-12">${reply}</div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 600);
+        }
+
+        // MAINTENANCE ENGINE
+        document.getElementById('maint-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const tck = DB.createTicket({
+                entity: fd.get('entity'),
+                type: fd.get('device'),
+                issue: fd.get('issue'),
+                urgency: fd.get('urgency')
+            });
+            document.getElementById('maint-form').reset();
+            const success = document.getElementById('maint-success');
+            success.classList.remove('hidden');
+            document.getElementById('tck-num').innerText = tck.id;
+            gsap.from(success, { scale: 0.9, opacity: 0, duration: 0.4 });
+        });
+
+        // CLIENT ENGINE
+        function clientLogin() {
+            const user = document.getElementById('client-user').value;
+            const pass = document.getElementById('client-pass').value;
+            
+            // Mock auth
+            if(user === 'ju_admin' && pass === 'ju123') {
+                const acc = { name: 'Sarah Ahmed', inst: 'University of Jordan', role: 'Head of IT' };
+                sessionStorage.setItem('zolngen_client_user', JSON.stringify(acc));
+                showSection('client-portal');
+            } else {
+                alert('Invalid Credentials');
+            }
+        }
+
+        function clientLogout() {
+            sessionStorage.removeItem('zolngen_client_user');
+            showSection('client-portal');
+        }
+
+        function renderClientDashboard() {
+            const acc = JSON.parse(sessionStorage.getItem('zolngen_client_user'));
+            document.getElementById('client-entity-name').innerText = acc.inst;
+            document.getElementById('client-user-welcome').innerText = `Welcome back, ${acc.name}`;
+            
+            const orders = DB.getOrders().filter(o => o.entity === acc.inst);
+            document.getElementById('client-order-count').innerText = orders.length;
+            document.getElementById('client-spend').innerText = orders.reduce((a, b) => a + b.total, 0).toLocaleString() + ' JOD';
+        }
+
+        function processOrder() {
+            if(cart.length === 0) {
+                showToast('السلة فارغة!', 'error');
+                return;
+            }
+            const subtotal = cart.reduce((a, b) => a + (b.price * b.qty), 0);
+            const totalItems = cart.reduce((a, b) => a + b.qty, 0);
+            const discount = totalItems >= 5 ? subtotal * 0.1 : 0;
+            const total = subtotal - discount;
+
+            const order = DB.placeOrder({
+                items: cart,
+                total: total,
+                entity: sessionStorage.getItem('zolngen_client_user') ? JSON.parse(sessionStorage.getItem('zolngen_client_user')).inst : 'Guest Entity'
+            });
+
+            cart = [];
+            updateCart();
+            toggleCart();
+            showToast(`تم تثبيت طلبك بنجاح: ${order.id}`);
+            showSection('home');
+        }
+
+        function showToast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `fixed bottom-24 left-1/2 -translate-x-1/2 px-8 py-4 rounded-2xl glass border z-[200] font-bold text-sm transition-all duration-500 shadow-2xl ${type === 'success' ? 'border-gold text-gold' : 'border-red-500 text-red-500'}`;
+            t.innerText = msg;
+            document.body.appendChild(t);
+            gsap.from(t, { y: 50, opacity: 0 });
+            setTimeout(() => {
+                gsap.to(t, { y: -50, opacity: 0, onComplete: () => t.remove() });
+            }, 3000);
+        }
+
+        window.showToast = showToast; // Global access
+        window.onscroll = () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById("scroll-progress").style.width = scrolled + "%";
+        };
+
+        // Particles
+        const partContainer = document.getElementById('particles-container');
+        for(let i=0; i<30; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.width = Math.random() * 5 + 'px';
+            p.style.height = p.style.width;
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = Math.random() * 100 + 'vh';
+            partContainer.appendChild(p);
+            
+            gsap.to(p, {
+                y: '+=100',
+                x: '+=50',
+                opacity: 0.3,
+                repeat: -1,
+                yoyo: true,
+                duration: 2 + Math.random() * 3,
+                ease: "sine.inOut"
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCart();
+            if(localStorage.getItem('zolngen_lang') === 'en') toggleLanguage();
+        });
     </script>
 </body>
 </html>
