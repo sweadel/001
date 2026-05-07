@@ -153,10 +153,10 @@ const DB = {
 
     seed: function() {
         const initial = [
-            { id: 'PRD-1', name: 'HP EliteBook 840 G9', price: 1250, cost: 950, stock: 45, category: 'أجهزة محمولة', img: 'https://placehold.co/400x300/0A0A0B/D4AF37?text=EliteBook' },
-            { id: 'PRD-2', name: 'Dell Latitude 7430', price: 1180, cost: 880, stock: 5, category: 'أجهزة محمولة', img: 'https://placehold.co/400x300/0A0A0B/D4AF37?text=Latitude' },
-            { id: 'PRD-3', name: 'MacBook Pro M2', price: 1850, cost: 1600, stock: 12, category: 'أجهزة محمولة', img: 'https://placehold.co/400x300/0A0A0B/D4AF37?text=MacBook' },
-            { id: 'PRD-4', name: 'PowerEdge R750', price: 4500, cost: 3800, stock: 3, category: 'خوادم', img: 'https://placehold.co/400x300/0A0A0B/D4AF37?text=Server' }
+            { id: 'PRD-1', name: 'HP EliteBook 840 G9', price: 1250, cost: 950, stock: 45, category: 'أجهزة محمولة', img: 'zolngen_hp_elitebook_1778187553013.png', specs: 'Intel i7, 16GB RAM, 512GB SSD' },
+            { id: 'PRD-2', name: 'Dell Latitude 7430', price: 1180, cost: 880, stock: 5, category: 'أجهزة محمولة', img: 'zolngen_hp_elitebook_1778187553013.png', specs: 'Intel i5, 16GB RAM, 256GB SSD' },
+            { id: 'PRD-3', name: 'MacBook Pro M2', price: 1850, cost: 1600, stock: 12, category: 'أجهزة محمولة', img: 'zolngen_macbook_pro_1778187582427.png', specs: 'Apple M2, 16GB Unified Memory, 512GB SSD' },
+            { id: 'PRD-4', name: 'PowerEdge R750', price: 4500, cost: 3800, stock: 3, category: 'خوادم', img: 'zolngen_dell_server_1778187569114.png', specs: 'Dual Xeon, 128GB RAM, 8TB Storage' }
         ];
         this.set('zolngen_inventory', initial);
         if(!localStorage.getItem('zolngen_accounts')) this.set('zolngen_accounts', [{user:'admin', pass:'admin123', role:'ADMIN', name:'المدير العام'}]);
