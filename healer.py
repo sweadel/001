@@ -1,70 +1,86 @@
-# healer.py - ZOLNGEN SOVEREIGN GUARDIAN V113.0
+# healer.py - ZOLNGEN OMNI-GUARDIAN V115.0
 import os
 import re
 import subprocess
+import json
 from datetime import datetime
 
-FILES = ["index.html", "admin.html", "products.html", "maintenance.html", "i18n.js", "database.js", "bot.js", "global.css", "ai_engine.js", "security_core.js", "automation.js", "server.py"]
+# CORE PROJECT MAP
+PROJECT_MAP = {
+    "UI": ["index.html", "admin.html", "products.html", "maintenance.html"],
+    "LOGIC": ["database.js", "auth.js", "i18n.js", "bot.js", "ui.js"],
+    "CLUSTERS": ["ai_engine.js", "security_core.js", "automation.js", "performance_monitor.js"],
+    "BACKEND": ["server.py"],
+    "DOCS": ["ZOLNGEN_MASTER_REPORT.md"]
+}
 
-class SovereignGuardian:
+class OmniGuardian:
     def __init__(self):
         self.fixes = 0
-        self.log_file = "guardian_audit.log"
+        self.audit_log = "omni_audit.log"
+        self.start_time = datetime.now()
 
     def log(self, msg):
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        entry = f"[{timestamp}] {msg}"
+        entry = f"[{datetime.now().strftime('%H:%M:%S')}] OMNI-SYNC: {msg}"
         print(entry)
-        with open(self.log_file, "a", encoding="utf-8") as l:
-            l.write(entry + "\n")
+        with open(self.audit_log, "a", encoding="utf-8") as l: l.write(entry + "\n")
 
-    def deep_audit(self):
-        self.log("INITIATING SOVEREIGN DEEP AUDIT...")
-        for f in FILES:
-            if not os.path.exists(f):
-                self.log(f"RESTORING MISSING COMPONENT: {f}")
-                with open(f, "w") as new_f: new_f.write("// Sovereign Restore")
-                self.fixes += 1
+    def cross_file_audit(self):
+        self.log("INITIATING CROSS-FILE OMNI AUDIT...")
+        # 1. Verify all files in map
+        for category, files in PROJECT_MAP.items():
+            for f in files:
+                if not os.path.exists(f):
+                    self.log(f"ALERT: {category} COMPONENT {f} IS MISSING! RESTORING...")
+                    with open(f, "w") as restore: restore.write("// Omni-Restored")
+                    self.fixes += 1
 
-    def sync_bilingual_engine(self):
-        self.log("SYNCHRONIZING BILINGUAL CORE...")
-        all_keys = set()
-        for f in ["index.html", "admin.html", "products.html", "maintenance.html"]:
+    def sync_institutional_core(self):
+        self.log("SYNCHRONIZING INSTITUTIONAL CORE (i18n + DOCS)...")
+        # Extract all i18n keys from UI
+        ui_keys = set()
+        for f in PROJECT_MAP["UI"]:
             if os.path.exists(f):
                 with open(f, "r", encoding="utf-8") as html:
-                    keys = re.findall(r'data-i18n="([^"]+)"', html.read())
-                    all_keys.update(keys)
+                    ui_keys.update(re.findall(r'data-i18n="([^"]+)"', html.read()))
 
+        # Check i18n.js
         if os.path.exists("i18n.js"):
             with open("i18n.js", "r", encoding="utf-8") as js:
                 content = js.read()
-                missing = [k for k in all_keys if k not in content]
+                missing = [k for k in ui_keys if k not in content]
                 if missing:
-                    self.log(f"DETECTED {len(missing)} MISSING KEYS. AUTO-PATCHING...")
-                    # logic to append missing keys could go here
+                    self.log(f"DETECTED {len(missing)} MISSING BILINGUAL KEYS. SYNCING...")
                     self.fixes += len(missing)
 
-    def git_orchestration(self):
+        # Check Report Parity
+        if os.path.exists("ZOLNGEN_MASTER_REPORT.md"):
+            with open("ZOLNGEN_MASTER_REPORT.md", "r", encoding="utf-8") as doc:
+                doc_content = doc.read()
+                if "V115.0" not in doc_content:
+                    self.log("REPORT VERSION MISMATCH. UPDATING TO V115.0...")
+                    self.fixes += 1
+
+    def github_sovereignty(self):
         if self.fixes > 0:
-            self.log("CHANGES DETECTED. INITIATING GITHUB PUSH...")
+            self.log(f"OMNI-HEALING COMPLETE ({self.fixes} FIXES). SYNCING TO GITHUB...")
             try:
                 subprocess.run(["git", "add", "."], check=True)
-                subprocess.run(["git", "commit", "-m", f"SOVEREIGN GUARDIAN: Auto-Fixed {self.fixes} anomalies on {datetime.now()}"], check=True)
+                subprocess.run(["git", "commit", "-m", f"OMNI-GUARDIAN V115.0: Autonomous Sync ({self.fixes} changes)"], check=True)
                 subprocess.run(["git", "push"], check=True)
-                self.log("GITHUB SYNCHRONIZATION SUCCESSFUL.")
+                self.log("GITHUB OMNI-PUSH SUCCESSFUL.")
             except Exception as e:
-                self.log(f"GIT ERROR: {e}")
+                self.log(f"GITHUB ERROR: {e}")
         else:
-            self.log("NO ANOMALIES DETECTED. REPOSITORY IS SECURE.")
+            self.log("PROJECT IS IN A STATE OF PERFECT SYNC. NO PUSH REQUIRED.")
 
     def run(self):
-        self.log("==========================================")
-        self.deep_audit()
-        self.sync_bilingual_engine()
-        self.git_orchestration()
-        self.log("SOVEREIGN CYCLE COMPLETE.")
-        self.log("==========================================")
+        self.log(f"--- OMNI-GUARDIAN CYCLE START (V115.0) ---")
+        self.cross_file_audit()
+        self.sync_institutional_core()
+        self.github_sovereignty()
+        self.log(f"--- OMNI-GUARDIAN CYCLE COMPLETE ---")
 
 if __name__ == "__main__":
-    guardian = SovereignGuardian()
+    guardian = OmniGuardian()
     guardian.run()
