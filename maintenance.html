@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZOLNGEN Support | V99.0 Singularity</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        body { background: #020202; color: #fff; font-family: 'Tajawal', sans-serif; }
+        .glass { backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255,255,255,0.01); }
+        .btn-gold { background: #D4AF37; color: #000; font-weight: 900; transition: 0.3s; }
+        .btn-gold:hover { background: #F9E5A7; transform: scale(1.05); }
+    </style>
+</head>
+<body class="p-8">
+    <nav class="flex justify-between items-center mb-16 max-w-7xl mx-auto">
+        <a href="index.html" class="text-2xl font-black text-gold">ZOLNGEN <span class="font-light text-white uppercase text-xs">Support</span></a>
+        <a href="index.html" class="text-gray-500 hover:text-white">الرئيسية</a>
+    </nav>
+
+    <main class="max-w-4xl mx-auto space-y-12">
+        <div class="glass p-12 rounded-[40px] border border-white/5">
+            <h2 class="text-4xl font-black mb-8">فتح تذكرة <span class="text-gold">صيانة</span></h2>
+            <form id="maint-form" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-500 text-sm mb-2">المؤسسة</label>
+                        <input type="text" id="entity" required class="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-gold outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-gray-500 text-sm mb-2">نوع الجهاز</label>
+                        <input type="text" id="device" required class="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-gold outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-500 text-sm mb-2">وصف المشكلة</label>
+                    <textarea id="issue" rows="4" required class="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-gold outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-500 text-sm mb-2">درجة الأهمية (SLA)</label>
+                    <select id="urgency" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-gold outline-none text-gray-400">
+                        <option value="Low">منخفضة</option>
+                        <option value="Med">متوسطة</option>
+                        <option value="High">حرجة جداً</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full btn-gold py-5 rounded-2xl shadow-xl shadow-gold/10">إرسال البلاغ فوراً</button>
+            </form>
+        </div>
+
+        <div id="tickets-list" class="space-y-6">
+            <h3 class="text-2xl font-black">التذاكر <span class="text-gold">النشطة</span></h3>
+            <!-- Tickets -->
+        </div>
+    </main>
+
+    <script src="database.js"></script>
+    <script>
+        function renderTickets() {
+            const list = document.getElementById('tickets-list');
+            const tickets = DB.getTickets();
+            list.innerHTML = `<h3 class="text-2xl font-black mb-6">التذاكر <span class="text-gold">النشطة</span></h3>` + 
+            tickets.map(t => `
+                <div class="glass p-6 rounded-3xl border border-white/5 flex justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-gold">${t.id}</h4>
+                        <p class="text-sm">${t.entity} - ${t.type}</p>
+                        <small class="text-gray-500">${t.date}</small>
+                    </div>
+                    <div class="text-left">
+                        <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold ${t.urgency === 'High' ? 'bg-red-500/10 text-red-500' : 'bg-gold/10 text-gold'}">${t.urgency}</span>
+                        <p class="text-[10px] text-gray-500 mt-2">${t.status}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('maint-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            DB.createTicket({
+                entity: document.getElementById('entity').value,
+                type: document.getElementById('device').value,
+                issue: document.getElementById('issue').value,
+                urgency: document.getElementById('urgency').value
+            });
+            alert('تم فتح التذكرة بنجاح!');
+            e.target.reset();
+            renderTickets();
+        });
+
+        window.onload = renderTickets;
+    </script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Institutional Portal | V99.0 Singularity</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        body { background: #020202; color: #fff; font-family: 'Tajawal', sans-serif; overflow-x: hidden; }
+        .glass { backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255,255,255,0.01); }
+        .tier-card { transition: 0.5s; border-radius: 40px; }
+        .Platinum { border: 2px solid #E5E4E2; box-shadow: 0 0 40px rgba(229, 228, 226, 0.1); }
+        .Gold { border: 2px solid #D4AF37; box-shadow: 0 0 40px rgba(212, 175, 55, 0.1); }
+        .Silver { border: 2px solid #C0C0C0; box-shadow: 0 0 40px rgba(192, 192, 192, 0.1); }
+    </style>
+</head>
+<body class="p-8">
+    <div id="login-screen" class="max-w-md mx-auto mt-20 glass p-12 rounded-[40px] border border-white/10 text-center">
+        <i class="fas fa-university text-5xl text-gold mb-6"></i>
+        <h2 class="text-3xl font-black mb-8">بوابة الشركاء</h2>
+        <div class="space-y-4">
+            <input type="text" id="user" placeholder="اسم المؤسسة" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none focus:border-gold">
+            <input type="password" id="pass" placeholder="كلمة المرور" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none focus:border-gold">
+            <button onclick="login()" class="w-full bg-gold text-dark font-black py-4 rounded-xl hover:scale-105 transition-all">دخول آمن</button>
+        </div>
+    </div>
+
+    <div id="dashboard" class="hidden max-w-7xl mx-auto space-y-12">
+        <header class="flex justify-between items-center">
+            <h2 class="text-4xl font-black" id="entity-name">University</h2>
+            <div class="flex gap-4 items-center">
+                <span id="tier-badge" class="px-6 py-2 rounded-full text-xs font-black uppercase">GOLD TIER</span>
+                <button onclick="logout()" class="text-red-500 hover:underline">تسجيل الخروج</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="glass p-10 rounded-[40px] text-center tier-card" id="main-tier-card">
+                <p class="text-gray-500 text-xs mb-2">إجمالي الاستثمار</p>
+                <h3 class="text-4xl font-black text-gold" id="total-spend">0 JOD</h3>
+            </div>
+            <div class="glass p-10 rounded-[40px] text-center">
+                <p class="text-gray-500 text-xs mb-2">طلبات التوريد</p>
+                <h3 class="text-4xl font-black" id="total-orders">0</h3>
+            </div>
+            <div class="glass p-10 rounded-[40px] text-center">
+                <p class="text-gray-500 text-xs mb-2">صحة الأصول</p>
+                <h3 class="text-4xl font-black text-green-500">98.4%</h3>
+            </div>
+        </div>
+
+        <div class="glass p-10 rounded-[40px] border border-white/5">
+            <h4 class="text-xl font-bold mb-6">سجل التوريد المؤسسي</h4>
+            <div id="orders-list" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <script src="database.js"></script>
+    <script>
+        function login() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if(u && p === 'admin123') {
+                sessionStorage.setItem('client', u);
+                renderDashboard();
+            } else {
+                alert('خطأ في البيانات');
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('client');
+            location.reload();
+        }
+
+        function renderDashboard() {
+            const entity = sessionStorage.getItem('client');
+            if(!entity) return;
+
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+
+            const tier = DB.getTier(entity);
+            document.getElementById('entity-name').innerText = entity;
+            const badge = document.getElementById('tier-badge');
+            badge.innerText = `${tier} TIER`;
+            badge.className = `px-6 py-2 rounded-full text-xs font-black uppercase bg-white/10 ${tier}`;
+            
+            document.getElementById('main-tier-card').classList.add(tier);
+
+            const orders = DB.getOrders().filter(o => o.entity === entity);
+            document.getElementById('total-spend').innerText = orders.reduce((a,b) => a+b.total, 0).toLocaleString() + ' JOD';
+            document.getElementById('total-orders').innerText = orders.length;
+
+            const list = document.getElementById('orders-list');
+            list.innerHTML = orders.map(o => `
+                <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl">
+                    <span>${o.id} - ${o.date}</span>
+                    <span class="font-black text-gold">${o.total} JOD</span>
+                    <span class="text-[10px] uppercase">${o.status}</span>
+                </div>
+            `).join('') || '<p class="text-center text-gray-500">لا يوجد طلبات سابقة</p>';
+        }
+
+        window.onload = () => { if(sessionStorage.getItem('client')) renderDashboard(); };
+    </script>
+</body>
+</html>
