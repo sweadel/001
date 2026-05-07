@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Master | V110.0 SUPREME</title>
+    <title>ZOLNGEN Master | V111.0 SINGULARITY</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="global.css">
@@ -12,198 +12,152 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        .gold-glow { text-shadow: 0 0 20px rgba(212, 175, 55, 0.5); }
-        .btn-active { border-color: var(--gold) !important; background: rgba(212, 175, 55, 0.1) !important; }
-        .voice-ring { position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border-radius: 50%; border: 2px solid var(--gold); animation: pulse 1.5s infinite; opacity: 0; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.5); opacity: 0; } }
-        .scan-anim { animation: scan 2s infinite linear; }
-        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
-        .blockchain-card { border-right: 4px solid var(--gold); background: rgba(255,255,255,0.02); }
+        .gold-glow { text-shadow: 0 0 30px rgba(212, 175, 55, 0.6); }
+        .glass-deep { backdrop-filter: blur(40px); background: rgba(5,5,5,0.8); }
+        .cluster-active { border-color: var(--gold) !important; background: rgba(212, 175, 55, 0.05); }
+        .voice-active { box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); border-color: var(--gold) !important; }
+        .loading-bar { height: 2px; background: var(--gold); position: absolute; bottom: 0; left: 0; transition: width 0.3s; }
     </style>
 </head>
-<body class="rtl">
+<body class="rtl overflow-hidden">
     <div class="cursor"></div>
     <div class="cursor-follower"></div>
     <canvas id="neural-bg"></canvas>
 
     <!-- LOCK SCREEN -->
     <div id="admin-lock-screen" class="fixed inset-0 z-[500] bg-black flex items-center justify-center p-6 text-center">
-        <div class="glass p-12 rounded-[60px] max-w-sm w-full border border-gold/10">
-            <div id="bio-scan-ui" class="w-24 h-24 border-2 border-gold/20 rounded-full mx-auto mb-8 flex items-center justify-center relative overflow-hidden">
-                <i class="fas fa-fingerprint text-4xl text-gold/30"></i>
-                <div id="scan-line" class="absolute top-0 left-0 w-full h-1 bg-gold shadow-lg shadow-gold hidden scan-anim"></div>
+        <div class="glass p-16 rounded-[70px] max-w-sm w-full border border-gold/10 relative overflow-hidden">
+            <div id="lock-loading" class="loading-bar w-0"></div>
+            <div id="bio-scan-box" class="w-28 h-28 border-2 border-gold/20 rounded-full mx-auto mb-10 flex items-center justify-center relative overflow-hidden">
+                <i class="fas fa-fingerprint text-5xl text-gold/30"></i>
+                <div id="scan-line" class="absolute top-0 left-0 w-full h-1 bg-gold shadow-lg shadow-gold hidden animate-pulse"></div>
             </div>
-            <h3 class="text-3xl font-black mb-1 text-gold gold-glow" data-i18n="admin_gate">Command Access</h3>
-            <p class="text-gray-800 text-[8px] mb-10 uppercase tracking-[0.4em] font-black">BIOMETRIC V110.0 SUPREME</p>
+            <h3 class="text-4xl font-black mb-1 text-gold gold-glow">Access Gate</h3>
+            <p class="text-gray-800 text-[8px] mb-12 uppercase tracking-[0.5em] font-black">SINGULARITY V111.0</p>
             <div class="space-y-4">
-                <input type="text" id="lock-user" data-i18n="username" class="text-center">
-                <input type="password" id="lock-pass" data-i18n="password" onkeydown="if(event.key==='Enter') unlockAdmin()" class="text-center">
+                <input type="text" id="lock-user" data-i18n="username" class="text-center bg-white/2 rounded-xl">
+                <input type="password" id="lock-pass" data-i18n="password" onkeydown="if(event.key==='Enter') startAuth()" class="text-center bg-white/2 rounded-xl">
             </div>
-            <button onclick="activateBio()" class="w-full bg-gold/5 text-gold py-4 rounded-xl font-black mt-6 text-[10px] border border-gold/10 hover:bg-gold/10 transition-all">Engage Bio-Scan</button>
-            <button onclick="unlockAdmin()" class="btn-gold w-full py-4 rounded-xl font-black mt-2 text-xs" data-i18n="login">Authorize Access</button>
+            <button onclick="startAuth()" class="btn-gold w-full py-5 rounded-2xl font-black mt-10 text-xs shadow-2xl">Initialize Singularity</button>
         </div>
     </div>
 
-    <!-- ADMIN CONTENT -->
-    <div id="admin-content" class="hidden">
-        <aside id="sidebar" class="sidebar glass p-8 fixed right-0 top-0 h-full w-[280px] z-[200]">
-            <div class="mb-10"><h1 class="text-2xl font-black text-gold gold-glow">ZOLNGEN <span class="text-[7px] block text-white/20 uppercase tracking-[0.5em] font-black mt-1">SUPREME OS V110.0</span></h1></div>
-            <nav class="space-y-1">
-                <button onclick="showTab('dashboard')" class="tab-btn active w-full text-right p-3 px-5 flex items-center gap-3 font-black text-[11px]"><i class="fas fa-radar w-3"></i> <span>Dashboard</span></button>
-                <button onclick="showTab('3d-city')" class="tab-btn w-full text-right p-3 px-5 flex items-center gap-3 font-black text-[11px]"><i class="fas fa-city w-3"></i> <span>3D Intelligence</span></button>
-                <button onclick="showTab('supply')" class="tab-btn w-full text-right p-3 px-5 flex items-center gap-3 font-black text-[11px]"><i class="fas fa-boxes-stacked w-3"></i> <span>Supply Chain</span></button>
-                <button onclick="showTab('blockchain')" class="tab-btn w-full text-right p-3 px-5 flex items-center gap-3 font-black text-[11px]"><i class="fas fa-link w-3"></i> <span>Blockchain Audit</span></button>
-                <button onclick="showTab('ai-studio')" class="tab-btn w-full text-right p-3 px-5 flex items-center gap-3 font-black text-[11px]"><i class="fas fa-wand-magic-sparkles w-3"></i> <span>AI Studio</span></button>
-                <button onclick="showTab('security')" class="tab-btn w-full text-right p-3 px-5 flex items-center gap-3 font-black text-[11px]"><i class="fas fa-vault w-3"></i> <span>Global Security</span></button>
+    <!-- MAIN DASHBOARD -->
+    <div id="admin-content" class="hidden h-screen flex">
+        <aside id="sidebar" class="sidebar glass-deep p-10 w-[300px] border-l border-white/5 relative z-[200]">
+            <div class="mb-12"><h1 class="text-2xl font-black text-gold gold-glow">ZOLNGEN <span class="text-[7px] block text-white/20 uppercase tracking-[0.6em] font-black mt-1">CORE V111.0</span></h1></div>
+            <nav class="space-y-2">
+                <button onclick="switchTab('dashboard')" class="tab-btn active w-full text-right p-4 px-6 flex items-center gap-4 font-black text-[11px]"><i class="fas fa-chart-line w-4"></i> <span>Pulse Dashboard</span></button>
+                <button onclick="switchTab('3d-intelligence')" class="tab-btn w-full text-right p-4 px-6 flex items-center gap-4 font-black text-[11px]"><i class="fas fa-brain w-4"></i> <span>3D Intelligence</span></button>
+                <button onclick="switchTab('inventory')" class="tab-btn w-full text-right p-4 px-6 flex items-center gap-4 font-black text-[11px]"><i class="fas fa-box w-4"></i> <span>Supply Chain</span></button>
+                <button onclick="switchTab('blockchain')" class="tab-btn w-full text-right p-4 px-6 flex items-center gap-4 font-black text-[11px]"><i class="fas fa-link w-4"></i> <span>Audit Ledger</span></button>
+                <button onclick="switchTab('ai-marketing')" class="tab-btn w-full text-right p-4 px-6 flex items-center gap-4 font-black text-[11px]"><i class="fas fa-wand-magic-sparkles w-4"></i> <span>AI Studio</span></button>
             </nav>
-            <div class="mt-12 pt-8 border-t border-white/5">
-                <div class="relative inline-block w-full">
-                    <button id="voice-btn" onclick="toggleVoice()" class="w-full p-4 bg-white/5 rounded-xl text-[8px] font-black uppercase mb-3 flex items-center justify-center gap-2">
-                        <div id="voice-pulse" class="voice-ring"></div>
-                        <i class="fas fa-microphone"></i> Voice Command
-                    </button>
-                </div>
-                <button onclick="Auth.logout()" class="w-full p-4 bg-red-500/5 text-red-500 rounded-xl text-[8px] font-black uppercase border border-red-500/10">Terminate</button>
+            <div class="absolute bottom-10 left-10 right-10">
+                <button id="voice-btn" onclick="toggleVoice()" class="w-full p-4 bg-white/5 rounded-2xl text-[8px] font-black uppercase mb-4 border border-white/5 hover:border-gold/30 transition-all"><i class="fas fa-microphone mr-2"></i> Voice Command</button>
+                <button onclick="Auth.logout()" class="w-full p-4 bg-red-500/5 text-red-500 rounded-2xl text-[8px] font-black uppercase border border-red-500/10">Terminate</button>
             </div>
         </aside>
 
-        <main class="main mr-[280px] p-[50px]">
-            <header class="flex justify-between items-end mb-16">
-                <div><h2 id="tab-title" class="text-5xl font-black tracking-tighter text-gold gold-glow">Supreme Dashboard</h2><p class="text-gray-700 uppercase tracking-[0.5em] text-[8px] font-black mt-2">ACTIVE INSTITUTIONAL ORCHESTRATION</p></div>
-                <div class="flex items-center gap-4">
-                    <div class="text-right glass px-6 py-3 rounded-2xl border border-white/5"><p id="admin-name" class="text-gold font-black text-sm">Grand Overseer</p><small class="text-gray-800 text-[7px] uppercase font-black">Level 99 Master</small></div>
+        <main class="flex-1 p-[60px] overflow-y-auto">
+            <header class="flex justify-between items-center mb-20">
+                <div><h2 id="tab-title" class="text-6xl font-black tracking-tighter text-gold gold-glow">Operations</h2><p class="text-gray-700 uppercase tracking-[0.6em] text-[9px] font-black mt-3">Singularity Core Active</p></div>
+                <div class="flex items-center gap-6">
+                    <button onclick="AutomationHub.generateMasterPDF()" class="glass px-6 py-3 rounded-xl text-[9px] font-black uppercase border-gold/20 text-gold"><i class="fas fa-file-pdf mr-2"></i> Report</button>
+                    <div class="text-right glass px-8 py-4 rounded-3xl border border-white/5"><p id="admin-name" class="text-gold font-black text-sm">System Master</p><small class="text-gray-800 text-[7px] uppercase font-black">Level 99 Oversight</small></div>
                 </div>
             </header>
 
-            <!-- TABS -->
-            <section id="tab-dashboard" class="tab-content space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="glass p-6 rounded-3xl border-b-2 border-gold/40 text-center"><p class="text-[7px] uppercase text-gray-700 font-black mb-1">Gross Assets</p><h3 id="stat-sales" class="text-2xl font-black text-gold">0</h3></div>
-                    <div class="glass p-6 rounded-3xl border-b-2 border-green-500/40 text-center"><p class="text-[7px] uppercase text-gray-700 font-black mb-1">Net ROI</p><h3 id="stat-profit" class="text-2xl font-black text-green-500">0</h3></div>
-                    <div class="glass p-6 rounded-3xl border-b-2 border-blue-500/40 text-center"><p class="text-[7px] uppercase text-gray-700 font-black mb-1">System Uptime</p><h3 class="text-2xl font-black text-blue-400">100%</h3></div>
-                    <div class="glass p-6 rounded-3xl border-b-2 border-purple-500/40 text-center"><p class="text-[7px] uppercase text-gray-700 font-black mb-1">AI Cohesion</p><h3 class="text-2xl font-black text-purple-500">99.9%</h3></div>
+            <!-- SECTIONS -->
+            <section id="tab-dashboard" class="tab-content space-y-10">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass p-8 rounded-[40px] border-b-4 border-gold/40"><p class="text-[8px] uppercase text-gray-700 font-black mb-2">Total Assets</p><h3 id="stat-sales" class="text-3xl font-black text-gold">0</h3></div>
+                    <div class="glass p-8 rounded-[40px] border-b-4 border-green-500/40"><p class="text-[8px] uppercase text-gray-700 font-black mb-2">Operational Health</p><h3 class="text-3xl font-black text-green-500">99.8%</h3></div>
                 </div>
-                <div class="glass p-12 rounded-[50px] border border-white/5 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl"></div>
-                    <h4 class="text-[10px] font-black mb-10 text-gold uppercase tracking-widest">Financial Performance Analysis</h4>
-                    <canvas id="forecastChart" height="80"></canvas>
-                </div>
+                <div class="glass p-16 rounded-[60px] border border-white/5"><canvas id="forecastChart" height="90"></canvas></div>
             </section>
 
-            <section id="tab-3d-city" class="tab-content hidden space-y-6">
-                <div class="flex justify-between items-center"><h3 class="text-3xl font-black text-gold gold-glow">3D Intelligence City</h3><p class="text-[8px] text-gray-800 uppercase font-black">Interactive Neural Mapping</p></div>
-                <div id="city-container" class="glass rounded-[50px] h-[500px] overflow-hidden"></div>
+            <section id="tab-3d-intelligence" class="tab-content hidden"><div id="city-container" class="glass rounded-[60px] h-[600px]"></div></section>
+
+            <section id="tab-inventory" class="tab-content hidden space-y-10">
+                <div class="flex justify-between items-center"><h3 class="text-4xl font-black text-gold gold-glow">Institutional Supply</h3><button onclick="openModal('prod-modal')" class="btn-gold px-12 py-4 rounded-2xl font-black text-[11px]">Provision Unit</button></div>
+                <div class="glass rounded-[50px] overflow-hidden"><table class="w-full text-right text-[12px]"><thead class="bg-white/5 text-gray-700 uppercase font-black text-[9px]"><tr><th class="p-8">Unit Model</th><th class="p-8">Category</th><th class="p-8">MSRP</th><th class="p-8">Stock</th><th class="p-8 text-center">Protocol</th></tr></thead><tbody id="inv-body"></tbody></table></div>
             </section>
 
-            <section id="tab-supply" class="tab-content hidden space-y-8">
-                <div class="flex justify-between items-center"><h3 class="text-3xl font-black text-gold gold-glow">Supply Chain Cluster</h3><button onclick="openModal('prod-modal')" class="btn-gold px-10 py-3 rounded-xl font-black text-[10px]">Provision Unit</button></div>
-                <div class="glass rounded-[40px] overflow-hidden"><table class="w-full text-right text-[11px]"><thead class="bg-white/5 text-gray-700 uppercase font-black text-[8px]"><tr><th class="p-6">Hardware Model</th><th class="p-6">Cluster</th><th class="p-6">MSRP</th><th class="p-6">Quantity</th><th class="p-6 text-center">Protocol</th></tr></thead><tbody id="inv-body"></tbody></table></div>
+            <section id="tab-blockchain" class="tab-content hidden space-y-10">
+                <h3 class="text-4xl font-black text-gold gold-glow">Immutable Audit Ledger</h3>
+                <div id="blockchain-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </section>
 
-            <section id="tab-blockchain" class="tab-content hidden space-y-8">
-                <h3 class="text-3xl font-black text-gold gold-glow">Immutable Audit Ledger</h3>
-                <div id="blockchain-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            </section>
-
-            <section id="tab-ai-studio" class="tab-content hidden space-y-8">
-                <div class="flex justify-between items-center"><h3 class="text-3xl font-black text-gold gold-glow">AI Image Studio</h3><button onclick="generateImage()" class="bg-gold text-dark px-10 py-3 rounded-xl font-black text-[10px]">Generate Asset</button></div>
-                <div id="ai-gallery" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+            <section id="tab-ai-marketing" class="tab-content hidden space-y-10">
+                <div class="flex justify-between items-center"><h3 class="text-4xl font-black text-gold gold-glow">AI Marketing Studio</h3><button onclick="runAIGen()" class="bg-gold text-dark px-12 py-4 rounded-2xl font-black text-[11px]">Generate Asset</button></div>
+                <div id="ai-gallery" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
             </section>
         </main>
     </div>
 
-    <!-- MODALS -->
-    <div id="modal-bg" class="fixed inset-0 z-[600] bg-black/98 backdrop-blur-3xl hidden flex items-center justify-center p-6"><div id="prod-modal" class="glass p-16 rounded-[60px] max-w-md w-full border border-gold/10 hidden"><h3 class="text-3xl font-black mb-10 text-gold gold-glow">Unit Sync</h3><form id="prod-form" class="space-y-4"><input type="hidden" id="p-id"><input type="text" id="p-name" placeholder="Hardware ID"><input type="text" id="p-cat" placeholder="Category Cluster"><div class="grid grid-cols-2 gap-4"><input type="number" id="p-price" placeholder="Price"><input type="number" id="p-stock" placeholder="Stock Qty"></div><button type="submit" class="btn-gold w-full py-5 rounded-2xl font-black mt-8 text-xs shadow-2xl">Sync to Repository</button><button type="button" onclick="closeModal()" class="w-full text-gray-800 text-[10px] uppercase font-black mt-4">Abort Process</button></form></div></div>
+    <!-- MODAL -->
+    <div id="modal-bg" class="fixed inset-0 z-[600] bg-black/99 backdrop-blur-3xl hidden flex items-center justify-center p-10"><div id="prod-modal" class="glass p-20 rounded-[80px] max-w-lg w-full border border-gold/10 hidden"><h3 class="text-4xl font-black mb-12 text-gold gold-glow">Unit Sync</h3><form id="prod-form" class="space-y-6"><input type="hidden" id="p-id"><input type="text" id="p-name" placeholder="Hardware ID"><input type="text" id="p-cat" placeholder="Category Cluster"><div class="grid grid-cols-2 gap-6"><input type="number" id="p-price" placeholder="Price (JOD)"><input type="number" id="p-stock" placeholder="Qty"></div><button type="submit" class="btn-gold w-full py-6 rounded-3xl font-black mt-10 text-sm shadow-3xl">Commit to Singularity</button><button type="button" onclick="closeModal()" class="w-full text-gray-800 text-[11px] uppercase font-black mt-6">Abort Process</button></form></div></div>
 
-    <script src="database.js"></script><script src="auth.js"></script><script src="ui.js"></script><script src="i18n.js"></script><script src="admin.js"></script>
+    <script src="database.js"></script><script src="auth.js"></script><script src="ui.js"></script><script src="i18n.js"></script><script src="ai_engine.js"></script><script src="security_core.js"></script><script src="automation.js"></script><script src="admin.js"></script>
     <script>
         const cur = document.querySelector('.cursor');
-        const fol = document.querySelector('.cursor-follower');
-        document.addEventListener('mousemove', e => { gsap.to(cur, { x: e.clientX, y: e.clientY, duration: 0.1 }); gsap.to(fol, { x: e.clientX - 15, y: e.clientY - 15, duration: 0.3 }); });
+        document.addEventListener('mousemove', e => { gsap.to(cur, { x: e.clientX, y: e.clientY, duration: 0.1 }); });
 
-        // V110.0 SUPREME ORCHESTRATION
-        function activateBio() {
+        function startAuth() {
             const line = document.getElementById('scan-line');
             line.classList.remove('hidden');
-            UI.showToast('Scanning Biometric Identity...');
-            setTimeout(() => { UI.showToast('Signature Verified. Engaging HQ...'); unlockAdmin(); }, 2000);
+            SecurityCore.verifyIdentity().then(() => {
+                SecurityCore.signAction('admin', 'SINGULARITY_AUTH_SUCCESS');
+                unlockAdmin();
+            });
+        }
+
+        function runAIGen() {
+            AIEngine.generateAsset('Institutional Hardware Showcase').then(asset => {
+                const gallery = document.getElementById('ai-gallery');
+                const div = document.createElement('div');
+                div.className = 'glass p-8 rounded-[40px] text-center hover:scale-105 transition-all';
+                div.innerHTML = `<img src="${asset.url}" class="rounded-3xl mb-6 shadow-2xl"><p class="text-[9px] font-black text-gold uppercase">${asset.prompt} #${asset.id}</p>`;
+                gallery.prepend(div);
+                SecurityCore.signAction('admin', 'AI_ASSET_GENERATION_' + asset.id);
+            });
         }
 
         function toggleVoice() {
             const btn = document.getElementById('voice-btn');
-            const pulse = document.getElementById('voice-pulse');
-            btn.classList.toggle('btn-active');
-            if(btn.classList.contains('btn-active')) {
-                pulse.style.opacity = '1';
-                UI.showToast('Voice OS Active. Listening for commands...');
-            } else {
-                pulse.style.opacity = '0';
+            btn.classList.toggle('voice-active');
+            if(btn.classList.contains('voice-active')) {
+                UI.showToast('Voice OS Active. Listening...');
+                // Simulation: In 3 seconds, parse a command
+                setTimeout(() => {
+                    const result = AIEngine.parseVoiceCommand('Show Inventory');
+                    if(result.action === 'TAB') switchTab(result.target);
+                    btn.classList.remove('voice-active');
+                }, 3000);
             }
         }
 
-        // 3D CITY LOGIC
-        function init3DCity() {
-            const container = document.getElementById('city-container');
-            if(!container || container.children.length > 0) return;
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            container.appendChild(renderer.domElement);
-            const geometry = new THREE.BoxGeometry();
-            for(let i=0; i<50; i++) {
-                const material = new THREE.MeshBasicMaterial({ color: 0xD4AF37, wireframe: true, transparent: true, opacity: 0.3 });
-                const cube = new THREE.Mesh(geometry, material);
-                cube.position.set((Math.random()-0.5)*20, 0, (Math.random()-0.5)*20);
-                cube.scale.set(1, Math.random()*8, 1);
-                scene.add(cube);
-            }
-            camera.position.set(0, 10, 20);
-            camera.lookAt(0, 0, 0);
-            function animate() { requestAnimationFrame(animate); scene.rotation.y += 0.002; renderer.render(scene, camera); }
-            animate();
-        }
-
-        function generateImage() {
-            UI.showToast('AI Neural Processing Started...');
-            setTimeout(() => {
-                const gallery = document.getElementById('ai-gallery');
-                const div = document.createElement('div');
-                div.className = 'glass p-6 rounded-3xl text-center card-omni';
-                div.innerHTML = `<img src="https://picsum.photos/400/300?random=${Math.random()}" class="rounded-2xl mb-4"><p class="text-[8px] font-black text-gold uppercase">Generated Asset #${Math.floor(Math.random()*1000)}</p>`;
-                gallery.prepend(div);
-                gsap.from(div, { opacity: 0, scale: 0.8, duration: 1 });
-            }, 2000);
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.remove('hidden');
+            if(id === '3d-intelligence') init3DCity();
+            if(id === 'blockchain') renderBlockchain();
+            renderAdmin();
         }
 
         function renderBlockchain() {
             const grid = document.getElementById('blockchain-grid');
-            const logs = DB.get('zolngen_blockchain') || [];
+            const logs = DB.get('zolngen_blockchain');
             grid.innerHTML = logs.map(l => `
-                <div class="glass p-6 rounded-2xl blockchain-card flex flex-col gap-2">
-                    <div class="flex justify-between text-[7px] font-black uppercase text-gold"><span>Block Signed</span><span>${new Date().toLocaleTimeString()}</span></div>
-                    <div class="text-[9px] font-mono break-all opacity-40">${l.hash}</div>
-                    <div class="text-[10px] font-black">${l.data}</div>
+                <div class="glass p-8 rounded-3xl border-l-4 border-gold/30 flex flex-col gap-4">
+                    <div class="flex justify-between text-[8px] font-black uppercase text-gold"><span>Block #${l.id}</span><span>${new Date(l.timestamp).toLocaleTimeString()}</span></div>
+                    <div class="text-[10px] font-mono break-all opacity-30">${l.hash}</div>
+                    <div class="text-[12px] font-black">${l.action}</div>
+                    <div class="text-[7px] text-gray-800 uppercase font-black">PREV: ${l.prevHash.substring(0, 16)}...</div>
                 </div>
             `).join('');
-        }
-
-        const oldShowTab = window.showTab;
-        window.showTab = function(id) {
-            if(id === '3d-city') setTimeout(init3DCity, 200);
-            if(id === 'blockchain') renderBlockchain();
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('tab-' + id).classList.remove('hidden');
-            event.currentTarget.classList.add('active');
-            renderAdmin();
-        }
-
-        // BILINGUAL ADAPTATION
-        if(I18n.lang === 'en') {
-            document.body.classList.remove('rtl'); document.body.classList.add('ltr');
-            document.querySelector('.sidebar').style.right = 'auto'; document.querySelector('.sidebar').style.left = '0';
-            document.querySelector('.main').style.marginRight = '0'; document.querySelector('.main').style.marginLeft = '280px';
         }
     </script>
 </body>
