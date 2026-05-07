@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Admin Pro | V99.0 Singularity</title>
+    <title>ZOLNGEN Admin | V99.0 THE SINGULARITY</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,144 +12,288 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        :root { --accent: #D4AF37; }
-        body { background: radial-gradient(circle at 50% 0%, #111 0%, #020202 100%); color: #fff; font-family: 'Tajawal', sans-serif; overflow-x: hidden; }
-        .glass { backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255,255,255,0.01); }
-        .sidebar { height: 100vh; width: 280px; position: fixed; right: 0; top: 0; }
-        .main-content { margin-right: 280px; padding: 2rem; }
-        #neural-bg { position: fixed; inset: 0; z-index: -1; opacity: 0.2; }
+        :root { --gold: #D4AF37; }
+        body { background: #020202; color: #fff; font-family: 'Tajawal', sans-serif; overflow-x: hidden; }
+        .glass { backdrop-filter: blur(50px); border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255,255,255,0.01); }
+        .sidebar { width: 300px; height: 100vh; position: fixed; right: 0; top: 0; z-index: 100; border-l: 1px solid rgba(255, 255, 255, 0.05); }
+        .main { margin-right: 300px; padding: 3rem; }
+        #neural-bg { position: fixed; inset: 0; z-index: -1; opacity: 0.15; }
+        .tab-btn.active { background: rgba(212, 175, 55, 0.1); color: var(--gold); border-right: 3px solid var(--gold); }
+        input, select, textarea { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; color: white; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--gold); }
     </style>
 </head>
 <body>
     <canvas id="neural-bg"></canvas>
 
-    <!-- Sidebar -->
-    <aside class="sidebar glass border-l border-white/5 p-8 space-y-12">
-        <h1 class="text-2xl font-black text-gold">ZOLNGEN <span class="block text-[10px] text-white/40 uppercase tracking-widest">Admin Command</span></h1>
-        <nav class="space-y-4">
-            <a href="admin.html" class="block p-4 bg-gold/10 text-gold rounded-2xl border border-gold/20"><i class="fas fa-chart-line ml-3"></i> لوحة القيادة</a>
-            <a href="products.html" class="block p-4 hover:bg-white/5 rounded-2xl transition-all"><i class="fas fa-boxes ml-3"></i> المخزون</a>
-            <a href="maintenance.html" class="block p-4 hover:bg-white/5 rounded-2xl transition-all"><i class="fas fa-tools ml-3"></i> الصيانة</a>
-            <a href="index.html" class="block p-4 hover:bg-red-500/10 text-red-500 rounded-2xl transition-all mt-20"><i class="fas fa-power-off ml-3"></i> خروج</a>
-        </nav>
+    <aside class="sidebar glass p-8 flex flex-col justify-between">
+        <div class="space-y-12">
+            <h1 class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN <span class="text-[10px] block text-white/40">ADMIN COMMAND</span></h1>
+            <nav class="space-y-2">
+                <button onclick="showTab('overview')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4 active"><i class="fas fa-chart-pie w-6"></i> نظرة عامة</button>
+                <button onclick="showTab('inventory')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4"><i class="fas fa-boxes w-6"></i> إدارة المخزون</button>
+                <button onclick="showTab('orders')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4"><i class="fas fa-shopping-cart w-6"></i> طلبات التوريد</button>
+                <button onclick="showTab('support')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4"><i class="fas fa-headset w-6"></i> الدعم الفني</button>
+                <button onclick="showTab('audit')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4"><i class="fas fa-shield-halved w-6"></i> سجل التدقيق</button>
+            </nav>
+        </div>
+        <a href="index.html" class="p-4 bg-red-500/10 text-red-500 rounded-xl text-center font-bold border border-red-500/20">خروج</a>
     </aside>
 
-    <main class="main-content">
-        <header class="flex justify-between items-center mb-12">
-            <div>
-                <h2 class="text-4xl font-black">Dashboard <span class="text-gold font-light">V99.0</span></h2>
-                <p class="text-gray-500">Live Institutional Analytics & Intelligence</p>
+    <main class="main">
+        <!-- OVERVIEW TAB -->
+        <section id="tab-overview" class="tab-content space-y-12">
+            <div class="flex justify-between items-end">
+                <div>
+                    <h2 class="text-5xl font-black mb-2">Command Center</h2>
+                    <p class="text-gray-500">Live Institutional Health Matrix</p>
+                </div>
+                <div class="glass px-6 py-2 rounded-full border border-gold/30 text-gold text-xs animate-pulse">V99.0 SYSTEM ACTIVE</div>
             </div>
-            <div class="flex gap-4 items-center">
-                <div class="glass px-6 py-2 rounded-full border border-gold/30 text-gold text-xs animate-pulse">SYSTEM ONLINE</div>
-                <img src="https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=000" class="w-10 rounded-full border border-gold">
-            </div>
-        </header>
 
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-            <div class="glass p-8 rounded-[32px] border border-white/5">
-                <p class="text-gray-500 text-[10px] uppercase tracking-widest mb-2">Total Revenue</p>
-                <h3 id="stat-sales" class="text-3xl font-black text-gold">0 JOD</h3>
-            </div>
-            <div class="glass p-8 rounded-[32px] border border-white/5">
-                <p class="text-gray-500 text-[10px] uppercase tracking-widest mb-2">Active Orders</p>
-                <h3 id="stat-active" class="text-3xl font-black">0</h3>
-            </div>
-            <div class="glass p-8 rounded-[32px] border border-white/5">
-                <p class="text-gray-500 text-[10px] uppercase tracking-widest mb-2">Inventory Value</p>
-                <h3 id="stat-inv" class="text-3xl font-black text-blue-400">0 JOD</h3>
-            </div>
-            <div class="glass p-8 rounded-[32px] border border-white/5">
-                <p class="text-gray-500 text-[10px] uppercase tracking-widest mb-2">SLA Tickets</p>
-                <h3 id="stat-tickets" class="text-3xl font-black text-red-500">0</h3>
-            </div>
-        </div>
-
-        <div class="grid lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div class="glass p-10 rounded-[40px] border border-white/5">
-                    <h4 class="text-xl font-bold mb-8 flex justify-between">
-                        Quantum Financial Forecast
-                        <span class="text-xs text-gold">AI Projected 2026</span>
-                    </h4>
-                    <canvas id="forecastChart" height="150"></canvas>
+                    <p class="text-gray-500 text-xs uppercase mb-2">Revenue</p>
+                    <h3 id="stat-sales" class="text-4xl font-black text-gold">0</h3>
                 </div>
-                
                 <div class="glass p-10 rounded-[40px] border border-white/5">
-                    <h4 class="text-xl font-bold mb-6">Recent Enterprise Activity</h4>
-                    <div id="orders-list" class="space-y-4">
-                        <!-- Dynamic orders -->
-                    </div>
+                    <p class="text-gray-500 text-xs uppercase mb-2">Profit</p>
+                    <h3 id="stat-profit" class="text-4xl font-black text-green-500">0</h3>
+                </div>
+                <div class="glass p-10 rounded-[40px] border border-white/5">
+                    <p class="text-gray-500 text-xs uppercase mb-2">Inventory Val</p>
+                    <h3 id="stat-inv" class="text-4xl font-black text-blue-400">0</h3>
+                </div>
+                <div class="glass p-10 rounded-[40px] border border-white/5">
+                    <p class="text-gray-500 text-xs uppercase mb-2">Active Tickets</p>
+                    <h3 id="stat-tck" class="text-4xl font-black text-red-500">0</h3>
                 </div>
             </div>
 
-            <div class="space-y-8">
-                <div class="glass p-8 rounded-[32px] border border-gold/20">
-                    <h4 class="text-gold font-bold mb-6 flex justify-between items-center">
-                        Live Activity Stream
-                        <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
-                    </h4>
-                    <div id="audit-log" class="space-y-4 text-xs text-gray-500 max-h-[500px] overflow-y-auto">
-                        <!-- Logs -->
-                    </div>
+            <div class="grid lg:grid-cols-2 gap-12">
+                <div class="glass p-12 rounded-[48px]">
+                    <h4 class="text-xl font-bold mb-8">Financial Projections</h4>
+                    <canvas id="forecastChart" height="200"></canvas>
+                </div>
+                <div class="glass p-12 rounded-[48px]">
+                    <h4 class="text-xl font-bold mb-8">Recent Enterprise Stream</h4>
+                    <div id="overview-audit" class="space-y-4"></div>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <!-- INVENTORY TAB -->
+        <section id="tab-inventory" class="tab-content hidden space-y-12">
+            <div class="flex justify-between items-center">
+                <h2 class="text-5xl font-black">إدارة المخزون</h2>
+                <button onclick="openProductModal()" class="bg-gold text-dark font-black px-8 py-4 rounded-2xl hover:scale-105 transition-all">إضافة منتج جديد</button>
+            </div>
+            <div class="glass rounded-[40px] overflow-hidden">
+                <table class="w-full text-right">
+                    <thead class="bg-white/5 text-gray-400 text-xs">
+                        <tr>
+                            <th class="p-6">المنتج</th>
+                            <th class="p-6">الفئة</th>
+                            <th class="p-6">السعر</th>
+                            <th class="p-6">المخزون</th>
+                            <th class="p-6">إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ORDERS TAB -->
+        <section id="tab-orders" class="tab-content hidden space-y-12">
+            <h2 class="text-5xl font-black">طلبات التوريد</h2>
+            <div id="orders-container" class="space-y-6"></div>
+        </section>
+
+        <!-- SUPPORT TAB -->
+        <section id="tab-support" class="tab-content hidden space-y-12">
+            <h2 class="text-5xl font-black">تذاكر الدعم (SLA)</h2>
+            <div id="tickets-container" class="grid md:grid-cols-2 gap-8"></div>
+        </section>
+
+        <!-- AUDIT TAB -->
+        <section id="tab-audit" class="tab-content hidden space-y-12">
+            <h2 class="text-5xl font-black">سجل الأمان والتدقيق</h2>
+            <div class="glass p-10 rounded-[40px] space-y-4" id="audit-full-log"></div>
+        </section>
     </main>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl hidden flex items-center justify-center p-6">
+        <div class="glass p-12 rounded-[48px] max-w-2xl w-full border border-gold/30">
+            <h3 class="text-3xl font-black mb-8" id="modal-title">إضافة منتج</h3>
+            <form id="prod-form" class="space-y-6">
+                <input type="hidden" id="prod-id">
+                <div class="grid grid-cols-2 gap-6">
+                    <input type="text" id="prod-name" placeholder="اسم المنتج" required class="w-full">
+                    <input type="text" id="prod-cat" placeholder="الفئة" required class="w-full">
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <input type="number" id="prod-price" placeholder="سعر البيع" required class="w-full">
+                    <input type="number" id="prod-cost" placeholder="التكلفة" required class="w-full">
+                </div>
+                <input type="number" id="prod-stock" placeholder="الكمية المتوفرة" required class="w-full">
+                <div class="flex gap-4 pt-6">
+                    <button type="submit" class="flex-1 bg-gold text-dark font-black py-4 rounded-xl">حفظ التغييرات</button>
+                    <button type="button" onclick="closeProductModal()" class="flex-1 border border-white/10 py-4 rounded-xl">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="database.js"></script>
     <script>
-        function renderAdmin() {
-            const stats = DB.getProStats();
-            document.getElementById('stat-sales').innerText = stats.totalSales.toLocaleString() + ' JOD';
-            document.getElementById('stat-active').innerText = stats.activeOrders;
-            document.getElementById('stat-inv').innerText = stats.inventoryValue.toLocaleString() + ' JOD';
-            document.getElementById('stat-tickets').innerText = stats.openTickets;
-
-            const ordersBox = document.getElementById('orders-list');
-            ordersBox.innerHTML = DB.getOrders().slice(0, 5).map(o => `
-                <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
-                    <div>
-                        <p class="font-bold text-sm">${o.entity || 'Individual'}</p>
-                        <small class="text-gray-500 text-[10px]">${o.id} - ${o.date}</small>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-gold font-black">${o.total} JOD</p>
-                        <span class="text-[8px] uppercase tracking-widest bg-gold/10 text-gold px-2 py-1 rounded-full">${o.status}</span>
-                    </div>
-                </div>
-            `).join('');
-
-            const audit = document.getElementById('audit-log');
-            audit.innerHTML = DB.getAuditLog().map(l => `
-                <div class="border-l-2 border-gold/30 pl-3 py-2">
-                    <p class="text-white text-[10px]">${l.action}</p>
-                    <small class="text-gray-600">${l.date}</small>
-                </div>
-            `).join('');
-
-            renderForecast();
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
+            renderData();
         }
 
-        function renderForecast() {
+        function renderData() {
+            const stats = DB.getProStats();
+            document.getElementById('stat-sales').innerText = stats.totalSales.toLocaleString() + ' JOD';
+            document.getElementById('stat-profit').innerText = stats.totalProfit.toLocaleString() + ' JOD';
+            document.getElementById('stat-inv').innerText = stats.inventoryValue.toLocaleString() + ' JOD';
+            document.getElementById('stat-tck').innerText = stats.openTickets;
+
+            // Overview Stream
+            const audit = document.getElementById('overview-audit');
+            audit.innerHTML = DB.getAuditLog().slice(0, 10).map(l => `
+                <div class="flex justify-between items-center border-l border-gold/30 pl-4 py-2">
+                    <span class="text-xs text-gray-500">${l.action}</span>
+                    <span class="text-[8px] text-gray-700">${l.date}</span>
+                </div>
+            `).join('');
+
+            // Inventory
+            const invTable = document.getElementById('inventory-table-body');
+            invTable.innerHTML = DB.getProducts().map(p => `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <td class="p-6 font-bold">${p.name}</td>
+                    <td class="p-6 text-gray-500 text-xs">${p.category}</td>
+                    <td class="p-6 text-gold font-black">${p.price} JOD</td>
+                    <td class="p-6 ${p.stock < 10 ? 'text-red-500 font-black' : ''}">${p.stock}</td>
+                    <td class="p-6 flex gap-4">
+                        <button onclick="editProduct('${p.id}')" class="text-blue-400 hover:scale-110 transition-all">📝</button>
+                        <button onclick="deleteProduct('${p.id}')" class="text-red-500 hover:scale-110 transition-all">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Orders
+            const ordCont = document.getElementById('orders-container');
+            ordCont.innerHTML = DB.getOrders().map(o => `
+                <div class="glass p-8 rounded-[32px] flex justify-between items-center border border-white/5">
+                    <div>
+                        <h5 class="text-xl font-bold">${o.entity || 'Individual Client'}</h5>
+                        <p class="text-gray-500 text-xs">${o.id} - ${o.date}</p>
+                    </div>
+                    <div class="text-left flex items-center gap-8">
+                        <div>
+                            <p class="text-gold font-black text-xl">${o.total} JOD</p>
+                            <p class="text-green-500 text-[10px]">Profit: ${o.profit} JOD</p>
+                        </div>
+                        <select onchange="DB.updateOrderStatus('${o.id}', this.value); renderData();" class="text-xs bg-gold/10 text-gold border-gold/20">
+                            <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="processing" ${o.status === 'processing' ? 'selected' : ''}>Processing</option>
+                            <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                        </select>
+                    </div>
+                </div>
+            `).join('');
+
+            // Tickets
+            const tckCont = document.getElementById('tickets-container');
+            tckCont.innerHTML = DB.getTickets().map(t => `
+                <div class="glass p-8 rounded-[32px] border border-white/5 ${t.urgency === 'High' ? 'border-red-500/20' : ''}">
+                    <div class="flex justify-between mb-4">
+                        <span class="text-[10px] uppercase font-black text-gold">${t.id}</span>
+                        <span class="text-[10px] uppercase font-black ${t.status === 'open' ? 'text-red-500' : 'text-green-500'}">${t.status}</span>
+                    </div>
+                    <h5 class="text-lg font-bold">${t.entity} - ${t.type}</h5>
+                    <p class="text-gray-500 text-sm mt-4 italic">"${t.issue}"</p>
+                    <div class="mt-8 flex justify-between items-center">
+                        <span class="px-3 py-1 rounded-full text-[8px] bg-white/5 font-bold uppercase">${t.urgency} URGENCY</span>
+                        ${t.status === 'open' ? `<button onclick="DB.resolveTicket('${t.id}'); renderData();" class="bg-green-500 text-white text-[10px] px-4 py-2 rounded-lg font-black">MARK RESOLVED</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            // Audit
+            const auditFull = document.getElementById('audit-full-log');
+            auditFull.innerHTML = DB.getAuditLog().map(l => `
+                <div class="p-4 border-b border-white/5 flex justify-between items-center hover:bg-white/5">
+                    <span class="text-sm font-light">${l.action}</span>
+                    <span class="text-[10px] text-gray-600">${l.date}</span>
+                </div>
+            `).join('');
+
+            renderForecastChart();
+        }
+
+        // Product Logic
+        function openProductModal(id = null) {
+            const modal = document.getElementById('product-modal');
+            modal.classList.remove('hidden');
+            if(id) {
+                const p = DB.getProducts().find(x => x.id === id);
+                document.getElementById('modal-title').innerText = 'تعديل المنتج';
+                document.getElementById('prod-id').value = p.id;
+                document.getElementById('prod-name').value = p.name;
+                document.getElementById('prod-cat').value = p.category;
+                document.getElementById('prod-price').value = p.price;
+                document.getElementById('prod-cost').value = p.cost;
+                document.getElementById('prod-stock').value = p.stock;
+            } else {
+                document.getElementById('prod-form').reset();
+                document.getElementById('prod-id').value = '';
+                document.getElementById('modal-title').innerText = 'إضافة منتج جديد';
+            }
+        }
+        function closeProductModal() { document.getElementById('product-modal').classList.add('hidden'); }
+        document.getElementById('prod-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('prod-id').value;
+            const data = {
+                name: document.getElementById('prod-name').value,
+                category: document.getElementById('prod-cat').value,
+                price: parseFloat(document.getElementById('prod-price').value),
+                cost: parseFloat(document.getElementById('prod-cost').value),
+                stock: parseInt(document.getElementById('prod-stock').value)
+            };
+            if(id) DB.saveProduct({id, ...data});
+            else DB.saveProduct(data);
+            closeProductModal();
+            renderData();
+        });
+        function deleteProduct(id) { if(confirm('متأكد من حذف المنتج؟')) { DB.deleteProduct(id); renderData(); } }
+
+        // Chart
+        function renderForecastChart() {
             const ctx = document.getElementById('forecastChart');
             const stats = DB.getProStats();
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Q1', 'Q2', 'Q3', 'Q4 (Projected)'],
+                    labels: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct (Projected)'],
                     datasets: [{
-                        label: 'Revenue Trend',
-                        data: [stats.totalSales*0.6, stats.totalSales*0.8, stats.totalSales, stats.totalSales*1.3],
+                        label: 'Projected Revenue',
+                        data: [stats.totalSales * 0.7, stats.totalSales * 0.9, stats.totalSales, stats.totalSales * 1.1, stats.totalSales * 1.5],
                         borderColor: '#D4AF37',
-                        borderWidth: 3,
+                        borderWidth: 4,
                         tension: 0.4,
                         fill: true,
                         backgroundColor: 'rgba(212, 175, 55, 0.05)'
                     }]
                 },
-                options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { display: false } } }
             });
         }
 
@@ -161,7 +305,7 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             dots = [];
-            for(let i=0; i<50; i++) dots.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3 });
+            for(let i=0; i<60; i++) dots.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3 });
         }
         function drawNeural() {
             ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -176,7 +320,8 @@
             requestAnimationFrame(drawNeural);
         }
 
-        window.onload = () => { initNeural(); drawNeural(); renderAdmin(); };
+        window.onload = () => { initNeural(); drawNeural(); renderData(); };
+        window.onresize = initNeural;
     </script>
 </body>
 </html>

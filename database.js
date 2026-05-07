@@ -173,13 +173,15 @@ const DB = {
     getProStats: function() {
         const prods = this.getProducts();
         const orders = this.getOrders();
+        const tickets = this.getTickets();
         return {
             totalSales: orders.reduce((acc, o) => acc + o.total, 0),
             totalProfit: orders.reduce((acc, o) => acc + (o.profit || 0), 0),
-            activeOrders: orders.filter(o => o.status !== 'delivered').length,
+            activeOrders: orders.filter(o => o.status === 'pending').length,
             lowStock: prods.filter(p => p.stock < 10).length,
             inventoryValue: prods.reduce((acc, p) => acc + (p.price * p.stock), 0),
-            openTickets: this.getTickets().filter(t => t.status === 'open').length
+            openTickets: tickets.filter(t => t.status === 'open').length,
+            totalTickets: tickets.length
         };
     },
 
