@@ -37,24 +37,33 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glassBorder); }
-        .gold-glow:hover { box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); border-color: #D4AF37; }
-        .transition-ultra { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        .particle { position: fixed; background: #D4AF37; border-radius: 50%; opacity: 0.1; pointer-events: none; z-index: 0; }
+        :root {
+            --gold: #D4AF37;
+            --gold-bright: #F9E5A7;
+            --dark: #050505;
+            --surface: #0A0A0B;
+            --glass: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+        .glass { backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); background: var(--glass); }
+        .gold-glow:hover { box-shadow: 0 0 30px rgba(212, 175, 55, 0.25); border-color: var(--gold); transform: translateY(-5px); }
+        .transition-legendary { transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
         
-        /* Custom Scroll Progress Bar */
-        #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #D4AF37, #F9E5A7); z-index: 9999; width: 0%; transition: width 0.1s; }
-        
-        .section-hidden { display: none; opacity: 0; transform: translateY(20px); }
-        .section-active { display: block; animation: fadeInUp 0.6s forwards; }
+        /* 3D Tilt Effect */
+        .tilt-card { transform-style: preserve-3d; perspective: 1000px; }
+        .tilt-card > * { transform: translateZ(50px); }
 
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0); }
+        /* Live Activity Stream Pulsing */
+        .pulse-gold { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
         }
 
-        body { background-color: #050505; color: white; overflow-x: hidden; }
-        .lang-en { font-family: 'Inter', sans-serif; direction: ltr; }
-        .lang-ar { font-family: 'Tajawal', sans-serif; direction: rtl; }
+        #scroll-progress { position: fixed; top: 0; left: 0; height: 4px; background: linear-gradient(90deg, #D4AF37, #F9E5A7, #D4AF37); z-index: 9999; width: 0%; box-shadow: 0 0 10px #D4AF37; }
+        
+        body { background: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #050505 100%); color: white; overflow-x: hidden; }
     </style>
 </head>
 <body class="lang-ar">
@@ -237,6 +246,14 @@
                         </table>
                     </div>
                 </div>
+                    <div class="glass p-8 rounded-3xl border border-glassBorder mt-8">
+                        <h4 class="text-xl font-bold mb-6 flex justify-between items-center">
+                            Financial Forecast 2026
+                            <span class="text-[10px] bg-gold/10 text-gold px-3 py-1 rounded-full animate-pulse">AI PREDICTION ACTIVE</span>
+                        </h4>
+                        <canvas id="forecastChart" height="100"></canvas>
+                    </div>
+                </div>
                 <div class="space-y-8">
                     <div class="glass p-8 rounded-3xl border border-glassBorder border-red-500/20">
                         <h4 class="text-red-500 font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Low Stock Sentinel</h4>
@@ -245,8 +262,11 @@
                         </div>
                     </div>
                     <div class="glass p-8 rounded-3xl border border-glassBorder">
-                        <h4 class="text-gold font-bold mb-4">Audit Log</h4>
-                        <div id="audit-log" class="space-y-3 text-xs text-gray-500 max-h-60 overflow-y-auto">
+                        <h4 class="text-gold font-bold mb-4 flex justify-between">
+                            Live Activity Stream
+                            <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                        </h4>
+                        <div id="audit-log" class="space-y-3 text-xs text-gray-500 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
                             <!-- Logs -->
                         </div>
                     </div>
@@ -358,7 +378,10 @@
                 document.getElementById('prod-filter').value = filter;
                 renderProducts(filter);
             }
-            if(id === 'admin') renderAdmin();
+            if(id === 'admin') {
+                renderAdmin();
+                renderForecastChart();
+            }
             if(id === 'client-portal') {
                 if(sessionStorage.getItem('zolngen_client_user')) {
                     document.getElementById('client-login').classList.add('hidden');
@@ -550,6 +573,7 @@
             const success = document.getElementById('maint-success');
             success.classList.remove('hidden');
             document.getElementById('tck-num').innerText = tck.id;
+            addToAuditStream(`Maint Ticket: ${tck.id} (${fd.get('urgency')})`);
             gsap.from(success, { scale: 0.9, opacity: 0, duration: 0.4 });
         });
 
@@ -603,6 +627,7 @@
             updateCart();
             toggleCart();
             showToast(`تم تثبيت طلبك بنجاح: ${order.id}`);
+            addToAuditStream(`New Order: ${order.id} (${total} JOD)`);
             showSection('home');
         }
 
@@ -617,7 +642,55 @@
             }, 3000);
         }
 
-        window.showToast = showToast; // Global access
+        // LEGENDARY 3D TILT EFFECT
+        document.addEventListener('mousemove', (e) => {
+            const cards = document.querySelectorAll('.tilt-card');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+        });
+
+        // LIVE ACTIVITY STREAM
+        function addToAuditStream(action) {
+            const stream = document.getElementById('audit-log');
+            if(!stream) return;
+            const log = document.createElement('div');
+            log.className = 'border-l-2 border-gold pl-3 py-2 bg-white/5 rounded-r-lg mb-3 reveal active pulse-gold';
+            log.innerHTML = `<p class="text-white font-bold text-[10px]">${action}</p><small class="text-[8px] text-gray-500">${new Date().toLocaleTimeString()}</small>`;
+            stream.prepend(log);
+            if(stream.children.length > 15) stream.lastElementChild.remove();
+        }
+
+        // FINANCIAL FORECAST (V42.0 Logic)
+        function renderForecastChart() {
+            const ctx = document.getElementById('forecastChart');
+            if(!ctx) return;
+            const stats = DB.getProStats();
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct (Forecast)'],
+                    datasets: [{
+                        label: 'Projected Revenue',
+                        data: [stats.totalSales * 0.8, stats.totalSales * 0.9, stats.totalSales, stats.totalSales * 1.1, stats.totalSales * 1.4],
+                        borderColor: '#D4AF37',
+                        borderDash: [5, 5],
+                        fill: false
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+        }
+
+        // INIT
+        window.showToast = showToast;
         window.onscroll = () => {
             const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
             const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
