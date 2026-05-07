@@ -1,0 +1,15 @@
+/* ADMIN PAGE SPECIFIC STYLES - V100.4 */
+.sidebar { width: 300px; height: 100vh; position: fixed; right: 0; top: 0; z-index: 100; border-left: 1px solid rgba(255, 255, 255, 0.05); transition: 0.4s; }
+.main { margin-right: 300px; padding: 3rem; transition: 0.4s; }
+.tab-btn.active { background: rgba(212, 175, 55, 0.1); color: var(--gold); border-right: 3px solid var(--gold); }
+.chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 18px; margin-bottom: 8px; font-size: 13px; }
+.sent { background: var(--gold); color: #000; align-self: flex-start; }
+.received { background: rgba(255,255,255,0.05); color: #fff; align-self: flex-end; }
+
+@media (max-width: 1024px) {
+    .sidebar { transform: translateX(100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-right: 0; padding: 1.5rem; }
+}
+
+#admin-lock-screen { position: fixed; inset: 0; background: #050505; z-index: 5000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(50px); }

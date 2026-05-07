@@ -6,31 +6,15 @@
     <title>ZOLNGEN Admin | V100.4 MASTER</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="admin.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .sidebar { width: 300px; height: 100vh; position: fixed; right: 0; top: 0; z-index: 100; border-left: 1px solid rgba(255, 255, 255, 0.05); transition: 0.4s; }
-        .main { margin-right: 300px; padding: 3rem; transition: 0.4s; }
-        .tab-btn.active { background: rgba(212, 175, 55, 0.1); color: var(--gold); border-right: 3px solid var(--gold); }
-        .chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 18px; margin-bottom: 8px; font-size: 13px; }
-        .sent { background: var(--gold); color: #000; align-self: flex-start; }
-        .received { background: rgba(255,255,255,0.05); color: #fff; align-self: flex-end; }
-        
-        @media (max-width: 1024px) {
-            .sidebar { transform: translateX(100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main { margin-right: 0; padding: 1.5rem; }
-        }
-
-        #admin-lock-screen { position: fixed; inset: 0; background: #050505; z-index: 5000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(50px); }
-    </style>
 </head>
 <body>
     <canvas id="neural-bg"></canvas>
 
-    <!-- ADMIN LOCK SCREEN (If not logged in) -->
     <div id="admin-lock-screen" class="hidden">
         <div class="glass p-12 rounded-[48px] max-w-sm w-full border border-gold/30 text-center animate-in">
             <div class="w-20 h-20 bg-gold text-dark rounded-3xl flex items-center justify-center text-3xl mx-auto mb-8"><i class="fas fa-lock"></i></div>
@@ -43,7 +27,6 @@
         </div>
     </div>
 
-    <!-- MAIN ADMIN CONTENT -->
     <div id="admin-content" class="hidden">
         <button onclick="toggleSidebar()" class="lg:hidden fixed top-6 right-6 z-[200] bg-gold text-dark w-12 h-12 rounded-xl shadow-2xl"><i class="fas fa-bars"></i></button>
 
@@ -73,7 +56,6 @@
                 </div>
             </header>
 
-            <!-- TABS -->
             <section id="tab-overview" class="tab-content space-y-12">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div class="glass p-8 rounded-3xl border-b-4 border-gold/30">
@@ -172,146 +154,6 @@
     <script src="database.js"></script>
     <script src="auth.js"></script>
     <script src="ui.js"></script>
-    <script>
-        function checkInit() {
-            if (Auth.checkAccess('ADMIN')) {
-                document.getElementById('admin-content').classList.remove('hidden');
-                document.getElementById('admin-lock-screen').classList.add('hidden');
-                render();
-                document.getElementById('admin-name').innerText = Auth.getSession().name;
-            } else {
-                document.getElementById('admin-content').classList.add('hidden');
-                document.getElementById('admin-lock-screen').classList.remove('hidden');
-            }
-        }
-
-        function unlockAdmin() {
-            const u = document.getElementById('lock-user').value;
-            const p = document.getElementById('lock-pass').value;
-            if(Auth.login(u, p) && Auth.getSession().role === 'ADMIN') {
-                UI.showToast('مرحباً بك في مركز القيادة');
-                checkInit();
-            } else {
-                UI.showToast('بيانات غير صحيحة');
-            }
-        }
-
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-        function showTab(id) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('tab-' + id).classList.remove('hidden');
-            event.currentTarget.classList.add('active');
-            if(id === 'chat') populateChatSelect();
-            if(window.innerWidth < 1024) toggleSidebar();
-            render();
-        }
-
-        function render() {
-            const stats = DB.getProStats();
-            document.getElementById('stat-sales').innerText = stats.totalSales.toLocaleString() + ' JOD';
-            document.getElementById('stat-profit').innerText = stats.totalProfit.toLocaleString() + ' JOD';
-            document.getElementById('stat-inv').innerText = stats.inventoryValue.toLocaleString() + ' JOD';
-            document.getElementById('stat-tck').innerText = stats.openTickets;
-
-            const invBody = document.getElementById('inv-body');
-            invBody.innerHTML = DB.getProducts().map(p => `
-                <tr class="border-b border-white/5">
-                    <td class="p-6 font-bold text-sm">${p.name}</td>
-                    <td class="p-6 text-gray-500 text-xs">${p.category}</td>
-                    <td class="p-6 text-gold font-black">${p.price} JOD</td>
-                    <td class="p-6">${p.stock}</td>
-                    <td class="p-6 flex gap-3">
-                        <button onclick="editP('${p.id}')">📝</button>
-                        <button onclick="DB.deleteProduct('${p.id}'); render();" class="text-red-500">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-
-            const accGrid = document.getElementById('acc-grid');
-            accGrid.innerHTML = DB.getAccounts().map(a => `
-                <div class="glass p-8 rounded-[32px] border border-white/5 relative overflow-hidden group">
-                    <div class="absolute top-0 left-0 w-1 h-full ${a.role === 'ADMIN' ? 'bg-gold' : 'bg-blue-500'}"></div>
-                    <h5 class="text-lg font-bold">${a.name}</h5>
-                    <p class="text-[10px] text-gray-500 mt-1 uppercase">${a.role} • ${a.user}</p>
-                    <button onclick="DB.deleteAccount('${a.user}'); render();" class="mt-6 text-red-500 text-[10px] opacity-0 group-hover:opacity-100 transition-all">حذف</button>
-                </div>
-            `).join('');
-
-            renderChart();
-        }
-
-        function renderChart() {
-            const ctx = document.getElementById('forecastChart');
-            const stats = DB.getProStats();
-            if(window.myChart) window.myChart.destroy();
-            window.myChart = new Chart(ctx, {
-                type: 'line',
-                data: { labels: ['Q1', 'Q2', 'Q3', 'Q4'], datasets: [{ data: [stats.totalSales*0.6, stats.totalSales*0.9, stats.totalSales, stats.totalSales*1.4], borderColor: '#D4AF37', tension: 0.4, fill: true, backgroundColor: 'rgba(212, 175, 55, 0.05)' }] },
-                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
-            });
-        }
-
-        function populateChatSelect() {
-            const sel = document.getElementById('chat-select');
-            const entities = [...new Set(DB.getOrders().map(o => o.entity))];
-            sel.innerHTML = entities.map(e => `<option value="${e}">${e}</option>`).join('') || '<option>لا توجد رسائل</option>';
-            loadChat();
-        }
-
-        function loadChat() {
-            const ent = document.getElementById('chat-select').value;
-            const box = document.getElementById('chat-box');
-            if(!ent) return;
-            const msgs = DB.getMessages(ent);
-            box.innerHTML = msgs.map(m => `
-                <div class="chat-bubble ${m.sender === 'ADMIN' ? 'sent' : 'received'}">
-                    <p class="font-bold text-[9px] mb-1 opacity-40">${m.sender}</p>
-                    <p>${m.text}</p>
-                    <small class="text-[7px] block mt-1 opacity-30">${m.date}</small>
-                </div>
-            `).join('');
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function sendChat() {
-            const input = document.getElementById('chat-input');
-            const ent = document.getElementById('chat-select').value;
-            if(!input.value || !ent) return;
-            DB.sendMessage({ sender: 'ADMIN', receiver: ent, text: input.value, entity: ent });
-            input.value = ''; loadChat();
-        }
-
-        function openProdModal() { document.getElementById('modal-bg').classList.remove('hidden'); document.getElementById('prod-modal').classList.remove('hidden'); }
-        function openAccModal() { document.getElementById('modal-bg').classList.remove('hidden'); document.getElementById('acc-modal').classList.remove('hidden'); }
-        function closeModals() { document.getElementById('modal-bg').classList.add('hidden'); document.getElementById('prod-modal').classList.add('hidden'); document.getElementById('acc-modal').classList.add('hidden'); }
-        
-        document.getElementById('prod-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const data = { name: document.getElementById('p-name').value, category: document.getElementById('p-cat').value, price: parseFloat(document.getElementById('p-price').value), stock: parseInt(document.getElementById('p-stock').value), img: 'hp.png' };
-            const id = document.getElementById('p-id').value;
-            if(id) DB.saveProduct({id, ...data}); else DB.saveProduct(data);
-            UI.showToast('تم التحديث'); closeModals(); render();
-        });
-
-        document.getElementById('acc-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const data = { user: document.getElementById('a-user').value, name: document.getElementById('a-name').value, pass: document.getElementById('a-pass').value, role: document.getElementById('a-role').value };
-            DB.saveAccount(data);
-            UI.showToast('تم إنشاء الحساب'); closeModals(); render();
-        });
-
-        function editP(id) {
-            const p = DB.getProducts().find(x => x.id === id);
-            document.getElementById('p-id').value = p.id;
-            document.getElementById('p-name').value = p.name;
-            document.getElementById('p-cat').value = p.category;
-            document.getElementById('p-price').value = p.price;
-            document.getElementById('p-stock').value = p.stock;
-            openProdModal();
-        }
-
-        window.onload = () => { UI.initNeural(); checkInit(); };
-    </script>
+    <script src="admin.js"></script>
 </body>
 </html>
