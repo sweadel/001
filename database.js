@@ -1,4 +1,4 @@
-/* ZOLNGEN DATABASE ENGINE V100.5 - ENTERPRISE CORE */
+/* ZOLNGEN DATABASE ENGINE V100.6 - THE ROBUST CORE */
 const DB = {
     get: (key) => JSON.parse(localStorage.getItem(key)) || [],
     set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
@@ -41,16 +41,23 @@ const DB = {
 
     getAccounts: function() { 
         let accs = this.get('zolngen_accounts');
-        return accs.length ? accs : [
-            {user:'admin', pass:'admin123', role:'ADMIN', name:'المدير العام', email:'ceo@zolngen.com'},
-            {user:'staff1', pass:'staff123', role:'STAFF', name:'أحمد مبيعات', email:'sales@zolngen.com'}
-        ];
+        // AGGRESSIVE SEEDING: Ensure admin always exists
+        if (!accs.find(a => a.user === 'admin')) {
+            accs.push({user:'admin', pass:'admin123', role:'ADMIN', name:'المدير العام', email:'ceo@zolngen.com'});
+            this.set('zolngen_accounts', accs);
+        }
+        return accs;
     },
 
     saveAccount: function(acc) {
         let accs = this.getAccounts();
         const idx = accs.findIndex(a => a.user === acc.user);
         if(idx > -1) accs[idx] = { ...accs[idx], ...acc }; else accs.push(acc);
+        this.set('zolngen_accounts', accs);
+    },
+
+    deleteAccount: function(user) {
+        let accs = this.getAccounts().filter(a => a.user !== user);
         this.set('zolngen_accounts', accs);
     },
 
@@ -62,6 +69,13 @@ const DB = {
         let msgs = this.get('zolngen_messages');
         msgs.push({ id: Date.now(), date: new Date().toLocaleString('ar-EG'), ...msg });
         this.set('zolngen_messages', msgs);
+    },
+
+    getTier: function(user) {
+        const total = this.getOrders().filter(o => o.entity === user).reduce((a,b) => a+b.total, 0);
+        if (total > 10000) return 'Platinum';
+        if (total > 5000) return 'Gold';
+        return 'Silver';
     },
 
     getProStats: function() {
@@ -81,17 +95,15 @@ const DB = {
             { id: 'PRD-2', name: 'Dell Latitude 7430', price: 1180, stock: 5, category: 'أجهزة محمولة', img: 'images/hp.png', specs: 'Intel i5, 16GB RAM, 256GB SSD' },
             { id: 'PRD-3', name: 'MacBook Pro M2', price: 1850, stock: 12, category: 'أجهزة محمولة', img: 'images/mac.png', specs: 'Apple M2, 16GB RAM, 512GB SSD' },
             { id: 'PRD-4', name: 'PowerEdge R750', price: 4500, stock: 3, category: 'خوادم', img: 'images/dell.png', specs: 'Dual Xeon, 128GB RAM, 8TB' },
-            { id: 'PRD-5', name: 'ThinkPad X1 Carbon', price: 1700, stock: 15, category: 'أجهزة محمولة', img: 'images/hp.png', specs: 'Intel i7, 16GB, 1TB' },
-            { id: 'PRD-6', name: 'Precision 7920 Tower', price: 3200, stock: 4, category: 'محطات عمل', img: 'images/dell.png', specs: 'Xeon Silver, 64GB, RTX A4000' }
+            { id: 'PRD-5', name: 'ThinkPad X1 Carbon', price: 1700, stock: 15, category: 'أجهزة محمولة', img: 'images/product_thinkpad_x1.png', specs: 'Intel i7, 16GB, 1TB' },
+            { id: 'PRD-6', name: 'OptiPlex 7090', price: 850, stock: 10, category: 'مكتبي', img: 'images/product_optiplex_7090.png', specs: 'Intel i7, 8GB, 256GB' }
         ];
         this.set('zolngen_inventory', initial);
-        this.set('zolngen_accounts', [
-            {user:'admin', pass:'admin123', role:'ADMIN', name:'المدير العام', email:'ceo@zolngen.com'},
-            {user:'staff1', pass:'staff123', role:'STAFF', name:'أحمد مبيعات', email:'sales@zolngen.com'}
-        ]);
         return initial;
     }
 };
 
 window.DB = DB;
+// Run aggressive check on every load
+DB.getAccounts();
 if (!localStorage.getItem('zolngen_inventory')) DB.seed();
