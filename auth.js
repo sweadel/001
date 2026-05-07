@@ -1,46 +1,33 @@
-/* ZOLNGEN AUTH SYSTEM V100.0 */
+/* ZOLNGEN AUTH MASTER V100.4 */
 const Auth = {
-    login: function(user, pass, isAdmin = false) {
-        const accounts = isAdmin ? DB.getAccounts() : DB.getClientAccounts();
-        const found = accounts.find(a => (isAdmin ? a.user === user : a.name === user) && a.pass === pass);
-        
+    login: function(user, pass) {
+        const accs = DB.getAccounts();
+        const found = accs.find(a => a.user === user && a.pass === pass);
         if (found) {
-            const sessionData = {
-                user: user,
-                role: isAdmin ? 'ADMIN' : 'CLIENT',
-                inst: isAdmin ? 'ZOLNGEN HQ' : (found.inst || 'Private Entity'),
-                timestamp: Date.now()
-            };
-            sessionStorage.setItem('zolngen_session', JSON.stringify(sessionData));
-            DB.logAction(`Login Successful: ${user} (${sessionData.role})`);
+            localStorage.setItem('zolngen_session', JSON.stringify(found));
+            DB.logAction(`Login Success: ${found.name}`);
             return true;
         }
         return false;
     },
 
     logout: function() {
-        const session = this.getSession();
-        if(session) DB.logAction(`Logout: ${session.user}`);
-        sessionStorage.removeItem('zolngen_session');
+        localStorage.removeItem('zolngen_session');
         window.location.href = 'index.html';
     },
 
     getSession: function() {
-        return JSON.parse(sessionStorage.getItem('zolngen_session'));
+        const s = localStorage.getItem('zolngen_session');
+        return s ? JSON.parse(s) : null;
     },
 
-    isAuthenticated: function(requiredRole = null) {
+    checkAccess: function(role) {
         const session = this.getSession();
-        if (!session) return false;
-        if (requiredRole && session.role !== requiredRole) return false;
-        return true;
-    },
-
-    checkAccess: function(requiredRole) {
-        if (!this.isAuthenticated(requiredRole)) {
-            alert('Access Denied. Redirecting to home...');
-            window.location.href = 'index.html';
+        if (!session || (role && session.role !== role)) {
+            // Instead of immediate redirect, we notify the caller
+            return false;
         }
+        return true;
     }
 };
 
