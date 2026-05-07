@@ -1,15 +1,17 @@
-/* ADMIN PAGE ORCHESTRATION LOGIC - V100.7 MASTER */
+/* ADMIN PAGE ORCHESTRATION LOGIC - V100.8 MASTER */
 function checkInit() {
     const session = Auth.getSession();
+    const lockScreen = document.getElementById('admin-lock-screen');
+    const content = document.getElementById('admin-content');
+
     if (session && session.role === 'ADMIN') {
-        // FORCE UI SYNC: Ensure lock screen is hidden and content is shown
-        document.getElementById('admin-lock-screen').classList.add('hidden');
-        document.getElementById('admin-content').classList.remove('hidden');
+        if(lockScreen) lockScreen.style.display = 'none';
+        if(content) content.classList.remove('hidden');
         renderAdmin();
         document.getElementById('admin-name').innerText = session.name;
     } else {
-        document.getElementById('admin-content').classList.add('hidden');
-        document.getElementById('admin-lock-screen').classList.remove('hidden');
+        if(lockScreen) lockScreen.style.display = 'flex';
+        if(content) content.classList.add('hidden');
     }
 }
 
@@ -17,21 +19,21 @@ function unlockAdmin() {
     const u = document.getElementById('lock-user').value;
     const p = document.getElementById('lock-pass').value;
     
-    if(!u || !p) {
-        UI.showToast('يرجى إدخال كافة البيانات');
-        return;
-    }
-
     if(Auth.login(u, p)) {
         const session = Auth.getSession();
         if(session.role === 'ADMIN') {
             UI.showToast('مرحباً بك في مركز القيادة');
-            // INSTANT UI FLIP
-            document.getElementById('admin-lock-screen').classList.add('hidden');
-            document.getElementById('admin-content').classList.remove('hidden');
-            checkInit(); 
+            // FORCE IMMEDIATE UI CLEARANCE
+            const lock = document.getElementById('admin-lock-screen');
+            if(lock) {
+                gsap.to(lock, { opacity: 0, duration: 0.5, onComplete: () => {
+                    lock.style.display = 'none';
+                    document.getElementById('admin-content').classList.remove('hidden');
+                    checkInit();
+                }});
+            }
         } else {
-            UI.showToast('عذراً، هذا الحساب ليس لديه صلاحيات إدارية');
+            UI.showToast('عذراً، هذا الحساب ليس مديراً');
         }
     } else {
         UI.showToast('بيانات الدخول غير صحيحة');
@@ -54,31 +56,32 @@ function showTab(id) {
 function renderAdmin() {
     const stats = DB.getProStats();
     document.getElementById('stat-sales').innerText = stats.totalSales.toLocaleString() + ' JOD';
-    document.getElementById('stat-profit').innerText = (stats.totalSales * 0.2).toLocaleString() + ' JOD';
+    document.getElementById('stat-profit').innerText = (stats.totalSales * 0.25).toLocaleString() + ' JOD';
     document.getElementById('stat-inv').innerText = stats.inventoryValue.toLocaleString() + ' JOD';
     document.getElementById('stat-tck').innerText = stats.openTickets;
 
     const invBody = document.getElementById('inv-body');
-    invBody.innerHTML = DB.getProducts().map(p => `
-        <tr class="border-b border-white/5 hover:bg-white/5 transition-all">
-            <td class="p-6 font-bold text-sm text-right">${p.name}</td>
-            <td class="p-6 text-gray-500 text-[10px] uppercase tracking-widest">${p.category}</td>
+    const prods = DB.getProducts();
+    invBody.innerHTML = prods.map(p => `
+        <tr class="border-b border-white/5 hover:bg-white/5 transition-all text-right">
+            <td class="p-6 font-bold text-sm">${p.name}</td>
+            <td class="p-6 text-gray-500 text-[10px] uppercase">${p.category}</td>
             <td class="p-6 text-gold font-black">${p.price} JOD</td>
-            <td class="p-6 font-mono text-xs">${p.stock} units</td>
-            <td class="p-6 text-center flex gap-4 justify-center">
-                <button onclick="editP('${p.id}')" class="text-gray-500 hover:text-gold transition-all"><i class="fas fa-edit"></i></button>
-                <button onclick="if(confirm('حذف المنتج؟')) { DB.deleteProduct('${p.id}'); renderAdmin(); }" class="text-red-500/30 hover:text-red-500 transition-all"><i class="fas fa-trash"></i></button>
+            <td class="p-6 font-mono text-xs">${p.stock}</td>
+            <td class="p-6 flex gap-4 justify-center">
+                <button onclick="editP('${p.id}')" class="text-gray-500 hover:text-gold"><i class="fas fa-edit"></i></button>
+                <button onclick="if(confirm('حذف؟')){ DB.deleteProduct('${p.id}'); renderAdmin(); }" class="text-red-500/30 hover:text-red-500"><i class="fas fa-trash"></i></button>
             </td>
         </tr>
     `).join('');
 
     const accGrid = document.getElementById('acc-grid');
     accGrid.innerHTML = DB.getAccounts().map(a => `
-        <div class="glass p-8 rounded-[32px] border border-white/5 relative group overflow-hidden transition-all hover:border-gold/30">
+        <div class="glass p-8 rounded-[32px] border border-white/5 relative group transition-all hover:border-gold/30">
             <div class="absolute top-0 left-0 w-1 h-full ${a.role === 'ADMIN' ? 'bg-gold' : 'bg-blue-500'}"></div>
             <h5 class="text-lg font-bold">${a.name}</h5>
-            <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">${a.role} • ${a.user}</p>
-            <button onclick="if(confirm('حذف الحساب؟')){ DB.deleteAccount('${a.user}'); renderAdmin(); }" class="mt-6 text-red-500/50 text-[10px] opacity-0 group-hover:opacity-100 transition-all hover:text-red-500 underline">إزالة الحساب</button>
+            <p class="text-[10px] text-gray-500 mt-1 uppercase">${a.role} • ${a.user}</p>
+            <button onclick="if(confirm('حذف الحساب؟')){ DB.deleteAccount('${a.user}'); renderAdmin(); }" class="mt-6 text-red-500/50 text-[10px] opacity-0 group-hover:opacity-100 transition-all hover:text-red-500">إزالة الحساب</button>
         </div>
     `).join('');
 
@@ -92,43 +95,27 @@ function renderChart() {
     if(window.myChart) window.myChart.destroy();
     window.myChart = new Chart(ctx, {
         type: 'line',
-        data: { 
-            labels: ['Q1', 'Q2', 'Q3', 'Q4'], 
-            datasets: [{ 
-                data: [stats.totalSales*0.6, stats.totalSales*0.8, stats.totalSales, stats.totalSales*1.3], 
-                borderColor: '#D4AF37', 
-                borderWidth: 2,
-                tension: 0.4, 
-                fill: true, 
-                backgroundColor: 'rgba(212, 175, 55, 0.05)',
-                pointRadius: 4,
-                pointBackgroundColor: '#D4AF37'
-            }] 
-        },
-        options: { 
-            responsive: true, 
-            plugins: { legend: { display: false } }, 
-            scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#444', font: { size: 10 } } } } 
-        }
+        data: { labels: ['Q1', 'Q2', 'Q3', 'Q4'], datasets: [{ data: [stats.totalSales*0.5, stats.totalSales*0.8, stats.totalSales, stats.totalSales*1.4], borderColor: '#D4AF37', tension: 0.4, fill: true, backgroundColor: 'rgba(212, 175, 55, 0.05)' }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
     });
 }
 
 function populateChatSelect() {
     const sel = document.getElementById('chat-select');
     const entities = [...new Set(DB.getOrders().map(o => o.entity))];
-    sel.innerHTML = entities.map(e => `<option value="${e}">${e}</option>`).join('') || '<option value="">لا توجد محادثات نشطة</option>';
+    sel.innerHTML = entities.map(e => `<option value="${e}">${e}</option>`).join('') || '<option value="">لا توجد محادثات</option>';
     loadChat();
 }
 
 function loadChat() {
     const ent = document.getElementById('chat-select').value;
     const box = document.getElementById('chat-box');
-    if(!ent) { box.innerHTML = '<p class="text-center text-gray-700 py-20 text-xs uppercase tracking-widest">No active communications</p>'; return; }
+    if(!ent) { box.innerHTML = '<p class="text-center text-gray-700 py-20 text-xs">لا توجد رسائل</p>'; return; }
     const msgs = DB.getMessages(ent);
     box.innerHTML = msgs.map(m => `
         <div class="chat-bubble ${m.sender === 'ADMIN' ? 'sent' : 'received'}">
-            <p class="font-black text-[8px] mb-1 opacity-50 uppercase tracking-tighter">${m.sender}</p>
-            <p class="text-sm leading-relaxed">${m.text}</p>
+            <p class="font-black text-[8px] mb-1 opacity-50 uppercase">${m.sender}</p>
+            <p>${m.text}</p>
             <small class="text-[7px] block mt-2 opacity-30">${m.date}</small>
         </div>
     `).join('');
@@ -173,11 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 price: parseFloat(document.getElementById('p-price').value), 
                 stock: parseInt(document.getElementById('p-stock').value), 
                 img: 'images/hp.png',
-                specs: 'Unit Optimized for Enterprise'
+                specs: 'Optimized Hardware Unit'
             };
             const id = document.getElementById('p-id').value;
             if(id) DB.saveProduct({id, ...data}); else DB.saveProduct(data);
-            UI.showToast('تم تحديث بيانات المخزون'); closeModals(); renderAdmin();
+            UI.showToast('تم تحديث البيانات'); closeModals(); renderAdmin();
         });
     }
 
@@ -189,11 +176,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 user: document.getElementById('a-user').value, 
                 name: document.getElementById('a-name').value, 
                 pass: document.getElementById('a-pass').value, 
-                role: document.getElementById('a-role').value,
-                email: document.getElementById('a-user').value + '@zolngen.com'
+                role: document.getElementById('a-role').value
             };
             DB.saveAccount(data);
-            UI.showToast('تم إنشاء الحساب الإداري'); closeModals(); renderAdmin();
+            UI.showToast('تم إنشاء الحساب'); closeModals(); renderAdmin();
         });
     }
 });

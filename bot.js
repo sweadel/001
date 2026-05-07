@@ -1,43 +1,48 @@
-/* ANTIGRAVITY AI BOT V100.6 - THE MASTER MIND */
+/* ANTIGRAVITY AI BOT V100.8 - THE BILINGUAL MASTER MIND */
 const Bot = {
     process: function(input) {
-        input = input.toLowerCase();
+        input = input.toLowerCase().trim();
         const stats = DB.getProStats();
         const products = DB.getProducts();
 
-        // INTELLIGENT GREETING
-        if (input.includes('مرحبا') || input.includes('hello') || input.includes('سلام') || input.includes('zolngen')) {
-            return "مرحباً بك في ZOLNGEN V100.6. أنا المساعد الذكي الخاص بك. يمكنني تزويدك بتقارير المبيعات، حالة المخزون، أو تتبع طلبات التوريد الخاصة بمؤسستك.";
+        // INTENT: GREETING
+        const greetingWords = ['مرحبا', 'hello', 'hi', 'سلام', 'hey', 'zolngen', 'مرحباً'];
+        if (greetingWords.some(w => input.includes(w))) {
+            return "مرحباً بك في ZOLNGEN V100.8. كيف يمكنني مساعدتك اليوم؟ (تقرير مالي، قائمة المنتجات، تتبع طلب)";
         }
 
-        // CATALOG KNOWLEDGE
-        if (input.includes('أجهزة') || input.includes('products') || input.includes('كتالوج') || input.includes('بضاعة')) {
+        // INTENT: STATS / SYSTEM HEALTH
+        const statsWords = ['stats', 'status', 'حالة', 'إحصائيات', 'أرقام', 'health', 'financials'];
+        if (statsWords.some(w => input.includes(w))) {
+            return `ZOLNGEN LIVE REPORT: Total Sales: ${stats.totalSales} JOD | Active Orders: ${stats.activeOrders} | Inventory Value: ${stats.inventoryValue} JOD. System is 100% Operational.`;
+        }
+
+        // INTENT: CATALOG / PRODUCTS
+        const catalogWords = ['products', 'منتجات', 'أجهزة', 'items', 'list', 'بضاعة', 'show me'];
+        if (catalogWords.some(w => input.includes(w))) {
             const list = products.slice(0, 4).map(p => p.name).join('، ');
-            return `لدينا أحدث الأجهزة المؤسسية، تشمل: ${list} والمزيد. هل ترغب في معرفة سعر أو مواصفات جهاز معين؟`;
+            return `Our current institutional catalog includes: ${list} and more. Would you like to see specific technical specs for any model?`;
         }
 
-        // LIVE STATS
-        if (input.includes('حالة') || input.includes('stats') || input.includes('أرقام') || input.includes('إحصائيات')) {
-            return `تقرير المنظومة المباشر: المبيعات الإجمالية [${stats.totalSales} JOD]، القيمة التقديرية للمخزون [${stats.inventoryValue} JOD]، والطلبات النشطة [${stats.activeOrders}].`;
+        // INTENT: TECHNICAL SPECS (Dynamic Detection)
+        const brandWords = ['hp', 'macbook', 'dell', 'thinkpad', 'laptop', 'server', 'pc'];
+        const detectedBrand = brandWords.find(b => input.includes(b));
+        if (detectedBrand) {
+            const prod = products.find(p => p.name.toLowerCase().includes(detectedBrand));
+            if (prod) return `TECHNICAL DATA [${prod.name}]: ${prod.specs}. MSRP: ${prod.price} JOD. Available Units: ${prod.stock}.`;
         }
 
-        // TECHNICAL SPECS
-        if (input.includes('hp') || input.includes('macbook') || input.includes('dell') || input.includes('thinkpad')) {
-            const prod = products.find(p => input.includes(p.name.split(' ')[0].toLowerCase()));
-            if (prod) return `الجهاز: ${prod.name}. المواصفات: ${prod.specs}. السعر الرسمي: ${prod.price} JOD.`;
-        }
-
-        // ORDER TRACKING
+        // INTENT: ORDER TRACKING
         const orderIdMatch = input.match(/ord-\d{4}/i);
         if (orderIdMatch) {
             const orderId = orderIdMatch[0].toUpperCase();
             const order = DB.getOrders().find(o => o.id === orderId);
-            if (order) return `تقرير تتبع الطلب ${orderId}: المؤسسة [${order.entity}]، الحالة الحالية [${order.status}]، القيمة الإجمالية [${order.total} JOD].`;
-            return `عذراً، لم أجد أي طلب برقم ${orderId} في سجلاتنا المركزية.`;
+            if (order) return `TRACKING REPORT [${orderId}]: Entity: ${order.entity} | Status: ${order.status} | Value: ${order.total} JOD. Expected delivery is within institutional SLA.`;
+            return `I could not locate an institutional order with ID ${orderId}. Please verify the serial number.`;
         }
 
         // FALLBACK
-        return "فهمت طلبك. هل تريد مني استخراج تقرير مالي دقيق، أم ترغب في مقارنة الأجهزة المتوفرة في المخازن حالياً؟";
+        return "I understand your query. Would you like me to generate a real-time financial projection, or should I list the available enterprise hardware inventory?";
     }
 };
 
