@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Admin | V100.4 MASTER</title>
+    <title>ZOLNGEN Admin | V100.7 MASTER</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="global.css">
@@ -15,27 +15,38 @@
 <body>
     <canvas id="neural-bg"></canvas>
 
+    <!-- ADMIN LOCK SCREEN (Elite Version) -->
     <div id="admin-lock-screen" class="hidden">
-        <div class="glass p-12 rounded-[48px] max-w-sm w-full border border-gold/30 text-center animate-in">
-            <div class="w-20 h-20 bg-gold text-dark rounded-3xl flex items-center justify-center text-3xl mx-auto mb-8"><i class="fas fa-lock"></i></div>
-            <h3 class="text-2xl font-black mb-4 text-gold">نظام الإدارة محمي</h3>
-            <p class="text-gray-500 text-xs mb-8">يرجى تسجيل الدخول للوصول إلى مركز القيادة</p>
-            <input type="text" id="lock-user" placeholder="اسم المستخدم" class="w-full mb-4">
-            <input type="password" id="lock-pass" placeholder="كلمة المرور" class="w-full mb-8">
-            <button onclick="unlockAdmin()" class="w-full bg-gold text-dark py-4 rounded-xl font-black mb-4">فتح النظام</button>
-            <div class="flex gap-4 justify-center mt-4">
+        <div class="glass p-12 rounded-[48px] max-w-sm w-full border border-gold/30 text-center animate-in shadow-2xl">
+            <div class="w-20 h-20 bg-gold text-dark rounded-3xl flex items-center justify-center text-3xl mx-auto mb-8 shadow-2xl shadow-gold/20"><i class="fas fa-shield-alt"></i></div>
+            <h3 class="text-2xl font-black mb-4 text-gold">مركز القيادة محمي</h3>
+            <p class="text-gray-500 text-[10px] mb-8 uppercase tracking-widest">ZOLNGEN SECURITY PROTOCOL</p>
+            
+            <div class="space-y-4">
+                <input type="text" id="lock-user" placeholder="اسم المستخدم" class="w-full">
+                <input type="password" id="lock-pass" placeholder="كلمة المرور" 
+                       onkeydown="if(event.key==='Enter') unlockAdmin()"
+                       class="w-full">
+            </div>
+
+            <button onclick="unlockAdmin()" class="w-full bg-gold text-dark py-5 rounded-2xl font-black mt-8 hover:scale-105 transition-all shadow-xl shadow-gold/10">
+                الدخول الآمن لمركز القيادة
+            </button>
+
+            <div class="flex gap-4 justify-center mt-6">
                 <a href="index.html" class="text-gray-500 text-[10px] hover:text-white underline">العودة للرئيسية</a>
-                <button onclick="localStorage.clear(); location.reload();" class="text-red-500 text-[10px] hover:underline">إعادة ضبط النظام (Reset)</button>
+                <button onclick="if(confirm('سيتم تصفير كافة البيانات، هل أنت متأكد؟')) { localStorage.clear(); location.reload(); }" class="text-red-500/50 text-[10px] hover:text-red-500 underline">إعادة ضبط النظام</button>
             </div>
         </div>
     </div>
 
+    <!-- MAIN ADMIN CONTENT -->
     <div id="admin-content" class="hidden">
         <button onclick="toggleSidebar()" class="lg:hidden fixed top-6 right-6 z-[200] bg-gold text-dark w-12 h-12 rounded-xl shadow-2xl"><i class="fas fa-bars"></i></button>
 
         <aside id="sidebar" class="sidebar glass p-8 flex flex-col justify-between">
             <div class="space-y-12">
-                <h1 class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN <span class="text-[10px] block text-white/40 uppercase">Admin Master</span></h1>
+                <h1 class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN <span class="text-[10px] block text-white/40 uppercase tracking-widest">Admin Master</span></h1>
                 <nav class="space-y-2">
                     <button onclick="showTab('overview')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4 active"><i class="fas fa-chart-pie w-5 text-center"></i> نظرة عامة</button>
                     <button onclick="showTab('inventory')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4"><i class="fas fa-boxes w-5 text-center"></i> المخزون</button>
@@ -44,42 +55,43 @@
                     <button onclick="showTab('chat')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4"><i class="fas fa-comment-dots w-5 text-center"></i> الدردشة</button>
                 </nav>
             </div>
-            <button onclick="Auth.logout()" class="p-4 bg-red-500/10 text-red-500 rounded-xl text-center font-bold border border-red-500/20">خروج آمن</button>
+            <button onclick="Auth.logout()" class="p-4 bg-red-500/10 text-red-500 rounded-xl text-center font-bold border border-red-500/20 hover:bg-red-500 hover:text-white transition-all">خروج آمن</button>
         </aside>
 
         <main class="main">
-            <header class="flex justify-between items-end mb-16">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
                 <div>
-                    <h2 id="tab-title" class="text-6xl font-black">Command Center</h2>
-                    <p class="text-gray-500 uppercase tracking-widest text-xs mt-2">Institutional OS V100.4</p>
+                    <h2 id="tab-title" class="text-5xl lg:text-7xl font-black tracking-tighter">Command Center</h2>
+                    <p class="text-gray-500 uppercase tracking-widest text-[10px] mt-2">Institutional OS V100.7 Master</p>
                 </div>
-                <div class="text-right hidden sm:block">
+                <div class="text-right glass px-6 py-3 rounded-2xl border border-white/5">
                     <p id="admin-name" class="text-gold font-bold">Admin</p>
-                    <small class="text-gray-600">ZOLNGEN Headquarters</small>
+                    <small class="text-gray-600 text-[10px] uppercase tracking-widest">ZOLNGEN Headquarters</small>
                 </div>
             </header>
 
+            <!-- TABS -->
             <section id="tab-overview" class="tab-content space-y-12">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="glass p-8 rounded-3xl border-b-4 border-gold/30">
-                        <p class="text-gray-500 text-[10px] uppercase mb-1">Revenue</p>
+                    <div class="glass p-8 rounded-[32px] border-b-4 border-gold/30">
+                        <p class="text-gray-500 text-[10px] uppercase mb-1 tracking-widest">Revenue</p>
                         <h3 id="stat-sales" class="text-3xl font-black text-gold">0</h3>
                     </div>
-                    <div class="glass p-8 rounded-3xl border-b-4 border-green-500/30">
-                        <p class="text-gray-500 text-[10px] uppercase mb-1">Net Profit</p>
+                    <div class="glass p-8 rounded-[32px] border-b-4 border-green-500/30">
+                        <p class="text-gray-500 text-[10px] uppercase mb-1 tracking-widest">Net Profit</p>
                         <h3 id="stat-profit" class="text-3xl font-black text-green-500">0</h3>
                     </div>
-                    <div class="glass p-8 rounded-3xl border-b-4 border-blue-500/30">
-                        <p class="text-gray-500 text-[10px] uppercase mb-1">Inventory</p>
+                    <div class="glass p-8 rounded-[32px] border-b-4 border-blue-500/30">
+                        <p class="text-gray-500 text-[10px] uppercase mb-1 tracking-widest">Inventory</p>
                         <h3 id="stat-inv" class="text-3xl font-black text-blue-400">0</h3>
                     </div>
-                    <div class="glass p-8 rounded-3xl border-b-4 border-red-500/30">
-                        <p class="text-gray-500 text-[10px] uppercase mb-1">Tickets</p>
+                    <div class="glass p-8 rounded-[32px] border-b-4 border-red-500/30">
+                        <p class="text-gray-500 text-[10px] uppercase mb-1 tracking-widest">Tickets</p>
                         <h3 id="stat-tck" class="text-3xl font-black text-red-500">0</h3>
                     </div>
                 </div>
-                <div class="glass p-10 rounded-[48px]">
-                    <h4 class="text-xl font-bold mb-8">Performance Projections</h4>
+                <div class="glass p-10 rounded-[48px] border border-white/5">
+                    <h4 class="text-xl font-bold mb-8 flex justify-between items-center">Performance Projections <span class="text-[10px] font-thin text-gray-500">Real-time Data Feed</span></h4>
                     <canvas id="forecastChart" height="150"></canvas>
                 </div>
             </section>
@@ -87,12 +99,12 @@
             <section id="tab-inventory" class="tab-content hidden space-y-8">
                 <div class="flex justify-between items-center">
                     <h3 class="text-3xl font-black">إدارة المخزون المؤسسي</h3>
-                    <button onclick="openProdModal()" class="bg-gold text-dark px-8 py-3 rounded-xl font-black">إضافة منتج</button>
+                    <button onclick="openProdModal()" class="bg-gold text-dark px-8 py-3 rounded-xl font-black shadow-xl shadow-gold/20">إضافة منتج جديد</button>
                 </div>
-                <div class="glass rounded-[40px] overflow-hidden">
+                <div class="glass rounded-[40px] overflow-hidden border border-white/5">
                     <table class="w-full text-right">
-                        <thead class="bg-white/5 text-gray-500 text-[10px] uppercase">
-                            <tr><th class="p-6">المنتج</th><th class="p-6">الفئة</th><th class="p-6">السعر</th><th class="p-6">المخزون</th><th class="p-6">إجراءات</th></tr>
+                        <thead class="bg-white/5 text-gray-500 text-[10px] uppercase tracking-widest">
+                            <tr><th class="p-6 text-right">المنتج</th><th class="p-6">الفئة</th><th class="p-6">السعر</th><th class="p-6">المخزون</th><th class="p-6 text-center">إجراءات</th></tr>
                         </thead>
                         <tbody id="inv-body"></tbody>
                     </table>
@@ -102,12 +114,12 @@
             <section id="tab-accounts" class="tab-content hidden space-y-8">
                 <div class="flex justify-between items-center">
                     <h3 class="text-3xl font-black">إدارة الكادر البشري</h3>
-                    <button onclick="openAccModal()" class="bg-gold text-dark px-8 py-3 rounded-xl font-black">إضافة حساب</button>
+                    <button onclick="openAccModal()" class="bg-gold text-dark px-8 py-3 rounded-xl font-black shadow-xl shadow-gold/20">إضافة حساب موظف</button>
                 </div>
                 <div id="acc-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
             </section>
 
-            <section id="tab-chat" class="tab-content hidden h-[70vh] flex flex-col glass rounded-[48px] overflow-hidden">
+            <section id="tab-chat" class="tab-content hidden h-[70vh] flex flex-col glass rounded-[48px] overflow-hidden border border-white/5">
                 <div class="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
                     <span class="font-black text-gold">مركز التواصل الموحد</span>
                     <select id="chat-select" class="bg-black text-xs p-2 rounded-lg border-none" onchange="loadChat()"></select>
@@ -115,7 +127,7 @@
                 <div id="chat-box" class="flex-1 p-8 overflow-y-auto flex flex-col space-y-4"></div>
                 <div class="p-6 border-t border-white/5 flex gap-4">
                     <input type="text" id="chat-input" placeholder="اكتب رسالتك للمؤسسة..." class="flex-1">
-                    <button onclick="sendChat()" class="bg-gold text-dark px-10 rounded-xl font-black">إرسال</button>
+                    <button onclick="sendChat()" class="bg-gold text-dark px-10 rounded-xl font-black shadow-xl shadow-gold/20">إرسال</button>
                 </div>
             </section>
         </main>
@@ -123,7 +135,7 @@
 
     <!-- MODALS -->
     <div id="modal-bg" class="fixed inset-0 z-[300] bg-black/95 backdrop-blur-3xl hidden flex items-center justify-center p-6">
-        <div id="prod-modal" class="glass p-12 rounded-[48px] max-w-xl w-full border border-gold/30 hidden">
+        <div id="prod-modal" class="glass p-12 rounded-[48px] max-w-xl w-full border border-gold/30 hidden animate-in">
             <h3 class="text-3xl font-black mb-8">بيانات المنتج</h3>
             <form id="prod-form" class="space-y-4">
                 <input type="hidden" id="p-id">
@@ -134,20 +146,20 @@
                     <input type="number" id="p-stock" placeholder="الكمية">
                 </div>
                 <div class="flex gap-4 pt-6">
-                    <button type="submit" class="flex-1 bg-gold text-dark font-black py-4 rounded-xl">حفظ</button>
+                    <button type="submit" class="flex-1 bg-gold text-dark font-black py-4 rounded-xl shadow-lg shadow-gold/10">حفظ التغييرات</button>
                     <button type="button" onclick="closeModals()" class="flex-1 border border-white/10 rounded-xl text-gray-500">إلغاء</button>
                 </div>
             </form>
         </div>
-        <div id="acc-modal" class="glass p-12 rounded-[48px] max-w-xl w-full border border-gold/30 hidden">
-            <h3 class="text-3xl font-black mb-8">إضافة موظف/مدير</h3>
+        <div id="acc-modal" class="glass p-12 rounded-[48px] max-w-xl w-full border border-gold/30 hidden animate-in">
+            <h3 class="text-3xl font-black mb-8">إنشاء حساب جديد</h3>
             <form id="acc-form" class="space-y-4">
                 <input type="text" id="a-user" placeholder="اسم المستخدم" class="w-full">
-                <input type="text" id="a-name" placeholder="الاسم الحقيقي" class="w-full">
+                <input type="text" id="a-name" placeholder="الاسم الكامل" class="w-full">
                 <input type="password" id="a-pass" placeholder="كلمة المرور" class="w-full">
-                <select id="a-role" class="w-full"><option value="ADMIN">ADMIN</option><option value="STAFF">STAFF</option></select>
+                <select id="a-role" class="w-full"><option value="ADMIN">ADMIN (صلاحيات كاملة)</option><option value="STAFF">STAFF (محدود)</option></select>
                 <div class="flex gap-4 pt-6">
-                    <button type="submit" class="flex-1 bg-gold text-dark font-black py-4 rounded-xl">إنشاء</button>
+                    <button type="submit" class="flex-1 bg-gold text-dark font-black py-4 rounded-xl shadow-lg shadow-gold/10">إنشاء الحساب</button>
                     <button type="button" onclick="closeModals()" class="flex-1 border border-white/10 rounded-xl">إلغاء</button>
                 </div>
             </form>
