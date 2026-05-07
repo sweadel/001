@@ -1,43 +1,41 @@
-/* ANTIGRAVITY AI BOT V100.2 - INTELLIGENCE CORE */
+/* ANTIGRAVITY AI BOT V100.5 - MASTER KNOWLEDGE */
 const Bot = {
     process: function(input) {
         input = input.toLowerCase();
         const stats = DB.getProStats();
         const products = DB.getProducts();
 
-        // 1. System Health & Stats
-        if (input.includes('status') || input.includes('حالة') || input.includes('نظام')) {
-            return `حالة النظام الحالية: المبيعات الإجمالية [${stats.totalSales} JOD]، الطلبات النشطة [${stats.activeOrders}]، التذاكر المفتوحة [${stats.openTickets}]. النظام يعمل بكفاءة 99.9%.`;
+        // 1. Intelligence Greeting
+        if (input.includes('مرحبا') || input.includes('hello') || input.includes('zolngen')) {
+            return "مرحباً بك في ZOLNGEN V100.5. أنا المساعد الذكي الخاص بك. يمكنني تزويدك بتقارير المبيعات، حالة المخزون، أو تتبع طلبات التوريد الخاصة بمؤسستك.";
         }
 
-        // 2. Inventory Query
-        if (input.includes('مخزون') || input.includes('متوفر') || input.includes('stock')) {
-            const lowStock = products.filter(p => p.stock < 10);
-            if (lowStock.length > 0) return `لدينا عجز في مخزون ${lowStock.map(p => p.name).join(', ')}. يرجى مراجعة الموردين.`;
-            return `المخزون مكتمل حالياً. لدينا ${products.length} فئة من أجهزة النخبة المتوفرة.`;
+        // 2. Hardware Catalog Knowledge
+        if (input.includes('أجهزة') || input.includes('products') || input.includes('كتالوج')) {
+            const list = products.slice(0, 4).map(p => p.name).join('، ');
+            return `لدينا تشكيلة واسعة من النخبة، تشمل: ${list} والمزيد. هل تريد مواصفات جهاز معين؟`;
         }
 
-        // 3. Product Comparisons
-        if (input.includes('أفضل') || input.includes('best') || input.includes('macbook')) {
-            const best = products.sort((a,b) => b.price - a.price)[0];
-            return `أقوى جهاز لدينا حالياً هو ${best.name} بسعر ${best.price} JOD. هل تريد رؤية مواصفاته التقنية؟`;
+        // 3. System Stats
+        if (input.includes('حالة') || input.includes('stats') || input.includes('أرقام')) {
+            return `حالة المنظومة: مبيعات إجمالية [${stats.totalSales} JOD]، قيمة المخزون [${stats.inventoryValue} JOD]، والطلبات النشطة [${stats.activeOrders}].`;
         }
 
-        // 4. Order Tracking
-        const orderMatch = input.match(/ord-\d{4}/i);
-        if (orderMatch) {
-            const orderId = orderMatch[0].toUpperCase();
-            const order = DB.getOrders().find(o => o.id === orderId);
-            if (order) return `تقرير الطلب ${orderId}: المؤسسة [${order.entity}]، الحالة [${order.status}]، القيمة [${order.total} JOD]. هل يمكنني مساعدتك في شيء آخر؟`;
-            return `عذراً، لم يتم العثور على طلب برقم ${orderId} في سجلات ZOLNGEN.`;
+        // 4. Specific Product Specs
+        if (input.includes('hp') || input.includes('macbook') || input.includes('dell')) {
+            const prod = products.find(p => input.includes(p.name.split(' ')[0].toLowerCase()));
+            if (prod) return `الجهاز: ${prod.name}. المواصفات الفنية: ${prod.specs}. السعر: ${prod.price} JOD.`;
         }
 
-        // 5. General Greeting
-        if (input.includes('hello') || input.includes('مرحبا') || input.includes('سلام')) {
-            return "أهلاً بك في ZOLNGEN PRO V100.2. أنا محرك الذكاء الاصطناعي الخاص بك. يمكنك سؤالي عن المبيعات، المخزون، أو تتبع أي طلب توريد.";
+        // 5. Order Tracking Logic
+        const orderId = input.match(/ord-\d{4}/i);
+        if (orderId) {
+            const order = DB.getOrders().find(o => o.id === orderId[0].toUpperCase());
+            if (order) return `تقرير الطلب ${orderId[0].toUpperCase()}: المؤسسة [${order.entity}]، الحالة [${order.status}]، القيمة [${order.total} JOD].`;
+            return `عذراً، لم يتم العثور على الطلب رقم ${orderId[0].toUpperCase()}.`;
         }
 
-        return "أنا أفهمك جيداً! جرب سؤالي عن 'حالة النظام' أو 'المخزون المتوفر' أو ابحث عن رقم طلب توريد معين.";
+        return "فهمت طلبك. هل تريد مني استخراج تقرير مالي، أم ترغب في مقارنة مواصفات أجهزة السيرفر والمحطات المحمولة؟";
     }
 };
 
