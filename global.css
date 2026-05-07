@@ -1,7 +1,7 @@
-/* global.css - ZOLNGEN OMNI-DESIGN SYSTEM V106.0 */
+/* global.css - ZOLNGEN PREMIUM V117.0 */
 :root {
     --gold: #D4AF37;
-    --gold-glow: rgba(212, 175, 55, 0.3);
+    --gold-bright: #FFD700;
     --dark: #050505;
     --glass: rgba(255, 255, 255, 0.03);
     --border: rgba(255, 255, 255, 0.06);
@@ -13,13 +13,16 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Tajawal', sans-serif;
-    cursor: none;
-    scrollbar-width: none;
+}
+
+/* FORCE HIDE DEFAULT CURSOR EVERYWHERE */
+body, a, button, input, select, textarea, div {
+    cursor: none !important;
 }
 
 body {
     background: var(--dark);
-    color: white;
+    color: #fff;
     overflow-x: hidden;
     line-height: 1.6;
 }
@@ -34,31 +37,63 @@ body {
     opacity: 0.15;
 }
 
+/* CUSTOM CURSOR SYSTEM - ULTIMATE VISIBILITY */
+.cursor {
+    width: 6px;
+    height: 6px;
+    background: var(--gold-bright);
+    border-radius: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 100000; /* Absolute Top */
+    box-shadow: 0 0 15px var(--gold-bright);
+}
+
+.cursor-follower {
+    width: 30px;
+    height: 30px;
+    border: 1.5px solid var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    top: -12px;
+    left: -12px;
+    pointer-events: none;
+    z-index: 99999;
+    background: rgba(212, 175, 55, 0.05);
+    backdrop-filter: blur(2px);
+    transition: transform 0.08s ease-out;
+}
+
+/* PREMIUM SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--dark); }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+
 /* GLASSMORPHISM */
 .glass {
     background: var(--glass);
-    backdrop-filter: blur(40px);
-    border: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 
 .gold-glow {
-    text-shadow: 0 0 30px var(--gold-glow);
+    text-shadow: 0 0 25px rgba(212, 175, 55, 0.7);
 }
 
 /* BUTTONS */
 .btn-gold {
-    background: var(--gold);
-    color: var(--dark);
+    background: linear-gradient(135deg, var(--gold), #B8860B);
+    color: #000;
     font-weight: 900;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     text-transform: uppercase;
     letter-spacing: 1px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .btn-gold:hover {
-    transform: scale(1.05) translateY(-5px);
-    box-shadow: 0 20px 40px rgba(212, 175, 55, 0.2);
-}
 
 /* CURSOR */
 .cursor {
