@@ -1,0 +1,15 @@
+{
+  "name": "ZOLNGEN Enterprise Pro",
+  "short_name": "ZOLNGEN",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#D4AF37",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2092/2092663.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
