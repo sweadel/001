@@ -96,7 +96,16 @@ input:focus { border-color: var(--gold); background: rgba(255,255,255,0.08); }
 
 .animate-in { animation: fadeInUp 0.8s forwards; }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; opacity: 0.3; }
+/* Responsive Design V100.3 */
+@media (max-width: 768px) {
+    .sidebar { width: 100%; height: auto; position: relative; border-left: none; border-bottom: 1px solid var(--glass-border); }
+    .main { margin-right: 0; padding: 1.5rem; }
+    h1 { font-size: 3.5rem !important; }
+    .nav-links { display: none; } /* Hide desktop nav */
+    .mobile-nav-toggle { display: block; }
+    .hero-glow { padding-top: 100px; }
+}
+
+@media (min-width: 769px) {
+    .mobile-nav-toggle { display: none; }
+}

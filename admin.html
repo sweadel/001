@@ -249,8 +249,9 @@
 
         window.onload = () => { 
             UI.initNeural(); 
-            renderAll(); 
-            document.getElementById('admin-display-name').innerText = Auth.getSession().name;
+            renderAdminData(); 
+            const session = Auth.getSession();
+            if(session) document.getElementById('admin-display-name').innerText = session.name || session.user;
         };
     </script>
 </body>
