@@ -3,81 +3,98 @@ const DB = {
     get: (key) => JSON.parse(localStorage.getItem(key)) || [],
     set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
 
+    // PRODUCTS CORE
     getProducts: function() { 
         const p = this.get('zolngen_inventory');
         return p.length ? p : this.seed();
     },
-
     saveProduct: function(prod) {
         let prods = this.getProducts();
         const idx = prods.findIndex(p => p.id === prod.id);
-        if (idx > -1) prods[idx] = prod; else { prod.id = 'PRD-' + (prods.length + 101); prods.push(prod); }
+        if (idx > -1) {
+            prods[idx] = { ...prods[idx], ...prod };
+        } else {
+            prod.id = 'PRD-' + (prods.length + 101);
+            prods.push(prod);
+        }
         this.set('zolngen_inventory', prods);
+        this.logAction(`Product Optimized: ${prod.name}`);
     },
-
     deleteProduct: function(id) {
         let prods = this.getProducts().filter(p => p.id !== id);
         this.set('zolngen_inventory', prods);
+        this.logAction(`Product Removed: ${id}`);
     },
 
+    // ORDERS CORE
     getOrders: function() { return this.get('zolngen_orders'); },
     placeOrder: function(order) {
         let orders = this.getOrders();
-        orders.push({
+        const newOrder = {
             id: 'ORD-' + (orders.length + 5001),
             date: new Date().toLocaleDateString('ar-EG'),
-            ...order,
-            status: 'pending'
-        });
+            status: 'pending',
+            ...order
+        };
+        orders.push(newOrder);
         this.set('zolngen_orders', orders);
+        this.logAction(`Order Placed: ${newOrder.id}`);
     },
 
+    // TICKETS CORE
     getTickets: function() { return this.get('zolngen_tickets'); },
     createTicket: function(ticket) {
         let t = this.getTickets();
-        t.push({ id: 'TCK-' + (t.length + 800), date: new Date().toLocaleDateString('ar-EG'), status: 'open', ...ticket });
+        const newTicket = {
+            id: 'TCK-' + (t.length + 800),
+            date: new Date().toLocaleDateString('ar-EG'),
+            status: 'open',
+            ...ticket
+        };
+        t.push(newTicket);
         this.set('zolngen_tickets', t);
+        this.logAction(`Ticket Created: ${newTicket.id}`);
     },
 
+    // ACCOUNTS CORE
     getAccounts: function() { 
         let accs = this.get('zolngen_accounts');
-        // AGGRESSIVE SEEDING: Ensure admin always exists
         if (!accs.find(a => a.user === 'admin')) {
             accs.push({user:'admin', pass:'admin123', role:'ADMIN', name:'المدير العام', email:'ceo@zolngen.com'});
             this.set('zolngen_accounts', accs);
         }
         return accs;
     },
-
     saveAccount: function(acc) {
         let accs = this.getAccounts();
         const idx = accs.findIndex(a => a.user === acc.user);
         if(idx > -1) accs[idx] = { ...accs[idx], ...acc }; else accs.push(acc);
         this.set('zolngen_accounts', accs);
+        this.logAction(`Account Synchronized: ${acc.user}`);
     },
-
     deleteAccount: function(user) {
         let accs = this.getAccounts().filter(a => a.user !== user);
         this.set('zolngen_accounts', accs);
+        this.logAction(`Account Removed: ${user}`);
     },
 
+    // MESSAGING CORE
     getMessages: function(entity) {
         return this.get('zolngen_messages').filter(m => m.entity === entity || m.receiver === entity || m.sender === 'ADMIN');
     },
-
     sendMessage: function(msg) {
         let msgs = this.get('zolngen_messages');
         msgs.push({ id: Date.now(), date: new Date().toLocaleString('ar-EG'), ...msg });
         this.set('zolngen_messages', msgs);
     },
 
+    // ANALYTICS CORE
     getTier: function(user) {
         const total = this.getOrders().filter(o => o.entity === user).reduce((a,b) => a+b.total, 0);
         if (total > 10000) return 'Platinum';
         if (total > 5000) return 'Gold';
         return 'Silver';
     },
-
     getProStats: function() {
         const prods = this.getProducts();
         const orders = this.getOrders();
@@ -87,6 +104,13 @@ const DB = {
             inventoryValue: Number(prods.reduce((acc, p) => acc + (p.price * p.stock), 0).toFixed(2)),
             openTickets: this.getTickets().filter(t => t.status === 'open').length
         };
+    },
+
+    // AUDIT LOG
+    logAction: function(action) {
+        let logs = this.get('zolngen_audit');
+        logs.unshift({ id: Date.now(), action: action, date: new Date().toLocaleString('ar-EG') });
+        this.set('zolngen_audit', logs.slice(0, 100));
     },
 
     seed: function() {
@@ -104,6 +128,5 @@ const DB = {
 };
 
 window.DB = DB;
-// Run aggressive check on every load
 DB.getAccounts();
 if (!localStorage.getItem('zolngen_inventory')) DB.seed();

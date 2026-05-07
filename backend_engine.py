@@ -1,35 +1,65 @@
-# ZOLNGEN ENTERPRISE PRO - BACKEND ENGINE (FLASK/PYTHON)
-# This file serves as a blueprint for the full-stack transition.
-
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+# ZOLNGEN BACKEND ENGINE V100.6 - THE INSTITUTIONAL CORE
+# [!] Blueprint for Full-Stack Orchestration
+from flask import Flask, jsonify, request, session
+import json
+import os
 
 app = Flask(__name__)
-CORS(app)
+app.secret_key = 'zolngen_master_key_2026'
 
-# Simulated Database (In production, connect to PostgreSQL or MongoDB)
-inventory = [
-    {"id": "PRD-1", "name": "HP EliteBook 840 G9", "price": 1250, "stock": 45},
-    {"id": "PRD-2", "name": "Dell Latitude 7430", "price": 1180, "stock": 5},
-    {"id": "PRD-3", "name": "MacBook Pro M2", "price": 1850, "stock": 12},
-    {"id": "PRD-4", "name": "PowerEdge R750", "price": 4500, "stock": 3}
-]
+# Mock Database Persistence
+DB_PATH = 'institutional_db.json'
+
+def load_db():
+    if not os.path.exists(DB_PATH):
+        return {"products": [], "orders": [], "accounts": [{"user": "admin", "pass": "admin123", "role": "ADMIN"}]}
+    with open(DB_PATH, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def save_db(data):
+    with open(DB_PATH, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    data = request.json
+    db = load_db()
+    user = next((a for a in db['accounts'] if a['user'] == data['user'] and a['pass'] == data['pass']), None)
+    if user:
+        session['user'] = user['user']
+        return jsonify({"status": "success", "user": user}), 200
+    return jsonify({"status": "error", "message": "Invalid credentials"}), 401
 
 @app.route('/api/inventory', methods=['GET'])
 def get_inventory():
-    return jsonify(inventory)
+    db = load_db()
+    return jsonify(db['products']), 200
 
-@app.route('/api/bot/chat', methods=['POST'])
-def bot_chat():
-    data = request.json
-    query = data.get('query', '').lower()
-    
-    # Intelligence Logic
-    if 'stock' in query:
-        return jsonify({"response": "All systems nominal. Inventory is at 98% capacity."})
-    
-    return jsonify({"response": "ZOLNGEN AI is processing your request."})
+@app.route('/api/inventory/update', methods=['POST'])
+def update_product():
+    if 'user' not in session: return jsonify({"status": "error"}), 403
+    prod_data = request.json
+    db = load_db()
+    # Logic to update/append product
+    db['products'].append(prod_data)
+    save_db(db)
+    return jsonify({"status": "success"}), 200
+
+@app.route('/api/orders', methods=['GET'])
+def get_orders():
+    db = load_db()
+    return jsonify(db['orders']), 200
+
+@app.route('/api/stats', methods=['GET'])
+def get_stats():
+    db = load_db()
+    total_sales = sum(o['total'] for o in db['orders'])
+    return jsonify({
+        "totalSales": total_sales,
+        "inventoryCount": len(db['products']),
+        "activeTickets": 0
+    }), 200
 
 if __name__ == '__main__':
-    print("ZOLNGEN Enterprise Engine starting on port 5000...")
-    app.run(debug=True, port=5000)
+    print("ZOLNGEN MASTER BACKEND V100.6 ACTIVE")
+    # app.run(port=5000, debug=True)

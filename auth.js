@@ -1,17 +1,20 @@
-/* ZOLNGEN AUTH MASTER V100.4 */
+/* ZOLNGEN AUTH MASTER V100.6 */
 const Auth = {
     login: function(user, pass) {
         const accs = DB.getAccounts();
         const found = accs.find(a => a.user === user && a.pass === pass);
         if (found) {
             localStorage.setItem('zolngen_session', JSON.stringify(found));
-            DB.logAction(`Login Success: ${found.name}`);
+            DB.logAction(`Access Granted: ${found.name} (${found.role})`);
             return true;
         }
+        DB.logAction(`Access Denied: ${user}`);
         return false;
     },
 
     logout: function() {
+        const session = this.getSession();
+        if(session) DB.logAction(`Session Terminated: ${session.name}`);
         localStorage.removeItem('zolngen_session');
         window.location.href = 'index.html';
     },
@@ -23,10 +26,8 @@ const Auth = {
 
     checkAccess: function(role) {
         const session = this.getSession();
-        if (!session || (role && session.role !== role)) {
-            // Instead of immediate redirect, we notify the caller
-            return false;
-        }
+        if (!session) return false;
+        if (role && session.role !== role) return false;
         return true;
     }
 };
