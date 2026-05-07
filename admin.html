@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Apex | V114.0 ULTIMATE</title>
-    <link rel="manifest" href="manifest.json">
+    <title>ZOLNGEN Admin | THE RADICAL V118.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="global.css">
@@ -12,142 +11,67 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-        .cyber-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(212, 175, 55, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(212, 175, 55, 0.05) 1px, transparent 1px); background-size: 50px 50px; z-index: -1; pointer-events: none; }
-        .apex-header { background: linear-gradient(180deg, rgba(212, 175, 55, 0.1) 0%, transparent 100%); }
-        .terminal-box { font-family: 'Courier New', Courier, monospace; background: rgba(0,0,0,0.9); border: 1px solid var(--gold); border-radius: 15px; padding: 15px; height: 200px; overflow-y: auto; font-size: 10px; color: #00ff00; }
-        .terminal-input { background: transparent; border: none; color: #fff; width: 100%; outline: none; }
-    </style>
 </head>
 <body class="rtl overflow-hidden">
-    <div class="cyber-grid"></div>
-    <div class="cursor"></div>
-    <div class="cursor-follower"></div>
-    <canvas id="neural-bg"></canvas>
+    <div class="cursor-glow" id="cursor"></div>
+    <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-adjust"></i></button>
 
-    <!-- LOCK SCREEN -->
-    <div id="admin-lock-screen" class="fixed inset-0 z-[500] bg-black flex items-center justify-center p-6 text-center">
-        <div class="glass p-16 rounded-[80px] max-w-sm w-full border border-gold/10 relative">
-            <div class="w-24 h-24 border-2 border-gold/20 rounded-full mx-auto mb-10 flex items-center justify-center relative overflow-hidden">
-                <i class="fas fa-microchip text-4xl text-gold/30"></i>
-                <div id="scan-line" class="absolute top-0 left-0 w-full h-1 bg-gold shadow-lg shadow-gold hidden scan-anim"></div>
-            </div>
-            <h3 class="text-4xl font-black mb-2 text-gold gold-glow">Apex OS</h3>
-            <p class="text-gray-800 text-[8px] mb-12 uppercase tracking-[0.6em] font-black">ENTERPRISE SUPREME V114.0</p>
+    <div id="admin-lock-screen" class="fixed inset-0 z-[500] bg-black flex items-center justify-center p-6">
+        <div class="glass p-16 rounded-[60px] text-center border-gold/20 max-w-sm w-full">
+            <h2 class="text-4xl font-black text-gold gold-glow mb-12">Authorized Entry</h2>
             <div class="space-y-4">
-                <input type="text" id="lock-user" data-i18n="username" class="text-center bg-white/2 rounded-xl">
-                <input type="password" id="lock-pass" data-i18n="password" onkeydown="if(event.key==='Enter') runApexAuth()" class="text-center bg-white/2 rounded-xl">
+                <input type="text" id="lock-user" placeholder="User ID" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-center outline-none focus:border-gold">
+                <input type="password" id="lock-pass" placeholder="Security Protocol" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-center outline-none focus:border-gold">
             </div>
-            <button onclick="runApexAuth()" class="btn-gold w-full py-5 rounded-2xl font-black mt-10 text-xs shadow-3xl">Initiate Apex Link</button>
+            <button onclick="unlockAdmin()" class="btn-gold w-full mt-10 shadow-2xl">Access Core</button>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
     <div id="admin-content" class="hidden h-screen flex">
-        <aside id="sidebar" class="sidebar glass p-10 w-[300px] border-l border-white/5 relative z-[200]">
-            <div class="mb-12"><h1 class="text-2xl font-black text-gold gold-glow">ZOLNGEN <span class="text-[7px] block text-white/20 uppercase tracking-[0.7em] font-black mt-1">APEX CORE V114.0</span></h1></div>
-            <nav class="space-y-2">
-                <button onclick="switchTab('dashboard')" class="tab-btn active w-full text-right p-4 px-6 flex items-center gap-4 font-black text-[11px]"><i class="fas fa-chart-pie w-4"></i> <span>Operations Dashboard</span></button>
-                <button onclick="switchTab('3d-viz')" class="tab-btn w-full text-right p-4 px-6 flex items-center gap-4 font-black text-[11px]"><i class="fas fa-cube w-4"></i> <span>3D Institutional Mapping</span></button>
-                <button onclick="switchTab('terminal')" class="tab-btn w-full text-right p-4 px-6 flex items-center gap-4 font-black text-[11px]"><i class="fas fa-terminal w-4"></i> <span>Command Terminal</span></button>
-                <button onclick="switchTab('inventory')" class="tab-btn w-full text-right p-4 px-6 flex items-center gap-4 font-black text-[11px]"><i class="fas fa-boxes w-4"></i> <span>Supply Hub</span></button>
+        <aside class="w-[300px] glass p-10 flex flex-col border-l border-gold/10">
+            <h1 class="text-2xl font-black text-gold mb-12">ZOLNGEN ADMIN</h1>
+            <nav class="flex-1 space-y-2">
+                <button onclick="switchTab('dash')" class="w-full text-right p-4 hover:bg-gold/5 rounded-xl font-bold flex items-center gap-4"><i class="fas fa-th-large w-4"></i> Dashboard</button>
+                <button onclick="switchTab('inv')" class="w-full text-right p-4 hover:bg-gold/5 rounded-xl font-bold flex items-center gap-4"><i class="fas fa-boxes w-4"></i> Inventory</button>
             </nav>
-            <div class="absolute bottom-10 left-10 right-10 space-y-3">
-                <button onclick="PerfMonitor.toggle()" class="w-full p-4 bg-white/2 rounded-2xl text-[8px] font-black uppercase border border-white/5 hover:border-gold/30 transition-all">Toggle Perf Monitor</button>
-                <button onclick="Auth.logout()" class="w-full p-4 bg-red-500/5 text-red-500 rounded-2xl text-[8px] font-black uppercase border border-red-500/10">Terminate Session</button>
-            </div>
+            <button onclick="Auth.logout()" class="p-4 bg-red-500/10 text-red-500 rounded-xl font-bold mt-auto border border-red-500/20">Terminate</button>
         </aside>
 
         <main class="flex-1 p-[60px] overflow-y-auto">
-            <header class="flex justify-between items-center mb-16 apex-header p-8 rounded-3xl border border-gold/10">
-                <div><h2 id="tab-title" class="text-5xl font-black tracking-tighter text-gold gold-glow">Supreme Operations</h2><p class="text-gray-700 uppercase tracking-[0.7em] text-[9px] font-black mt-3">Apex Singularity Active</p></div>
-                <div class="flex items-center gap-6">
-                    <button onclick="AutomationHub.generateMasterPDF()" class="btn-gold px-8 py-3 rounded-xl text-[10px] font-black uppercase">Institutional Report</button>
-                    <div class="text-right glass px-8 py-4 rounded-3xl border border-white/5"><p id="admin-name" class="text-gold font-black text-sm">System Master</p><small class="text-gray-800 text-[7px] uppercase font-black">Level 99 Oversight</small></div>
+            <div id="tab-dash" class="tab-content">
+                <h2 class="text-5xl font-black text-gold gold-glow mb-10">Institutional Pulse</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div class="glass p-8 rounded-3xl border-b-4 border-gold/40"><p class="text-[10px] uppercase opacity-50 mb-2">Total Sales</p><h3 id="stat-sales" class="text-3xl font-black text-gold">0</h3></div>
+                    <div class="glass p-8 rounded-3xl border-b-4 border-green-500/40"><p class="text-[10px] uppercase opacity-50 mb-2">System Health</p><h3 class="text-3xl font-black text-green-500">OPTIMAL</h3></div>
                 </div>
-            </header>
-
-            <section id="tab-dashboard" class="tab-content space-y-10">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="glass p-8 rounded-[40px] border-b-4 border-gold/40 text-center"><p class="text-[8px] uppercase text-gray-700 font-black mb-2">Institutional Revenue</p><h3 id="stat-sales" class="text-3xl font-black text-gold">0</h3></div>
-                    <div class="glass p-8 rounded-[40px] border-b-4 border-blue-500/40 text-center"><p class="text-[8px] uppercase text-gray-700 font-black mb-2">Network Stability</p><h3 class="text-3xl font-black text-blue-500">100%</h3></div>
-                </div>
-                <div class="glass p-16 rounded-[60px] border border-white/5"><canvas id="forecastChart" height="100"></canvas></div>
-            </section>
-
-            <section id="tab-3d-viz" class="tab-content hidden"><div id="city-container" class="glass rounded-[60px] h-[600px]"></div></section>
-
-            <section id="tab-terminal" class="tab-content hidden space-y-10">
-                <h3 class="text-4xl font-black text-gold gold-glow">Apex Command Terminal</h3>
-                <div class="terminal-box" id="terminal-out"><div>> ZOLNGEN Apex OS Loaded... Ready for command.</div></div>
-                <input type="text" id="terminal-in" class="glass p-6 rounded-2xl terminal-input" placeholder="Enter Sovereign Protocol..." onkeydown="if(event.key==='Enter') runCommand()">
-            </section>
-
-            <section id="tab-inventory" class="tab-content hidden space-y-10">
-                <div class="flex justify-between items-center"><h3 class="text-4xl font-black text-gold gold-glow">Supply Hub</h3><button onclick="openModal('prod-modal')" class="btn-gold px-12 py-4 rounded-2xl font-black text-[11px]">Provision Unit</button></div>
-                <div class="glass rounded-[50px] overflow-hidden"><table class="w-full text-right text-[12px]"><thead class="bg-white/5 text-gray-700 uppercase font-black text-[9px]"><tr><th class="p-8">Unit Model</th><th class="p-8">Cluster</th><th class="p-8">Price</th><th class="p-8">Qty</th><th class="p-8 text-center">Protocol</th></tr></thead><tbody id="inv-body"></tbody></table></div>
-            </section>
+                <div class="glass p-10 rounded-[40px] border border-gold/10"><canvas id="forecastChart" height="100"></canvas></div>
+            </div>
         </main>
     </div>
 
-    <!-- MODAL -->
-    <div id="modal-bg" class="fixed inset-0 z-[600] bg-black/99 backdrop-blur-3xl hidden flex items-center justify-center p-10"><div id="prod-modal" class="glass p-20 rounded-[80px] max-w-lg w-full border border-gold/10 hidden"><h3 class="text-4xl font-black mb-12 text-gold gold-glow">Unit Sync</h3><form id="prod-form" class="space-y-6"><input type="hidden" id="p-id"><input type="text" id="p-name" placeholder="Hardware ID"><input type="text" id="p-cat" placeholder="Category Cluster"><div class="grid grid-cols-2 gap-6"><input type="number" id="p-price" placeholder="Price"><input type="number" id="p-stock" placeholder="Qty"></div><button type="submit" class="btn-gold w-full py-6 rounded-3xl font-black mt-10 text-sm shadow-3xl">Commit to Apex</button><button type="button" onclick="closeModal()" class="w-full text-gray-800 text-[11px] uppercase font-black mt-6">Abort Process</button></form></div></div>
-
-    <script src="database.js"></script><script src="auth.js"></script><script src="ui.js"></script><script src="i18n.js"></script><script src="ai_engine.js"></script><script src="security_core.js"></script><script src="automation.js"></script><script src="performance_monitor.js"></script><script src="admin.js"></script>
+    <script src="database.js"></script><script src="auth.js"></script><script src="ui.js"></script><script src="i18n.js"></script><script src="admin.js"></script>
     <script>
-        const cur = document.querySelector('.cursor');
-        document.addEventListener('mousemove', e => { gsap.to(cur, { x: e.clientX, y: e.clientY, duration: 0.1 }); });
+        // CURSOR LOGIC
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.1 });
+        });
 
-        function runApexAuth() {
-            SecurityCore.verifyIdentity().then(() => {
-                SecurityCore.signAction('admin', 'APEX_SINGULARITY_LINK_SUCCESS');
-                unlockAdmin();
-            });
+        // THEME LOGIC
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const target = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', target);
+            localStorage.setItem('zolngen_theme', target);
         }
-
-        function runCommand() {
-            const i = document.getElementById('terminal-in');
-            const o = document.getElementById('terminal-out');
-            if(!i.value) return;
-            o.innerHTML += `<div><span class="text-gold">admin@zolngen:~$</span> ${i.value}</div>`;
-            if(i.value.toLowerCase() === 'heal') { o.innerHTML += `<div><span class="text-blue-400">[HEALER]</span> Running Sovereign Guardian Audit...</div>`; setTimeout(() => o.innerHTML += `<div><span class="text-blue-400">[HEALER]</span> 100% Integrity Verified.</div>`, 1500); }
-            else if(i.value.toLowerCase() === 'stats') { o.innerHTML += `<div><span class="text-green-400">[STATS]</span> Revenue: ${DB.getProStats().totalSales} JOD | Assets: ${DB.getProStats().inventoryValue} JOD</div>`; }
-            else { o.innerHTML += `<div>Command not recognized. Authorized commands: HEAL, STATS, LOGS</div>`; }
-            o.scrollTop = o.scrollHeight;
-            i.value = '';
-        }
+        
+        const savedTheme = localStorage.getItem('zolngen_theme');
+        if(savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
 
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-' + id).classList.remove('hidden');
-            if(id === '3d-viz') setTimeout(init3DCity, 200);
-            renderAdmin();
         }
-
-        function init3DCity() {
-            const container = document.getElementById('city-container');
-            if(!container || container.children.length > 0) return;
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            container.appendChild(renderer.domElement);
-            const geometry = new THREE.BoxGeometry();
-            for(let i=0; i<100; i++) {
-                const material = new THREE.MeshBasicMaterial({ color: 0xD4AF37, wireframe: true, transparent: true, opacity: 0.2 });
-                const cube = new THREE.Mesh(geometry, material);
-                cube.position.set((Math.random()-0.5)*30, 0, (Math.random()-0.5)*30);
-                cube.scale.set(1, Math.random()*15, 1);
-                scene.add(cube);
-            }
-            camera.position.set(0, 15, 30);
-            camera.lookAt(0, 0, 0);
-            function animate() { requestAnimationFrame(animate); scene.rotation.y += 0.001; renderer.render(scene, camera); }
-            animate();
-        }
-
-        if(I18n.lang === 'en') { document.body.style.direction = 'ltr'; document.querySelector('.sidebar').style.right = 'auto'; document.querySelector('.sidebar').style.left = '0'; document.querySelector('.main').style.marginRight = '0'; document.querySelector('.main').style.marginLeft = '300px'; }
     </script>
 </body>
 </html>

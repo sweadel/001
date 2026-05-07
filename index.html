@@ -1,99 +1,55 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | V106.0 GRAND INTEGRATION</title>
+    <title>ZOLNGEN | THE RADICAL V118.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="global.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
-<body>
-    <div class="cursor"></div>
-    <div class="cursor-follower"></div>
-    <canvas id="neural-bg"></canvas>
+<body class="rtl">
+    <div class="cursor-glow" id="cursor"></div>
+    <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-adjust"></i></button>
 
-    <nav class="fixed top-0 w-full z-[100] py-8 px-12 flex justify-between items-center glass border-b border-white/5">
-        <div class="flex items-center gap-12">
-            <h1 class="text-3xl font-black text-gold gold-glow">ZOLNGEN <span class="text-[9px] block text-white/30 uppercase tracking-[0.4em] font-black mt-1" data-i18n="subtitle">THE OMNI-STANDARD</span></h1>
-            <div class="hidden md:flex gap-8">
-                <a href="products.html" class="text-[10px] font-black uppercase tracking-widest opacity-60 hover:opacity-100" data-i18n="products">المنتجات</a>
-                <a href="maintenance.html" class="text-[10px] font-black uppercase tracking-widest opacity-60 hover:opacity-100" data-i18n="maintenance">الصيانة</a>
-                <a href="admin.html" id="admin-link" class="text-[10px] font-black uppercase tracking-widest text-gold hidden" data-i18n="admin">الإدارة</a>
-            </div>
-        </div>
-        <div class="flex items-center gap-6">
-            <button onclick="I18n.setLang(I18n.lang === 'ar' ? 'en' : 'ar')" class="text-[8px] font-black border border-gold/40 text-gold px-3 py-1 rounded">AR / EN</button>
-            <button id="login-btn" onclick="openLogin()" class="btn-gold px-8 py-3 rounded-full text-[10px]" data-i18n="login">دخول</button>
-        </div>
-    </nav>
-
-    <main class="pt-60 container mx-auto px-12">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-            <div class="space-y-10">
-                <div class="inline-block glass px-6 py-2 rounded-full border-gold/20">
-                    <p class="text-gold text-[9px] font-black uppercase tracking-[0.3em]">Institutional Standard V106.0</p>
-                </div>
-                <h2 class="text-7xl font-black leading-[0.9] tracking-tighter" data-i18n="hero_title">إعادة تعريف القوة المؤسسية</h2>
-                <p class="text-gray-500 text-lg max-w-lg leading-relaxed" data-i18n="hero_desc">المنظومة الأكثر تقدماً في توريد وإدارة التكنولوجيا للشركات الكبرى.</p>
-                <div class="flex gap-6">
-                    <button onclick="location.href='products.html'" class="btn-gold px-12 py-5 rounded-2xl text-lg font-black" data-i18n="explore">استكشف الحلول</button>
-                    <button class="glass px-12 py-5 rounded-2xl text-lg font-black hover:bg-white/5 transition-all" data-i18n="contact">تواصل معنا</button>
-                </div>
-            </div>
-            <div class="relative flex justify-center items-center">
-                <div class="absolute w-[500px] h-[500px] bg-gold/5 rounded-full blur-3xl"></div>
-                <img src="images/hp.png" class="relative z-10 w-[80%] floating drop-shadow-2xl">
-            </div>
+    <main class="min-h-screen flex flex-col items-center justify-center p-10">
+        <h1 class="text-8xl font-black text-gold gold-glow mb-6">ZOLNGEN</h1>
+        <p class="text-xl opacity-70 tracking-widest uppercase mb-12">Institutional Singularity</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+            <a href="admin.html" class="glass p-12 rounded-[50px] text-center hover:scale-105 transition-all border-gold/20">
+                <i class="fas fa-user-shield text-5xl text-gold mb-6"></i>
+                <h2 class="text-2xl font-bold mb-4" data-i18n="admin_portal">Admin Portal</h2>
+                <p class="text-xs opacity-50 uppercase tracking-tighter">Authorized Personnel Only</p>
+            </a>
+            <a href="products.html" class="glass p-12 rounded-[50px] text-center hover:scale-105 transition-all border-gold/20">
+                <i class="fas fa-shopping-cart text-5xl text-gold mb-6"></i>
+                <h2 class="text-2xl font-bold mb-4" data-i18n="product_catalog">B2B Catalog</h2>
+                <p class="text-xs opacity-50 uppercase tracking-tighter">Institutional Procurement</p>
+            </a>
         </div>
     </main>
 
-    <!-- MODAL: LOGIN -->
-    <div id="modal-bg" class="fixed inset-0 z-[300] bg-black/95 backdrop-blur-3xl hidden flex items-center justify-center p-6">
-        <div id="login-modal" class="glass p-12 rounded-[50px] max-w-sm w-full border border-gold/30 text-center hidden">
-            <h3 class="text-3xl font-black mb-8 text-gold" data-i18n="admin_gate">بوابة الإدارة</h3>
-            <div class="space-y-4">
-                <input type="text" id="user" data-i18n="username" class="text-center">
-                <input type="password" id="pass" data-i18n="password" class="text-center">
-            </div>
-            <button onclick="handleLogin()" class="btn-gold w-full py-5 rounded-2xl mt-8 shadow-xl" data-i18n="secure_access">دخول آمن</button>
-            <button onclick="closeLogin()" class="mt-4 text-gray-600 text-xs underline" data-i18n="cancel">إلغاء</button>
-        </div>
-    </div>
-
-    <!-- BOT UI -->
-    <div id="bot-ui" class="fixed bottom-10 right-10 z-[200]">
-        <button onclick="toggleBot()" class="w-16 h-16 bg-gold text-dark rounded-full shadow-2xl flex items-center justify-center text-2xl hover:scale-110 transition-all"><i class="fas fa-robot"></i></button>
-        <div id="bot-box" class="absolute bottom-20 right-0 w-[350px] h-[450px] glass rounded-[35px] border border-white/5 hidden flex flex-col p-6">
-            <div class="flex items-center gap-3 mb-4 border-b border-white/5 pb-3">
-                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="font-black text-gold text-[10px]">Antigravity Online</span>
-            </div>
-            <div id="chat-box" class="flex-1 overflow-y-auto space-y-3 pr-2 text-[10px]"></div>
-            <div class="mt-4 flex gap-2">
-                <input type="text" id="bot-input" placeholder="..." class="flex-1 py-2 px-4 rounded-lg">
-                <button onclick="askBot()" class="bg-gold text-dark px-4 rounded-lg"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <script src="database.js"></script><script src="auth.js"></script><script src="ui.js"></script><script src="i18n.js"></script><script src="bot.js"></script><script src="index.js"></script>
+    <script src="i18n.js"></script>
     <script>
-        const cur = document.querySelector('.cursor');
-        const fol = document.querySelector('.cursor-follower');
-        document.addEventListener('mousemove', e => { gsap.to(cur, { x: e.clientX, y: e.clientY, duration: 0.1 }); gsap.to(fol, { x: e.clientX - 15, y: e.clientY - 15, duration: 0.3 }); });
-        function toggleBot() { document.getElementById('bot-box').classList.toggle('hidden'); }
-        function askBot() {
-            const i = document.getElementById('bot-input');
-            const b = document.getElementById('chat-box');
-            if(!i.value) return;
-            b.innerHTML += `<div class="bg-white/5 p-3 rounded-xl ml-6"><p>${i.value}</p></div>`;
-            const r = Bot.process(i.value);
-            setTimeout(() => { b.innerHTML += `<div class="bg-gold/10 p-3 rounded-xl mr-6 border border-gold/10 text-gold"><p>${r}</p></div>`; b.scrollTop = b.scrollHeight; }, 500);
-            i.value = '';
+        // CURSOR LOGIC
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.1 });
+        });
+
+        // THEME LOGIC
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const target = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', target);
+            localStorage.setItem('zolngen_theme', target);
         }
+        
+        const savedTheme = localStorage.getItem('zolngen_theme');
+        if(savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 </body>
 </html>
