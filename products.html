@@ -3,156 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Catalog | V99.0 Singularity</title>
+    <title>Enterprise Catalog | V100.1 ULTIMATE</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <style>
-        :root { --accent: #D4AF37; }
-        body { background: #020202; color: #fff; font-family: 'Tajawal', sans-serif; }
-        .glass { backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255,255,255,0.01); }
-        .holo-card:hover { border-color: var(--accent); box-shadow: 0 0 30px rgba(212, 175, 55, 0.1); transform: translateY(-5px); }
-        #neural-bg { position: fixed; inset: 0; z-index: -1; opacity: 0.15; }
+        .product-card:hover { transform: translateY(-10px); }
+        .cart-drawer { position: fixed; left: 0; top: 0; width: 450px; height: 100vh; background: #050505; border-right: 1px solid rgba(212,175,55,0.2); z-index: 1000; transform: translateX(-100%); transition: 0.5s cubic-bezier(0.85, 0, 0.15, 1); }
+        .cart-drawer.open { transform: translateX(0); }
     </style>
 </head>
-<body class="pb-20">
+<body class="p-8">
     <canvas id="neural-bg"></canvas>
 
-    <nav class="glass sticky top-0 z-50 px-8 py-4 flex justify-between items-center border-b border-white/5">
-        <a href="index.html" class="text-xl font-black text-gold">ZOLNGEN <span class="font-light text-white uppercase text-xs">Catalog</span></a>
-        <div class="flex gap-6 items-center">
-            <button onclick="history.back()" class="text-sm text-gray-500 hover:text-white transition-colors">العودة</button>
-            <div class="relative cursor-pointer" onclick="toggleCart()">
-                <i class="fa-solid fa-shopping-bag text-xl"></i>
-                <span id="cart-badge" class="absolute -top-2 -right-2 bg-gold text-dark text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">0</span>
-            </div>
+    <!-- Header -->
+    <nav class="flex justify-between items-center max-w-7xl mx-auto mb-16">
+        <a href="index.html" class="text-3xl font-black text-gold">ZOLNGEN <span class="text-white font-thin">CATALOG</span></a>
+        <div class="flex gap-8 items-center">
+            <input type="text" id="search-input" placeholder="البحث في الأجهزة..." class="bg-white/5 border border-white/10 px-6 py-3 rounded-full text-xs w-64 focus:border-gold outline-none" oninput="renderProducts()">
+            <button onclick="toggleCart()" class="relative">
+                <i class="fas fa-shopping-bag text-2xl text-gold"></i>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] w-5 h-5 flex items-center justify-center rounded-full font-bold">0</span>
+            </button>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-6 py-12">
-        <header class="mb-12 flex justify-between items-end">
-            <div>
-                <h2 class="text-5xl font-black mb-4">المخزون <span class="text-gold">المؤسسي</span></h2>
-                <p class="text-gray-500">أجهزة مختارة بعناية لتلبية معايير الجودة العالمية V99.0</p>
-            </div>
-            <div class="flex gap-4">
-                <input type="text" id="search" placeholder="بحث ذكي..." class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 outline-none focus:border-gold">
-                <select id="filter" class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 outline-none focus:border-gold">
-                    <option value="all">كل الفئات</option>
-                    <option value="أجهزة محمولة">أجهزة محمولة</option>
-                    <option value="خوادم وشبكات">خوادم وشبكات</option>
-                </select>
-            </div>
-        </header>
-
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <!-- Products -->
-        </div>
+    <!-- Main -->
+    <main class="max-w-7xl mx-auto">
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"></div>
     </main>
 
     <!-- Cart Drawer -->
-    <div id="cart-drawer" class="fixed top-0 left-0 h-full w-[400px] bg-dark glass border-r border-white/5 z-[100] transform -translate-x-full transition-transform duration-500 p-8 flex flex-col">
-        <h3 class="text-2xl font-black mb-8">سلة التوريد</h3>
-        <div id="cart-items" class="flex-1 overflow-y-auto space-y-4"></div>
-        <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
-            <div class="flex justify-between text-2xl font-black">
+    <div id="cart-drawer" class="cart-drawer glass p-10 flex flex-col">
+        <div class="flex justify-between items-center mb-10">
+            <h3 class="text-2xl font-black">سلة التوريد</h3>
+            <button onclick="toggleCart()" class="text-gray-500 hover:text-white">إغلاق ×</button>
+        </div>
+        <div id="cart-items" class="flex-1 space-y-6 overflow-y-auto"></div>
+        <div class="pt-10 border-t border-white/5 space-y-6">
+            <div class="flex justify-between text-xl font-bold">
                 <span>الإجمالي:</span>
                 <span id="cart-total" class="text-gold">0 JOD</span>
             </div>
-            <button onclick="processOrder()" class="w-full bg-gold text-dark font-black py-4 rounded-xl">تأكيد الطلب المؤسسي</button>
+            <button onclick="checkout()" class="w-full btn-premium py-5 text-xl">تأكيد طلب التوريد</button>
         </div>
     </div>
 
     <script src="database.js"></script>
+    <script src="ui.js"></script>
     <script>
-        let cart = JSON.parse(localStorage.getItem('zolngen_cart')) || [];
-        
+        let cart = [];
+
         function renderProducts() {
             const grid = document.getElementById('product-grid');
-            const q = document.getElementById('search').value.toLowerCase();
-            const f = document.getElementById('filter').value;
+            const q = document.getElementById('search-input').value.toLowerCase();
+            const prods = DB.getProducts().filter(p => p.name.toLowerCase().includes(q));
             
-            const filtered = DB.getProducts().filter(p => {
-                const matchSearch = p.name.toLowerCase().includes(q);
-                const matchFilter = f === 'all' || p.category === f;
-                return matchSearch && matchFilter;
-            });
-
-            grid.innerHTML = filtered.map(p => `
-                <div class="glass p-6 rounded-3xl holo-card border border-white/5 transition-all">
-                    <img src="${p.img}" class="w-full h-40 object-contain mb-4" onerror="this.src='https://placehold.co/300x200/0A0A0B/D4AF37?text=HW'">
-                    <h4 class="font-bold text-lg">${p.name}</h4>
-                    <p class="text-[10px] text-gray-500 uppercase mb-4">${p.category}</p>
+            grid.innerHTML = prods.map(p => `
+                <div class="glass p-6 rounded-[32px] border border-white/5 product-card transition-all">
+                    <img src="${p.img}" class="w-full h-48 object-cover rounded-2xl mb-6 border border-white/5">
+                    <h4 class="text-lg font-bold mb-2">${p.name}</h4>
+                    <p class="text-gray-500 text-xs mb-6">${p.category}</p>
                     <div class="flex justify-between items-center">
                         <span class="text-xl font-black text-gold">${p.price} JOD</span>
-                        <button onclick="addToCart('${p.id}')" class="bg-gold/10 text-gold w-10 h-10 rounded-full flex items-center justify-center hover:bg-gold hover:text-dark transition-all"><i class="fas fa-plus"></i></button>
+                        <button onclick="addToCart('${p.id}')" class="w-10 h-10 bg-gold text-dark rounded-full flex items-center justify-center hover:scale-110 transition-all"><i class="fas fa-plus"></i></button>
                     </div>
                 </div>
             `).join('');
-            gsap.from("#product-grid > div", { opacity: 0, y: 20, stagger: 0.05 });
         }
 
         function addToCart(id) {
             const p = DB.getProducts().find(x => x.id === id);
-            const exists = cart.find(x => x.id === id);
-            if(exists) exists.qty++;
-            else cart.push({...p, qty: 1});
-            saveCart();
-            showToast('تمت الإضافة للسلة');
+            const existing = cart.find(x => x.id === id);
+            if(existing) existing.qty++; else cart.push({...p, qty: 1});
+            updateCart();
+            UI.showToast(`تمت إضافة ${p.name}`);
         }
 
-        function saveCart() {
-            localStorage.setItem('zolngen_cart', JSON.stringify(cart));
-            document.getElementById('cart-badge').innerText = cart.reduce((a,b) => a+b.qty, 0);
-            renderCart();
-        }
-
-        function renderCart() {
-            const box = document.getElementById('cart-items');
-            box.innerHTML = cart.map(i => `
-                <div class="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5">
-                    <div><p class="text-xs font-bold">${i.name}</p><small class="text-gold">${i.price} x ${i.qty}</small></div>
+        function updateCart() {
+            const container = document.getElementById('cart-items');
+            document.getElementById('cart-count').innerText = cart.reduce((a,b) => a+b.qty, 0);
+            document.getElementById('cart-total').innerText = cart.reduce((a,b) => a+(b.price*b.qty), 0).toLocaleString() + ' JOD';
+            
+            container.innerHTML = cart.map(i => `
+                <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl">
+                    <div class="text-xs">
+                        <p class="font-bold">${i.name}</p>
+                        <p class="text-gold">${i.price} JOD x ${i.qty}</p>
+                    </div>
                     <button onclick="removeFromCart('${i.id}')" class="text-red-500">×</button>
                 </div>
             `).join('');
-            document.getElementById('cart-total').innerText = cart.reduce((a,b) => a + (b.price*b.qty), 0) + ' JOD';
         }
 
         function removeFromCart(id) {
             cart = cart.filter(i => i.id !== id);
-            saveCart();
+            updateCart();
         }
 
-        function toggleCart() {
-            document.getElementById('cart-drawer').classList.toggle('-translate-x-full');
-            document.getElementById('cart-drawer').classList.toggle('translate-x-0');
-        }
+        function toggleCart() { document.getElementById('cart-drawer').classList.toggle('open'); }
 
-        function processOrder() {
-            if(!cart.length) return;
-            const total = cart.reduce((a,b) => a + (b.price*b.qty), 0);
-            DB.placeOrder({ items: cart, total: total, entity: 'Manual Order' });
+        function checkout() {
+            if(!cart.length) return alert('السلة فارغة!');
+            const entity = prompt('يرجى إدخال اسم المؤسسة لإتمام الطلب:', 'University of Jordan');
+            if(!entity) return;
+            
+            const total = cart.reduce((a,b) => a+(b.price*b.qty), 0);
+            DB.placeOrder({ entity, total, items: cart });
             cart = [];
-            saveCart();
+            updateCart();
             toggleCart();
-            alert('تم تثبيت الطلب بنجاح!');
+            UI.showToast('تم إرسال طلب التوريد بنجاح!');
         }
 
-        function showToast(msg) {
-            const t = document.createElement('div');
-            t.className = 'fixed bottom-10 right-10 bg-gold text-dark px-6 py-3 rounded-xl font-bold z-[200]';
-            t.innerText = msg;
-            document.body.appendChild(t);
-            gsap.from(t, { y: 50, opacity: 0 });
-            setTimeout(() => t.remove(), 3000);
-        }
-
-        document.getElementById('search').addEventListener('input', renderProducts);
-        document.getElementById('filter').addEventListener('change', renderProducts);
-        window.onload = () => { renderProducts(); renderCart(); };
+        window.onload = () => { UI.initNeural(); renderProducts(); };
     </script>
 </body>
 </html>

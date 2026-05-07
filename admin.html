@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Admin | V100.0 ULTIMATE</title>
+    <title>ZOLNGEN Admin | V100.1 THE PERFECTIONIST</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,6 +17,9 @@
         .sidebar { width: 300px; height: 100vh; position: fixed; right: 0; top: 0; z-index: 100; border-left: 1px solid rgba(255, 255, 255, 0.05); }
         .main { margin-right: 300px; padding: 3rem; }
         .tab-btn.active { background: rgba(212, 175, 55, 0.1); color: var(--gold); border-right: 3px solid var(--gold); }
+        .chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 18px; margin-bottom: 8px; font-size: 13px; }
+        .sent { background: var(--gold); color: #000; align-self: flex-start; }
+        .received { background: rgba(255,255,255,0.05); color: #fff; align-self: flex-end; }
     </style>
 </head>
 <body>
@@ -29,74 +32,108 @@
 
     <aside class="sidebar glass p-8 flex flex-col justify-between">
         <div class="space-y-12">
-            <h1 class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN <span class="text-[10px] block text-white/40">ADMIN COMMAND</span></h1>
+            <h1 class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN <span class="text-[10px] block text-white/40 uppercase">Admin Command</span></h1>
             <nav class="space-y-2">
                 <button onclick="showTab('overview')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4 active"><i class="fas fa-chart-pie w-6"></i> نظرة عامة</button>
                 <button onclick="showTab('inventory')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4"><i class="fas fa-boxes w-6"></i> إدارة المخزون</button>
                 <button onclick="showTab('orders')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4"><i class="fas fa-shopping-cart w-6"></i> طلبات التوريد</button>
-                <button onclick="showTab('support')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4"><i class="fas fa-headset w-6"></i> الدعم الفني</button>
+                <button onclick="showTab('accounts')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4"><i class="fas fa-users-gear w-6"></i> إدارة الحسابات</button>
+                <button onclick="showTab('chat')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4"><i class="fas fa-comments w-6"></i> مركز الدردشة</button>
             </nav>
         </div>
         <button onclick="Auth.logout()" class="p-4 bg-red-500/10 text-red-500 rounded-xl text-center font-bold border border-red-500/20">خروج آمن</button>
     </aside>
 
     <main class="main">
-        <!-- ALL TAB CONTENT GOES HERE (RESTORED FROM PREVIOUS V99.0 BUT WITH V100 MODULAR CALLS) -->
+        <header class="flex justify-between items-end mb-16">
+            <div>
+                <h2 class="text-6xl font-black">Admin Panel <span class="text-gold font-light">V100.1</span></h2>
+                <p class="text-gray-500">Live Institutional OS & Security</p>
+            </div>
+            <div class="text-right">
+                <p id="admin-display-name" class="text-gold font-bold">Admin</p>
+                <small class="text-gray-600">ZOLNGEN Headquarters</small>
+            </div>
+        </header>
+
+        <!-- TABS -->
         <section id="tab-overview" class="tab-content space-y-12">
-            <div class="flex justify-between items-end">
-                <h2 class="text-5xl font-black">Command Center</h2>
-                <div class="text-right">
-                    <p id="admin-name" class="text-gold font-bold">Admin</p>
-                    <small class="text-gray-500">ZOLNGEN HQ</small>
-                </div>
-            </div>
-            
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div class="glass p-8 rounded-3xl">
-                    <p class="text-gray-500 text-xs">Total Sales</p>
-                    <h3 id="stat-sales" class="text-3xl font-black text-gold">0</h3>
+                <div class="glass p-8 rounded-3xl border border-white/5">
+                    <p class="text-gray-500 text-xs uppercase mb-2">Total Sales</p>
+                    <h3 id="stat-sales" class="text-4xl font-black text-gold">0</h3>
                 </div>
-                <!-- Other stats... -->
+                <div class="glass p-8 rounded-3xl border border-white/5">
+                    <p class="text-gray-500 text-xs uppercase mb-2">Net Profit</p>
+                    <h3 id="stat-profit" class="text-4xl font-black text-green-500">0</h3>
+                </div>
+                <div class="glass p-8 rounded-3xl border border-white/5">
+                    <p class="text-gray-500 text-xs uppercase mb-2">Inventory Val</p>
+                    <h3 id="stat-inv" class="text-4xl font-black text-blue-400">0</h3>
+                </div>
+                <div class="glass p-8 rounded-3xl border border-white/5">
+                    <p class="text-gray-500 text-xs uppercase mb-2">Support Tickets</p>
+                    <h3 id="stat-tck" class="text-4xl font-black text-red-500">0</h3>
+                </div>
             </div>
-            <div class="glass p-10 rounded-[40px] mt-10">
+            <div class="glass p-12 rounded-[48px]">
                 <canvas id="forecastChart" height="150"></canvas>
             </div>
         </section>
 
-        <!-- Other Tabs... (Condensed for brevity but functional in real code) -->
         <section id="tab-inventory" class="tab-content hidden space-y-8">
-             <div class="flex justify-between items-center">
-                <h2 class="text-4xl font-black">المخزون المؤسسي</h2>
-                <button onclick="openProductModal()" class="btn-premium">إضافة منتج</button>
+            <div class="flex justify-between items-center">
+                <h3 class="text-3xl font-black">إدارة المخزون</h3>
+                <button onclick="openProductModal()" class="btn-premium">إضافة منتج جديد</button>
             </div>
             <div class="glass rounded-3xl overflow-hidden">
                 <table class="w-full text-right">
-                    <thead class="bg-white/5 text-gray-500 text-xs"><tr><th class="p-6">المنتج</th><th class="p-6">السعر</th><th class="p-6">المخزون</th><th class="p-6">إجراءات</th></tr></thead>
+                    <thead class="bg-white/5 text-gray-400 text-xs uppercase"><tr><th class="p-6">المنتج</th><th class="p-6">السعر</th><th class="p-6">الكمية</th><th class="p-6">إجراءات</th></tr></thead>
                     <tbody id="inventory-table-body"></tbody>
                 </table>
             </div>
         </section>
 
         <section id="tab-orders" class="tab-content hidden space-y-8">
-            <h2 class="text-4xl font-black">طلبات التوريد</h2>
+            <h3 class="text-3xl font-black">طلبات التوريد</h3>
             <div id="orders-container" class="space-y-4"></div>
+        </section>
+
+        <section id="tab-accounts" class="tab-content hidden space-y-8">
+            <div class="flex justify-between items-center">
+                <h3 class="text-3xl font-black">إدارة الحسابات</h3>
+                <button onclick="openAccountModal()" class="btn-premium">إضافة موظف</button>
+            </div>
+            <div id="accounts-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <section id="tab-chat" class="tab-content hidden h-[70vh] flex flex-col glass rounded-[48px] overflow-hidden border border-white/5">
+            <div class="p-6 border-b border-white/5 flex justify-between bg-white/5">
+                <h4 class="font-black text-gold">Live Support Center</h4>
+                <select id="chat-entity-select" class="text-xs bg-black p-2 border-none outline-none" onchange="loadChat()"></select>
+            </div>
+            <div id="chat-box" class="flex-1 p-8 overflow-y-auto flex flex-col space-y-4"></div>
+            <div class="p-6 border-t border-white/5 flex gap-4">
+                <input type="text" id="chat-input" placeholder="اكتب ردك هنا..." class="flex-1 bg-transparent border border-white/10 p-4 rounded-xl outline-none">
+                <button onclick="sendChatMessage()" class="bg-gold text-dark px-8 rounded-xl font-black">إرسال</button>
+            </div>
         </section>
     </main>
 
-    <!-- Modal for Products -->
-    <div id="product-modal" class="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl hidden flex items-center justify-center p-6">
+    <!-- MODALS -->
+    <div id="product-modal" class="fixed inset-0 z-[200] bg-black/95 backdrop-blur-2xl hidden flex items-center justify-center p-6">
         <div class="glass p-12 rounded-[48px] max-w-xl w-full border border-gold/30">
-            <h3 id="modal-title" class="text-2xl font-black mb-8 text-gold">منتج جديد</h3>
+            <h3 id="prod-modal-title" class="text-3xl font-black mb-8">بيانات المنتج</h3>
             <form id="prod-form" class="space-y-6">
                 <input type="hidden" id="prod-id">
                 <input type="text" id="prod-name" placeholder="اسم المنتج" class="w-full">
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="prod-price" placeholder="السعر">
+                    <input type="number" id="prod-price" placeholder="سعر البيع">
                     <input type="number" id="prod-stock" placeholder="الكمية">
                 </div>
                 <div class="flex gap-4">
                     <button type="submit" class="flex-1 btn-premium">حفظ</button>
-                    <button type="button" onclick="closeProductModal()" class="flex-1 border border-white/10 rounded-xl">إلغاء</button>
+                    <button type="button" onclick="closeModals()" class="flex-1 border border-white/10 rounded-xl">إلغاء</button>
                 </div>
             </form>
         </div>
@@ -109,30 +146,39 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-' + id).classList.remove('hidden');
             event.currentTarget.classList.add('active');
-            renderAdminData();
+            if(id === 'chat') populateEntities();
+            renderAll();
         }
 
-        function renderAdminData() {
+        function renderAll() {
             const stats = DB.getProStats();
             document.getElementById('stat-sales').innerText = stats.totalSales.toLocaleString() + ' JOD';
-            
-            // Inventory Table
+            document.getElementById('stat-profit').innerText = stats.totalProfit.toLocaleString() + ' JOD';
+            document.getElementById('stat-inv').innerText = stats.inventoryValue.toLocaleString() + ' JOD';
+            document.getElementById('stat-tck').innerText = stats.openTickets;
+
+            // Inventory
             const invBody = document.getElementById('inventory-table-body');
             invBody.innerHTML = DB.getProducts().map(p => `
                 <tr class="border-b border-white/5">
-                    <td class="p-6 font-bold">${p.name}</td>
-                    <td class="p-6 text-gold">${p.price} JOD</td>
+                    <td class="p-6 font-bold text-sm">${p.name}</td>
+                    <td class="p-6 text-gold font-black">${p.price} JOD</td>
                     <td class="p-6">${p.stock}</td>
-                    <td class="p-6"><button onclick="editProduct('${p.id}')">📝</button> <button onclick="deleteProduct('${p.id}')">🗑️</button></td>
+                    <td class="p-6 flex gap-3">
+                        <button onclick="editProd('${p.id}')">📝</button>
+                        <button onclick="DB.deleteProduct('${p.id}'); renderAll();" class="text-red-500">🗑️</button>
+                    </td>
                 </tr>
             `).join('');
 
-            // Orders
-            const ordCont = document.getElementById('orders-container');
-            ordCont.innerHTML = DB.getOrders().map(o => `
-                <div class="glass p-6 rounded-2xl flex justify-between items-center border border-white/5">
-                    <div><p class="font-bold">${o.entity}</p><small class="text-gray-500">${o.id}</small></div>
-                    <div class="text-left"><p class="text-gold font-black">${o.total} JOD</p><small class="uppercase text-[10px]">${o.status}</small></div>
+            // Accounts
+            const accCont = document.getElementById('accounts-container');
+            accCont.innerHTML = DB.getAccounts().map(a => `
+                <div class="glass p-6 rounded-3xl border border-white/5">
+                    <p class="font-bold">${a.name}</p>
+                    <p class="text-xs text-gold">${a.role}</p>
+                    <p class="text-[10px] text-gray-500 mt-2">User: ${a.user}</p>
+                    <button onclick="DB.deleteAccount('${a.user}'); renderAll();" class="text-red-500 text-xs mt-4">حذف الحساب</button>
                 </div>
             `).join('');
 
@@ -145,46 +191,67 @@
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-                    datasets: [{ label: 'Revenue', data: [stats.totalSales*0.7, stats.totalSales*0.9, stats.totalSales, stats.totalSales*1.2], borderColor: '#D4AF37', fill: true, backgroundColor: 'rgba(212, 175, 55, 0.05)' }]
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4 (FC)'],
+                    datasets: [{ data: [stats.totalSales*0.6, stats.totalSales*0.8, stats.totalSales, stats.totalSales*1.3], borderColor: '#D4AF37', fill: true, backgroundColor: 'rgba(212, 175, 55, 0.05)' }]
                 },
                 options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
             });
         }
 
-        function openProductModal(id = null) {
-            document.getElementById('product-modal').classList.remove('hidden');
-            if(id) {
-                const p = DB.getProducts().find(x => x.id === id);
-                document.getElementById('prod-id').value = p.id;
-                document.getElementById('prod-name').value = p.name;
-                document.getElementById('prod-price').value = p.price;
-                document.getElementById('prod-stock').value = p.stock;
-            } else {
-                document.getElementById('prod-form').reset();
-                document.getElementById('prod-id').value = '';
-            }
+        function populateEntities() {
+            const select = document.getElementById('chat-entity-select');
+            const entities = [...new Set(DB.getOrders().map(o => o.entity))];
+            select.innerHTML = entities.map(e => `<option value="${e}">${e}</option>`).join('') || '<option>لا توجد مؤسسات</option>';
+            loadChat();
         }
-        function closeProductModal() { document.getElementById('product-modal').classList.add('hidden'); }
+
+        function loadChat() {
+            const entity = document.getElementById('chat-entity-select').value;
+            const box = document.getElementById('chat-box');
+            const msgs = DB.getMessages(entity);
+            box.innerHTML = msgs.map(m => `
+                <div class="chat-bubble ${m.sender === 'ADMIN' ? 'sent' : 'received'}">
+                    <p>${m.text}</p>
+                    <small class="text-[8px] block mt-1 ${m.sender === 'ADMIN' ? 'text-dark/50' : 'text-white/40'}">${m.date}</small>
+                </div>
+            `).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const entity = document.getElementById('chat-entity-select').value;
+            if(!input.value || !entity) return;
+            DB.sendMessage({ sender: 'ADMIN', receiver: entity, text: input.value, entity: entity });
+            input.value = '';
+            loadChat();
+        }
+
+        function openProductModal() { document.getElementById('product-modal').classList.remove('hidden'); }
+        function closeModals() { document.getElementById('product-modal').classList.add('hidden'); }
+        function editProd(id) { 
+            const p = DB.getProducts().find(x => x.id === id);
+            document.getElementById('prod-id').value = p.id;
+            document.getElementById('prod-name').value = p.name;
+            document.getElementById('prod-price').value = p.price;
+            document.getElementById('prod-stock').value = p.stock;
+            openProductModal();
+        }
+
         document.getElementById('prod-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const id = document.getElementById('prod-id').value;
-            const data = {
-                name: document.getElementById('prod-name').value,
-                price: parseFloat(document.getElementById('prod-price').value),
-                stock: parseInt(document.getElementById('prod-stock').value)
-            };
-            if(id) DB.saveProduct({id, ...data});
-            else DB.saveProduct(data);
-            UI.showToast('تم حفظ المنتج');
-            closeProductModal();
-            renderAdminData();
+            const data = { name: document.getElementById('prod-name').value, price: parseFloat(document.getElementById('prod-price').value), stock: parseInt(document.getElementById('prod-stock').value) };
+            if(id) DB.saveProduct({id, ...data}); else DB.saveProduct(data);
+            UI.showToast('تم الحفظ');
+            closeModals(); renderAll();
         });
 
-        function deleteProduct(id) { if(confirm('متأكد؟')) { DB.deleteProduct(id); UI.showToast('تم الحذف'); renderAdminData(); } }
-        function editProduct(id) { openProductModal(id); }
-
-        window.onload = () => { UI.initNeural(); renderAdminData(); document.getElementById('admin-name').innerText = Auth.getSession().user; };
+        window.onload = () => { 
+            UI.initNeural(); 
+            renderAll(); 
+            document.getElementById('admin-display-name').innerText = Auth.getSession().name;
+        };
     </script>
 </body>
 </html>

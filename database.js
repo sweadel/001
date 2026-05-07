@@ -104,95 +104,62 @@ const DB = {
         this.set('zolngen_audit', logs.slice(0, 200));
     },
 
-    // 6. Accounts & Users
-    getAccounts: function() {
-        let accs = this.get('zolngen_accounts');
-        if(!accs.length) {
-            accs = [{ user: 'admin', pass: 'admin123', role: 'المدير العام' }];
-            this.set('zolngen_accounts', accs);
-        }
-        return accs;
-    },
+    // V100.1 - ACCOUNTS & PERMISSIONS
+    getAccounts: function() { return this.get('zolngen_accounts').length ? this.get('zolngen_accounts') : [{user:'admin', pass:'admin123', role:'ADMIN', name:'المدير العام'}]; },
     saveAccount: function(acc) {
         let accs = this.getAccounts();
-        accs.push(acc);
+        const idx = accs.findIndex(a => a.user === acc.user);
+        if(idx > -1) accs[idx] = acc; else accs.push(acc);
         this.set('zolngen_accounts', accs);
-        this.logAction(`تمت إضافة حساب موظف: ${acc.user}`);
+        this.logAction(`Account Updated: ${acc.user}`);
     },
     deleteAccount: function(user) {
         let accs = this.getAccounts().filter(a => a.user !== user);
         this.set('zolngen_accounts', accs);
+        this.logAction(`Account Deleted: ${user}`);
     },
 
-    // 7. Chat System
-    getChats: function() { return this.get('zolngen_chats'); },
-    addChatMessage: function(sender, message, isClient = false) {
-        let chats = this.getChats();
-        chats.push({ sender, message, date: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}), isClient });
-        this.set('zolngen_chats', chats);
+    // V100.1 - LIVE SUPPORT CHAT
+    getMessages: function(entity) {
+        return this.get('zolngen_messages').filter(m => m.entity === entity || m.receiver === entity);
+    },
+    sendMessage: function(msg) {
+        let msgs = this.get('zolngen_messages');
+        msgs.push({
+            id: Date.now(),
+            sender: msg.sender,
+            receiver: msg.receiver || 'ADMIN',
+            text: msg.text,
+            date: new Date().toLocaleString('ar-EG'),
+            entity: msg.entity
+        });
+        this.set('zolngen_messages', msgs);
     },
 
-    // 8. Client Accounts
-    getClientAccounts: function() { return this.get('zolngen_client_accounts'); },
-    saveClientAccount: function(acc) {
-        let accs = this.getClientAccounts();
-        accs.push(acc);
-        this.set('zolngen_client_accounts', accs);
-        this.logAction(`تم تسجيل حساب موظف مؤسسي جديد: ${acc.name} (${acc.inst})`);
-    },
-
-    // 9. System Settings & Customization
-    getSettings: function() {
-        return this.get('zolngen_settings').length ? this.get('zolngen_settings')[0] : { storeName: 'ZOLNGEN ENTERPRISE', primaryColor: '#d4af37', darkTheme: true };
-    },
-    saveSettings: function(s) {
-        this.set('zolngen_settings', [s]);
-        this.logAction(`تم تحديث إعدادات النظام بنجاح`);
-    },
-
-    // 10. Wishlist System
-    getWishlist: function() { return this.get('zolngen_wishlist'); },
-    toggleWishlist: function(prodId) {
-        let wl = this.getWishlist();
-        if(wl.includes(prodId)) wl = wl.filter(id => id !== prodId);
-        else wl.push(prodId);
-        this.set('zolngen_wishlist', wl);
-        return wl;
-    },
-
-    // 11. Advanced Features (Coupons, Notes)
-    getCoupons: function() { return [{code:'JU2024', discount:0.15}, {code:'ZOLNGEN10', discount:0.10}]; },
-    getInternalNotes: function() { return this.get('zolngen_internal_notes'); },
-    saveInternalNote: function(note) {
-        let notes = this.getInternalNotes();
-        notes.unshift({ text: note, date: new Date().toLocaleString('ar-EG') });
-        this.set('zolngen_internal_notes', notes.slice(0, 50));
-    },
-
-    // 6. Stats Engine (Dynamic)
+    // REFINED STATS (V100.1 Accuracy)
     getProStats: function() {
         const prods = this.getProducts();
         const orders = this.getOrders();
         const tickets = this.getTickets();
         return {
-            totalSales: orders.reduce((acc, o) => acc + o.total, 0),
-            totalProfit: orders.reduce((acc, o) => acc + (o.profit || 0), 0),
-            activeOrders: orders.filter(o => o.status === 'pending').length,
+            totalSales: Number(orders.reduce((acc, o) => acc + o.total, 0).toFixed(2)),
+            totalProfit: Number(orders.reduce((acc, o) => acc + (o.profit || 0), 0).toFixed(2)),
+            activeOrders: orders.filter(o => o.status === 'pending' || o.status === 'processing').length,
             lowStock: prods.filter(p => p.stock < 10).length,
-            inventoryValue: prods.reduce((acc, p) => acc + (p.price * p.stock), 0),
-            openTickets: tickets.filter(t => t.status === 'open').length,
-            totalTickets: tickets.length
+            inventoryValue: Number(prods.reduce((acc, p) => acc + (p.price * p.stock), 0).toFixed(2)),
+            openTickets: tickets.filter(t => t.status === 'open').length
         };
     },
 
     seed: function() {
         const initial = [
-            { id: '1', name: 'HP EliteBook 840 G9', price: 1250, cost: 950, stock: 45, category: 'أجهزة محمولة', supplier: 'HP Jordan', img: 'category_laptops.png', specs: ['Intel Core i7-1260P', '16GB DDR5 RAM', '512GB PCIe NVMe SSD', '14" WUXGA Display'], rating: 4.8 },
-            { id: '2', name: 'Dell Latitude 7430', price: 1180, cost: 880, stock: 5, category: 'أجهزة محمولة', supplier: 'Dell Enterprise', img: 'zolngen_hero_laptop.png', specs: ['Intel Core i5-1245U', '16GB LPDDR5', '256GB SSD', 'Carbon Fiber Chassis'], rating: 4.5 },
-            { id: '3', name: 'Apple MacBook Pro M2', price: 1850, cost: 1600, stock: 12, category: 'أجهزة محمولة', supplier: 'Apple Authorized', img: 'category_laptops.png', specs: ['Apple M2 Pro Chip', '16GB Unified Memory', '512GB SSD', 'Liquid Retina XDR'], rating: 5.0 },
-            { id: '4', name: 'Dell PowerEdge R750', price: 4500, cost: 3800, stock: 3, category: 'خوادم وشبكات', supplier: 'Dell Enterprise', img: 'zolngen_hero_laptop.png', specs: ['Dual Intel Xeon Silver', '128GB RDIMM', '4x 2TB SAS SSD', 'Dual Hot-plug PSU'], rating: 4.9 }
+            { id: 'PRD-1', name: 'HP EliteBook 840 G9', price: 1250, cost: 950, stock: 45, category: 'أجهزة محمولة', img: 'https://placehold.co/400x300/0A0A0B/D4AF37?text=EliteBook' },
+            { id: 'PRD-2', name: 'Dell Latitude 7430', price: 1180, cost: 880, stock: 5, category: 'أجهزة محمولة', img: 'https://placehold.co/400x300/0A0A0B/D4AF37?text=Latitude' },
+            { id: 'PRD-3', name: 'MacBook Pro M2', price: 1850, cost: 1600, stock: 12, category: 'أجهزة محمولة', img: 'https://placehold.co/400x300/0A0A0B/D4AF37?text=MacBook' },
+            { id: 'PRD-4', name: 'PowerEdge R750', price: 4500, cost: 3800, stock: 3, category: 'خوادم', img: 'https://placehold.co/400x300/0A0A0B/D4AF37?text=Server' }
         ];
         this.set('zolngen_inventory', initial);
+        if(!localStorage.getItem('zolngen_accounts')) this.set('zolngen_accounts', [{user:'admin', pass:'admin123', role:'ADMIN', name:'المدير العام'}]);
         return initial;
     }
 };

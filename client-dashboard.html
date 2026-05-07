@@ -3,95 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Institutional Portal | V99.0 Singularity</title>
+    <title>Institutional Portal | V100.1 ULTIMATE</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <style>
-        body { background: #020202; color: #fff; font-family: 'Tajawal', sans-serif; overflow-x: hidden; }
-        .glass { backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255,255,255,0.01); }
-        .tier-card { transition: 0.5s; border-radius: 40px; }
-        .Platinum { border: 2px solid #E5E4E2; box-shadow: 0 0 40px rgba(229, 228, 226, 0.1); }
-        .Gold { border: 2px solid #D4AF37; box-shadow: 0 0 40px rgba(212, 175, 55, 0.1); }
-        .Silver { border: 2px solid #C0C0C0; box-shadow: 0 0 40px rgba(192, 192, 192, 0.1); }
+        .tier-card { border-radius: 40px; transition: 0.5s; }
+        .Platinum { border: 2px solid #E5E4E2; box-shadow: 0 0 50px rgba(229, 228, 226, 0.15); }
+        .Gold { border: 2px solid #D4AF37; box-shadow: 0 0 50px rgba(212, 175, 55, 0.15); }
+        .Silver { border: 2px solid #C0C0C0; box-shadow: 0 0 50px rgba(192, 192, 192, 0.15); }
+        .chat-bubble { max-width: 80%; padding: 12px; border-radius: 16px; margin-bottom: 8px; font-size: 12px; }
+        .sent { background: var(--gold); color: #000; align-self: flex-end; }
+        .received { background: rgba(255,255,255,0.05); color: #fff; align-self: flex-start; }
     </style>
 </head>
 <body class="p-8">
-    <div id="login-screen" class="max-w-md mx-auto mt-20 glass p-12 rounded-[40px] border border-white/10 text-center">
-        <i class="fas fa-university text-5xl text-gold mb-6"></i>
-        <h2 class="text-3xl font-black mb-8">بوابة الشركاء</h2>
-        <div class="space-y-4">
-            <input type="text" id="user" placeholder="اسم المؤسسة" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none focus:border-gold">
-            <input type="password" id="pass" placeholder="كلمة المرور" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none focus:border-gold">
-            <button onclick="login()" class="w-full bg-gold text-dark font-black py-4 rounded-xl hover:scale-105 transition-all">دخول آمن</button>
-        </div>
-    </div>
+    <canvas id="neural-bg"></canvas>
 
-    <div id="dashboard" class="hidden max-w-7xl mx-auto space-y-12">
+    <!-- AUTH GUARD -->
+    <script src="database.js"></script>
+    <script src="auth.js"></script>
+    <script>Auth.checkAccess('CLIENT');</script>
+
+    <div id="dashboard" class="max-w-7xl mx-auto space-y-12">
         <header class="flex justify-between items-center">
-            <h2 class="text-4xl font-black" id="entity-name">University</h2>
+            <div>
+                <h2 class="text-4xl font-black" id="entity-name">Partner Portal</h2>
+                <p class="text-gray-500 text-sm">V100.1 Institutional Experience</p>
+            </div>
             <div class="flex gap-4 items-center">
-                <span id="tier-badge" class="px-6 py-2 rounded-full text-xs font-black uppercase">GOLD TIER</span>
-                <button onclick="logout()" class="text-red-500 hover:underline">تسجيل الخروج</button>
+                <span id="tier-badge" class="px-6 py-2 rounded-full text-[10px] font-black uppercase">LOADING TIER...</span>
+                <button onclick="Auth.logout()" class="text-red-500 hover:underline text-xs">خروج</button>
             </div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="glass p-10 rounded-[40px] text-center tier-card" id="main-tier-card">
-                <p class="text-gray-500 text-xs mb-2">إجمالي الاستثمار</p>
+                <p class="text-gray-500 text-xs mb-2 uppercase tracking-widest">Total Investment</p>
                 <h3 class="text-4xl font-black text-gold" id="total-spend">0 JOD</h3>
             </div>
             <div class="glass p-10 rounded-[40px] text-center">
-                <p class="text-gray-500 text-xs mb-2">طلبات التوريد</p>
+                <p class="text-gray-500 text-xs mb-2 uppercase tracking-widest">Procurement Orders</p>
                 <h3 class="text-4xl font-black" id="total-orders">0</h3>
             </div>
-            <div class="glass p-10 rounded-[40px] text-center">
-                <p class="text-gray-500 text-xs mb-2">صحة الأصول</p>
-                <h3 class="text-4xl font-black text-green-500">98.4%</h3>
+            <div class="glass p-10 rounded-[40px] text-center border-b-4 border-green-500/30">
+                <p class="text-gray-500 text-xs mb-2 uppercase tracking-widest">System Health</p>
+                <h3 class="text-4xl font-black text-green-500">99.9%</h3>
             </div>
         </div>
 
-        <div class="glass p-10 rounded-[40px] border border-white/5">
-            <h4 class="text-xl font-bold mb-6">سجل التوريد المؤسسي</h4>
-            <div id="orders-list" class="space-y-4"></div>
+        <div class="grid lg:grid-cols-2 gap-12">
+            <!-- Order History -->
+            <div class="glass p-10 rounded-[40px] border border-white/5 space-y-6">
+                <h4 class="text-xl font-bold">سجل التوريد</h4>
+                <div id="orders-list" class="space-y-4 max-h-[400px] overflow-y-auto pr-2"></div>
+            </div>
+
+            <!-- Live Chat with HQ -->
+            <div class="glass p-10 rounded-[40px] border border-white/5 flex flex-col h-[500px]">
+                <h4 class="text-xl font-bold mb-6 flex justify-between">
+                    الدردشة مع المركز 
+                    <span class="text-[10px] text-gold animate-pulse">● LIVE</span>
+                </h4>
+                <div id="chat-box" class="flex-1 overflow-y-auto flex flex-col space-y-2 mb-6"></div>
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." class="flex-1 bg-white/5 border border-white/10 p-4 rounded-xl text-xs outline-none focus:border-gold">
+                    <button onclick="sendMsg()" class="bg-gold text-dark px-6 rounded-xl font-black text-xs">إرسال</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="database.js"></script>
+    <script src="ui.js"></script>
     <script>
-        function login() {
-            const u = document.getElementById('user').value;
-            const p = document.getElementById('pass').value;
-            if(u && p === 'admin123') {
-                sessionStorage.setItem('client', u);
-                renderDashboard();
-            } else {
-                alert('خطأ في البيانات');
-            }
-        }
-
-        function logout() {
-            sessionStorage.removeItem('client');
-            location.reload();
-        }
-
-        function renderDashboard() {
-            const entity = sessionStorage.getItem('client');
-            if(!entity) return;
-
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('dashboard').classList.remove('hidden');
-
-            const tier = DB.getTier(entity);
+        function renderClient() {
+            const session = Auth.getSession();
+            const entity = session.user;
+            
             document.getElementById('entity-name').innerText = entity;
+            
+            const tier = DB.getTier(entity);
             const badge = document.getElementById('tier-badge');
             badge.innerText = `${tier} TIER`;
-            badge.className = `px-6 py-2 rounded-full text-xs font-black uppercase bg-white/10 ${tier}`;
-            
-            document.getElementById('main-tier-card').classList.add(tier);
+            badge.className = `px-6 py-2 rounded-full text-[10px] font-black uppercase bg-white/10 ${tier}`;
+            document.getElementById('main-tier-card').className = `glass p-10 rounded-[40px] text-center tier-card ${tier}`;
 
             const orders = DB.getOrders().filter(o => o.entity === entity);
             document.getElementById('total-spend').innerText = orders.reduce((a,b) => a+b.total, 0).toLocaleString() + ' JOD';
@@ -99,15 +99,43 @@
 
             const list = document.getElementById('orders-list');
             list.innerHTML = orders.map(o => `
-                <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl">
-                    <span>${o.id} - ${o.date}</span>
-                    <span class="font-black text-gold">${o.total} JOD</span>
-                    <span class="text-[10px] uppercase">${o.status}</span>
+                <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <span class="text-xs">${o.id} - ${o.date}</span>
+                    <span class="font-black text-gold text-sm">${o.total} JOD</span>
+                    <span class="text-[8px] uppercase px-2 py-1 bg-white/5 rounded-md">${o.status}</span>
                 </div>
-            `).join('') || '<p class="text-center text-gray-500">لا يوجد طلبات سابقة</p>';
+            `).join('') || '<p class="text-center text-gray-500 py-10">لا توجد طلبات سابقة</p>';
+
+            loadChat();
         }
 
-        window.onload = () => { if(sessionStorage.getItem('client')) renderDashboard(); };
+        function loadChat() {
+            const session = Auth.getSession();
+            const box = document.getElementById('chat-box');
+            const msgs = DB.getMessages(session.user);
+            box.innerHTML = msgs.map(m => `
+                <div class="chat-bubble ${m.sender === session.user ? 'sent' : 'received'}">
+                    <p>${m.text}</p>
+                    <small class="text-[8px] block mt-1 opacity-50">${m.date}</small>
+                </div>
+            `).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function sendMsg() {
+            const session = Auth.getSession();
+            const input = document.getElementById('chat-input');
+            if(!input.value) return;
+            DB.sendMessage({ sender: session.user, receiver: 'ADMIN', text: input.value, entity: session.user });
+            input.value = '';
+            loadChat();
+        }
+
+        window.onload = () => {
+            UI.initNeural();
+            renderClient();
+            setInterval(loadChat, 3000); // Poll for new messages every 3s
+        };
     </script>
 </body>
 </html>
