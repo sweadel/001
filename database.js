@@ -1,9 +1,15 @@
-// ZOLNGEN ENTERPRISE PRO v20 - ULTIMATE DYNAMIC CORE
+// ZOLNGEN ENTERPRISE PRO v99.0 - THE SINGULARITY CORE (ULTIMATE EDITION)
 const DB = {
     get: (k) => JSON.parse(localStorage.getItem(k)) || [],
     set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
 
-    // 1. Inventory & Profit Management
+    // V99 TIER LOGIC
+    getTier: function(entity) {
+        const total = this.getOrders().filter(o => o.entity === entity).reduce((a,b) => a + b.total, 0);
+        if (total > 100000) return 'Platinum';
+        if (total > 50000) return 'Gold';
+        return 'Silver';
+    },
     getProducts: function() {
         let p = this.get('zolngen_inventory');
         return p.length ? p : this.seed();

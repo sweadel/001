@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Enterprise Pro | V41.0 Elite SPA</title>
+    <title>ZOLNGEN Enterprise Pro | V99.0 THE SINGULARITY</title>
     
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
@@ -17,11 +17,12 @@
                 extend: {
                     colors: {
                         gold: '#D4AF37',
-                        goldBright: '#F9E5A7',
-                        dark: '#050505',
-                        surface: '#0A0A0B',
-                        glass: 'rgba(255, 255, 255, 0.03)',
-                        glassBorder: 'rgba(255, 255, 255, 0.08)',
+                        platinum: '#E5E4E2',
+                        silver: '#C0C0C0',
+                        dark: '#020202',
+                        surface: '#050505',
+                        glass: 'rgba(255, 255, 255, 0.01)',
+                        glassBorder: 'rgba(255, 255, 255, 0.06)',
                     },
                     fontFamily: {
                         ar: ['Tajawal', 'sans-serif'],
@@ -37,77 +38,25 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        :root {
-            --gold: #D4AF37;
-            --platinum: #E5E4E2;
-            --silver: #C0C0C0;
-            --dark: #020202;
-            --surface: #080808;
-            --glass: rgba(255, 255, 255, 0.015);
-            --holo-glow: 0 0 40px rgba(212, 175, 55, 0.15);
-        }
+        :root { --accent: #D4AF37; }
+        .glass { backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px); border: 1px solid var(--glassBorder); }
+        .holo-glow:hover { box-shadow: 0 0 50px rgba(255, 255, 255, 0.05); transform: translateY(-5px) scale(1.02); }
         
-        body { 
-            background: radial-gradient(circle at 50% 0%, #151515 0%, #020202 100%);
-            font-family: 'Inter', 'Tajawal', sans-serif;
-            color: #fff;
-            overflow-x: hidden;
-        }
+        #neural-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.4; }
+        
+        /* Singularity Animations */
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+        .float { animation: float 6s ease-in-out infinite; }
 
-        .glass { 
-            backdrop-filter: blur(40px); 
-            -webkit-backdrop-filter: blur(40px); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0));
-        }
+        .tier-platinum { --accent: #E5E4E2; filter: drop-shadow(0 0 10px rgba(229, 228, 226, 0.2)); }
+        .tier-gold { --accent: #D4AF37; }
+        .tier-silver { --accent: #C0C0C0; }
 
-        /* Holographic Effect */
-        .holo-card {
-            position: relative;
-            overflow: hidden;
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .holo-card::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
-            transform: rotate(45deg);
-            transition: 0.8s;
-        }
-        .holo-card:hover::before { left: 100%; }
-
-        /* Global Search Overlay */
-        #global-search-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(20px);
-            z-index: 1000;
-            display: none;
-            opacity: 0;
-            transition: 0.3s;
-        }
-
-        .cmd-palette {
-            max-width: 700px;
-            margin: 10vh auto;
-            background: #0A0A0B;
-            border: 1px solid var(--gold);
-            border-radius: 24px;
-            box-shadow: 0 0 100px rgba(212, 175, 55, 0.2);
-        }
-
-        #scroll-progress { 
-            position: fixed; top: 0; left: 0; height: 5px; 
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
-            z-index: 9999; width: 0%; 
-            filter: drop-shadow(0 0 10px var(--gold));
-        }
+        #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); z-index: 9999; width: 0%; box-shadow: 0 0 15px var(--accent); }
     </style>
 </head>
-<body class="lang-ar">
+<body class="lang-ar tier-gold">
+    <canvas id="neural-bg"></canvas>
 
     <!-- V65 GLOBAL SEARCH OVERLAY -->
     <div id="global-search-overlay">
@@ -779,41 +728,55 @@
             res.innerHTML = html || '<p class="text-center text-gray-600 py-4">No neural matches found...</p>';
         });
 
+        // V99 NEURAL CANVAS
+        const canvas = document.getElementById('neural-bg');
+        const ctx = canvas.getContext('2d');
+        let dots = [];
+        function initNeural() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            dots = [];
+            for(let i=0; i<80; i++) dots.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5 });
+        }
+        function drawNeural() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
+            ctx.globalAlpha = 0.2;
+            dots.forEach(d => {
+                d.x += d.vx; d.y += d.vy;
+                if(d.x<0 || d.x>canvas.width) d.vx *= -1;
+                if(d.y<0 || d.y>canvas.height) d.vy *= -1;
+                ctx.beginPath(); ctx.arc(d.x, d.y, 2, 0, Math.PI*2); ctx.fill();
+            });
+            requestAnimationFrame(drawNeural);
+        }
+
+        // V99 TIER THEMING
+        function applyTierTheme(entity) {
+            const tier = DB.getTier(entity);
+            const body = document.body;
+            body.classList.remove('tier-gold', 'tier-platinum', 'tier-silver');
+            body.classList.add(`tier-${tier.toLowerCase()}`);
+            document.documentElement.style.setProperty('--accent', tier === 'Platinum' ? '#E5E4E2' : (tier === 'Gold' ? '#D4AF37' : '#C0C0C0'));
+            showToast(`${entity} Status: ${tier} Tier Active`);
+        }
+
         // INIT
         window.showToast = showToast;
+        window.onload = () => {
+            initNeural(); drawNeural();
+            updateCart();
+            if(localStorage.getItem('zolngen_lang') === 'en') toggleLanguage();
+            const client = JSON.parse(sessionStorage.getItem('zolngen_client_user'));
+            if(client) applyTierTheme(client.inst);
+        };
+        window.onresize = initNeural;
         window.onscroll = () => {
             const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
             const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
             const scrolled = (winScroll / height) * 100;
             document.getElementById("scroll-progress").style.width = scrolled + "%";
         };
-
-        // Particles
-        const partContainer = document.getElementById('particles-container');
-        for(let i=0; i<30; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.style.width = Math.random() * 5 + 'px';
-            p.style.height = p.style.width;
-            p.style.left = Math.random() * 100 + 'vw';
-            p.style.top = Math.random() * 100 + 'vh';
-            partContainer.appendChild(p);
-            
-            gsap.to(p, {
-                y: '+=100',
-                x: '+=50',
-                opacity: 0.3,
-                repeat: -1,
-                yoyo: true,
-                duration: 2 + Math.random() * 3,
-                ease: "sine.inOut"
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            updateCart();
-            if(localStorage.getItem('zolngen_lang') === 'en') toggleLanguage();
-        });
     </script>
 </body>
 </html>
