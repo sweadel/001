@@ -1,11 +1,20 @@
-/* global.css - ZOLNGEN PREMIUM V117.0 */
+/* global.css - ZOLNGEN RADICAL V118.0 */
 :root {
     --gold: #D4AF37;
     --gold-bright: #FFD700;
     --dark: #050505;
+    --light: #f5f5f7;
+    --bg: var(--dark);
+    --text: #ffffff;
     --glass: rgba(255, 255, 255, 0.03);
-    --border: rgba(255, 255, 255, 0.06);
-    --text-dim: #666;
+    --border: rgba(212, 175, 55, 0.15);
+}
+
+[data-theme="light"] {
+    --bg: var(--light);
+    --text: #1d1d1f;
+    --glass: rgba(0, 0, 0, 0.05);
+    --border: rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -13,153 +22,66 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Tajawal', sans-serif;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* FORCE HIDE DEFAULT CURSOR EVERYWHERE */
-body, a, button, input, select, textarea, div {
-    cursor: none !important;
-}
-
+/* HYBRID CURSOR - ALWAYS VISIBLE */
 body {
-    background: var(--dark);
-    color: #fff;
+    cursor: default !important; /* Restore native cursor for reliability */
+    background: var(--bg);
+    color: var(--text);
     overflow-x: hidden;
-    line-height: 1.6;
 }
 
-#neural-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    opacity: 0.15;
-}
-
-/* CUSTOM CURSOR SYSTEM - ULTIMATE VISIBILITY */
-.cursor {
-    width: 6px;
-    height: 6px;
-    background: var(--gold-bright);
+.cursor-glow {
+    width: 20px;
+    height: 20px;
+    background: var(--gold);
     border-radius: 50%;
     position: fixed;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-    z-index: 100000; /* Absolute Top */
-    box-shadow: 0 0 15px var(--gold-bright);
-}
-
-.cursor-follower {
-    width: 30px;
-    height: 30px;
-    border: 1.5px solid var(--gold);
-    border-radius: 50%;
-    position: fixed;
-    top: -12px;
-    left: -12px;
     pointer-events: none;
     z-index: 99999;
-    background: rgba(212, 175, 55, 0.05);
-    backdrop-filter: blur(2px);
-    transition: transform 0.08s ease-out;
+    mix-blend-mode: difference;
+    filter: blur(8px);
+    opacity: 0.6;
+    transition: transform 0.1s ease-out;
 }
 
 /* PREMIUM SCROLLBAR */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--dark); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
 
-/* GLASSMORPHISM */
+/* UTILITIES */
 .glass {
     background: var(--glass);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(212, 175, 55, 0.15);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--border);
 }
 
 .gold-glow {
-    text-shadow: 0 0 25px rgba(212, 175, 55, 0.7);
+    text-shadow: 0 0 20px var(--gold);
 }
 
-/* BUTTONS */
 .btn-gold {
     background: linear-gradient(135deg, var(--gold), #B8860B);
     color: #000;
     font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
 }
 
-.btn-gold:hover {
-
-/* CURSOR */
-.cursor {
+/* THEME TOGGLE BUTTON */
+.theme-toggle {
     position: fixed;
-    width: 4px;
-    height: 4px;
-    background: var(--gold);
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    padding: 10px;
     border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    mix-blend-mode: difference;
-}
-
-.cursor-follower {
-    position: fixed;
-    width: 30px;
-    height: 30px;
-    border: 1px solid var(--gold);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9998;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-/* INPUTS */
-input, select, textarea {
-    background: rgba(255, 255, 255, 0.02) !important;
-    border: 1px solid var(--border) !important;
-    color: white !important;
-    padding: 0.8rem 1.2rem !important;
-    border-radius: 1rem !important;
-    width: 100%;
-    outline: none;
-    transition: all 0.3s;
-}
-
-input:focus {
-    border-color: var(--gold) !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* LTR/RTL ADAPTATION */
-html[dir="ltr"] {
-    text-align: left;
-}
-
-html[dir="rtl"] {
-    text-align: right;
-}
-
-/* ANIMATIONS */
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
-}
-
-.floating {
-    animation: float 6s ease-in-out infinite;
-}
-
-.card-omni {
-    transition: all 0.4s;
-}
-
-.card-omni:hover {
-    border-color: var(--gold);
-    background: rgba(212, 175, 55, 0.03);
-    transform: translateY(-5px);
+    color: var(--gold);
+    cursor: pointer !important;
 }
