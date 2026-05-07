@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Admin | V100.9 ULTIMATE</title>
+    <title>ZOLNGEN Command Center | V101.0 MASTER</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,17 +14,21 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; cursor: none; }
         body { background: var(--dark); color: white; overflow-x: hidden; }
         #neural-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.2; }
-        .glass { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .sidebar { width: 350px; height: 100vh; position: fixed; right: 0; top: 0; z-index: 150; transition: transform 0.5s ease; }
-        .main { margin-right: 350px; padding: 80px; min-height: 100vh; }
+        .glass { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .sidebar { width: 320px; height: 100vh; position: fixed; right: 0; top: 0; z-index: 150; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); border-left: 1px solid rgba(255, 255, 255, 0.05); }
+        .main { margin-right: 320px; padding: 60px; min-height: 100vh; transition: all 0.5s; }
         .tab-btn { transition: all 0.3s; opacity: 0.4; }
         .tab-btn.active { opacity: 1; color: var(--gold); background: rgba(212, 175, 55, 0.05); }
         .cursor { position: fixed; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 1000; mix-blend-mode: difference; }
-        input, select { background: rgba(255, 255, 255, 0.05) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; color: white !important; padding: 1rem !important; border-radius: 1rem !important; width: 100%; }
-        .chat-bubble { padding: 1rem 1.5rem; border-radius: 24px; max-width: 80%; font-size: 0.9rem; margin-bottom: 1rem; }
-        .chat-bubble.sent { align-self: flex-start; background: var(--gold); color: var(--dark); border-bottom-left-radius: 4px; font-weight: 700; }
+        input, select, textarea { background: rgba(255, 255, 255, 0.04) !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; color: white !important; padding: 1rem !important; border-radius: 1.2rem !important; width: 100%; outline: none; }
+        input:focus { border-color: var(--gold) !important; }
+        .chat-bubble { padding: 1rem 1.5rem; border-radius: 20px; max-width: 80%; font-size: 0.85rem; margin-bottom: 0.8rem; line-height: 1.6; }
+        .chat-bubble.sent { align-self: flex-start; background: var(--gold); color: var(--dark); border-bottom-left-radius: 4px; font-weight: 700; box-shadow: 0 10px 20px rgba(212, 175, 55, 0.1); }
         .chat-bubble.received { align-self: flex-end; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-bottom-right-radius: 4px; }
-        @media (max-width: 1024px) { .sidebar { transform: translateX(100%); } .main { margin-right: 0; padding: 40px; } .sidebar.open { transform: translateX(0); } }
+        .status-badge { padding: 4px 12px; rounded-full; font-size: 10px; font-weight: 900; text-transform: uppercase; }
+        .low-stock { color: #ff4444; font-weight: 900; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.3; } }
+        @media (max-width: 1024px) { .sidebar { transform: translateX(100%); } .main { margin-right: 0; padding: 30px; } .sidebar.open { transform: translateX(0); } }
     </style>
 </head>
 <body>
@@ -33,83 +37,99 @@
 
     <!-- LOCK SCREEN -->
     <div id="admin-lock-screen" class="fixed inset-0 z-[500] bg-black flex items-center justify-center p-6">
-        <div class="glass p-16 rounded-[64px] max-w-sm w-full border border-gold/30 text-center animate-in shadow-2xl">
-            <div class="w-24 h-24 bg-gold text-dark rounded-[32px] flex items-center justify-center text-4xl mx-auto mb-10 shadow-2xl shadow-gold/20"><i class="fas fa-key"></i></div>
-            <h3 class="text-3xl font-black mb-4 text-gold tracking-tighter">بوابة الإدارة</h3>
-            <p class="text-gray-600 text-[10px] mb-12 uppercase tracking-widest font-black">ZOLNGEN COMMAND ACCESS</p>
-            
+        <div class="glass p-16 rounded-[60px] max-w-sm w-full border border-gold/20 text-center shadow-2xl">
+            <div class="w-24 h-24 bg-gold text-dark rounded-[30px] flex items-center justify-center text-4xl mx-auto mb-10 shadow-2xl shadow-gold/20"><i class="fas fa-fingerprint"></i></div>
+            <h3 class="text-3xl font-black mb-2 text-gold">بوابة القيادة</h3>
+            <p class="text-gray-600 text-[10px] mb-12 uppercase tracking-[0.4em] font-black">ZOLNGEN COMMAND ACCESS</p>
             <div class="space-y-4">
                 <input type="text" id="lock-user" placeholder="اسم المستخدم" class="text-center">
                 <input type="password" id="lock-pass" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter') unlockAdmin()" class="text-center">
             </div>
-
-            <button onclick="unlockAdmin()" class="w-full bg-gold text-dark py-5 rounded-2xl font-black mt-10 shadow-xl shadow-gold/20 hover:scale-105 transition-all">دخول آمن</button>
-            <div class="flex gap-4 justify-center mt-8">
-                <a href="index.html" class="text-gray-600 text-xs hover:text-white underline">الرئيسية</a>
-                <button onclick="if(confirm('إعادة ضبط؟')){localStorage.clear();location.reload();}" class="text-red-500/50 text-xs hover:underline">إعادة ضبط</button>
+            <button onclick="unlockAdmin()" class="w-full bg-gold text-dark py-5 rounded-2xl font-black mt-10 shadow-xl shadow-gold/20 hover:scale-105 transition-all">الدخول الآمن للمركز</button>
+            <div class="flex gap-4 justify-center mt-8 text-[10px] text-gray-700">
+                <a href="index.html" class="hover:text-white underline">الرئيسية</a>
+                <span>•</span>
+                <button onclick="if(confirm('إعادة ضبط؟')){localStorage.clear();location.reload();}" class="hover:text-red-500 underline">إعادة ضبط</button>
             </div>
         </div>
     </div>
 
-    <!-- CONTENT -->
+    <!-- MAIN DASHBOARD -->
     <div id="admin-content" class="hidden">
-        <aside id="sidebar" class="sidebar glass p-10 flex flex-col justify-between border-l border-white/5">
-            <div class="space-y-16">
-                <h1 class="text-4xl font-black text-gold tracking-tighter gold-glow">ZOLNGEN <span class="text-[10px] block text-white/40 uppercase tracking-widest font-black">OS V100.9</span></h1>
-                <nav class="space-y-3">
-                    <button onclick="showTab('overview')" class="tab-btn active w-full text-right p-5 rounded-2xl flex items-center gap-4 text-sm font-bold"><i class="fas fa-home w-5"></i> نظرة عامة</button>
-                    <button onclick="showTab('inventory')" class="tab-btn w-full text-right p-5 rounded-2xl flex items-center gap-4 text-sm font-bold"><i class="fas fa-box w-5"></i> المخزون</button>
-                    <button onclick="showTab('orders')" class="tab-btn w-full text-right p-5 rounded-2xl flex items-center gap-4 text-sm font-bold"><i class="fas fa-truck w-5"></i> العمليات</button>
-                    <button onclick="showTab('accounts')" class="tab-btn w-full text-right p-5 rounded-2xl flex items-center gap-4 text-sm font-bold"><i class="fas fa-users w-5"></i> الكادر</button>
+        <aside id="sidebar" class="sidebar glass p-10 flex flex-col justify-between">
+            <div class="space-y-12">
+                <h1 class="text-4xl font-black text-gold tracking-tighter">ZOLNGEN <span class="text-[9px] block text-white/30 uppercase tracking-[0.5em] font-black mt-1">OS V101.0 MASTER</span></h1>
+                <nav class="space-y-2">
+                    <button onclick="showTab('overview')" class="tab-btn active w-full text-right p-4 rounded-xl flex items-center gap-4 text-sm font-black"><i class="fas fa-th-large w-5"></i> نظرة عامة</button>
+                    <button onclick="showTab('inventory')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4 text-sm font-black"><i class="fas fa-box-open w-5"></i> سلاسل التوريد</button>
+                    <button onclick="showTab('orders')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4 text-sm font-black"><i class="fas fa-tasks w-5"></i> العمليات التشغيلية</button>
+                    <button onclick="showTab('accounts')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4 text-sm font-black"><i class="fas fa-user-tie w-5"></i> الكادر البشري</button>
+                    <button onclick="showTab('chat')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4 text-sm font-black"><i class="fas fa-comments w-5"></i> المركز الموحد</button>
+                    <button onclick="showTab('logs')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4 text-sm font-black"><i class="fas fa-history w-5"></i> سجل التدقيق</button>
+                    <button onclick="showTab('settings')" class="tab-btn w-full text-right p-4 rounded-xl flex items-center gap-4 text-sm font-black"><i class="fas fa-cog w-5"></i> الإعدادات</button>
                 </nav>
             </div>
-            <button onclick="Auth.logout()" class="p-5 bg-red-500/10 text-red-500 rounded-2xl text-center font-black border border-red-500/20">تسجيل خروج</button>
+            <button onclick="Auth.logout()" class="p-5 bg-red-500/10 text-red-500 rounded-2xl text-center font-black border border-red-500/20 hover:bg-red-500 hover:text-white transition-all">تأمين الخروج</button>
         </aside>
 
         <main class="main">
-            <header class="flex justify-between items-end mb-24">
+            <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-20 gap-8">
                 <div>
                     <h2 id="tab-title" class="text-7xl font-black tracking-tighter">Command Center</h2>
-                    <p class="text-gray-600 uppercase tracking-widest text-xs mt-4">Real-time Institutional Orchestration</p>
+                    <p class="text-gray-700 uppercase tracking-[0.5em] text-[10px] font-black mt-4">INSTITUTIONAL ORCHESTRATION ENGINE</p>
                 </div>
-                <div class="text-right glass px-8 py-4 rounded-3xl border border-white/5">
-                    <p id="admin-name" class="text-gold font-black text-xl">Admin</p>
-                    <small class="text-gray-700 text-[10px] uppercase font-bold">SYSTEM OVERSEER</small>
+                <div class="flex gap-6 items-center">
+                    <div class="text-right glass px-8 py-4 rounded-3xl border border-white/5">
+                        <p id="admin-name" class="text-gold font-black text-xl">General Director</p>
+                        <small class="text-gray-700 text-[10px] uppercase font-black">ADMINISTRATIVE HQ</small>
+                    </div>
+                    <button onclick="location.reload()" class="w-14 h-14 glass rounded-2xl flex items-center justify-center hover:text-gold transition-all"><i class="fas fa-sync-alt"></i></button>
                 </div>
             </header>
 
-            <!-- TABS -->
+            <!-- TAB: OVERVIEW -->
             <section id="tab-overview" class="tab-content space-y-12">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    <div class="glass p-10 rounded-[48px] border-b-4 border-gold/40">
-                        <p class="text-gray-600 text-[10px] uppercase font-black mb-2">Revenue</p>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass p-10 rounded-[40px] border-b-4 border-gold/40">
+                        <p class="text-gray-700 text-[10px] uppercase font-black mb-2 tracking-widest">Gross Revenue</p>
                         <h3 id="stat-sales" class="text-4xl font-black text-gold">0</h3>
                     </div>
-                    <div class="glass p-10 rounded-[48px] border-b-4 border-green-500/40">
-                        <p class="text-gray-600 text-[10px] uppercase font-black mb-2">Net Profit</p>
+                    <div class="glass p-10 rounded-[40px] border-b-4 border-green-500/40">
+                        <p class="text-gray-700 text-[10px] uppercase font-black mb-2 tracking-widest">Net Profit (25%)</p>
                         <h3 id="stat-profit" class="text-4xl font-black text-green-500">0</h3>
                     </div>
-                    <div class="glass p-10 rounded-[48px] border-b-4 border-blue-500/40">
-                        <p class="text-gray-600 text-[10px] uppercase font-black mb-2">Inventory</p>
+                    <div class="glass p-10 rounded-[40px] border-b-4 border-blue-500/40">
+                        <p class="text-gray-700 text-[10px] uppercase font-black mb-2 tracking-widest">Inventory Value</p>
                         <h3 id="stat-inv" class="text-4xl font-black text-blue-400">0</h3>
                     </div>
-                    <div class="glass p-10 rounded-[48px] border-b-4 border-red-500/40">
-                        <p class="text-gray-600 text-[10px] uppercase font-black mb-2">Tickets</p>
+                    <div class="glass p-10 rounded-[40px] border-b-4 border-red-500/40">
+                        <p class="text-gray-700 text-[10px] uppercase font-black mb-2 tracking-widest">Open Tickets</p>
                         <h3 id="stat-tck" class="text-4xl font-black text-red-500">0</h3>
                     </div>
                 </div>
-                <div class="glass p-12 rounded-[64px] border border-white/5">
-                    <canvas id="forecastChart" height="120"></canvas>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 glass p-12 rounded-[50px] border border-white/5">
+                        <h4 class="text-xl font-black mb-10 flex justify-between items-center">المخطط المالي التوقعي <span class="text-[10px] text-gray-700">FORECASTING Q4</span></h4>
+                        <canvas id="forecastChart" height="150"></canvas>
+                    </div>
+                    <div class="glass p-10 rounded-[50px] border border-white/5">
+                        <h4 class="text-xl font-black mb-8">حالة المخزون</h4>
+                        <div id="stock-alerts" class="space-y-6"></div>
+                    </div>
                 </div>
             </section>
 
-            <section id="tab-inventory" class="tab-content hidden space-y-12">
+            <!-- TAB: INVENTORY -->
+            <section id="tab-inventory" class="tab-content hidden space-y-10">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-4xl font-black">Supply Chain Management</h3>
-                    <button onclick="openModal('prod-modal')" class="btn-gold px-10 py-4 rounded-2xl">إضافة صنف</button>
+                    <h3 class="text-4xl font-black"> Supply Chain Dashboard</h3>
+                    <div class="flex gap-4">
+                        <input type="text" id="inv-search" oninput="renderAdmin()" placeholder="بحث سريع..." class="w-64">
+                        <button onclick="openModal('prod-modal')" class="bg-gold text-dark px-10 py-4 rounded-2xl font-black shadow-xl shadow-gold/20 hover:scale-105 transition-all">إضافة صنف مؤسسي</button>
+                    </div>
                 </div>
-                <div class="glass rounded-[48px] overflow-hidden border border-white/5">
-                    <table class="w-full text-right text-sm">
+                <div class="glass rounded-[40px] overflow-hidden border border-white/5">
+                    <table class="w-full text-right">
                         <thead class="bg-white/5 text-gray-700 uppercase text-[10px] font-black">
                             <tr><th class="p-8">المنتج</th><th class="p-8">الفئة</th><th class="p-8">السعر</th><th class="p-8">المخزون</th><th class="p-8 text-center">إجراءات</th></tr>
                         </thead>
@@ -118,39 +138,81 @@
                 </div>
             </section>
 
-            <section id="tab-orders" class="tab-content hidden space-y-12">
-                <h3 class="text-4xl font-black">Institutional Operations</h3>
-                <div id="orders-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+            <!-- TAB: ORDERS -->
+            <section id="tab-orders" class="tab-content hidden space-y-10">
+                <h3 class="text-4xl font-black"> Operational Operations</h3>
+                <div id="orders-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
             </section>
 
-            <section id="tab-accounts" class="tab-content hidden space-y-12">
+            <!-- TAB: ACCOUNTS -->
+            <section id="tab-accounts" class="tab-content hidden space-y-10">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-4xl font-black">Human Capital</h3>
-                    <button onclick="openModal('acc-modal')" class="btn-gold px-10 py-4 rounded-2xl">إضافة حساب</button>
+                    <h3 class="text-4xl font-black"> Human Capital Management</h3>
+                    <button onclick="openModal('acc-modal')" class="bg-gold text-dark px-10 py-4 rounded-2xl font-black">إنشاء حساب كادر</button>
                 </div>
-                <div id="acc-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+                <div id="acc-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+            </section>
+
+            <!-- TAB: CHAT -->
+            <section id="tab-chat" class="tab-content hidden h-[75vh] flex flex-col glass rounded-[50px] overflow-hidden border border-white/5">
+                <div class="p-8 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <div class="w-4 h-4 bg-gold rounded-full animate-pulse shadow-lg shadow-gold/50"></div>
+                        <span class="font-black text-xl">مركز التواصل الموحد</span>
+                    </div>
+                    <select id="chat-select" class="w-64 bg-black border-none" onchange="loadChat()"></select>
+                </div>
+                <div id="chat-box" class="flex-1 p-10 overflow-y-auto flex flex-col"></div>
+                <div class="p-8 border-t border-white/5 flex gap-4 bg-white/2">
+                    <textarea id="chat-input" placeholder="اكتب رسالة رسمية للمؤسسة..." class="flex-1 h-16 resize-none"></textarea>
+                    <button onclick="sendChat()" class="bg-gold text-dark px-12 rounded-2xl font-black shadow-xl shadow-gold/20">إرسال</button>
+                </div>
+            </section>
+
+            <!-- TAB: LOGS -->
+            <section id="tab-logs" class="tab-content hidden space-y-8">
+                <h3 class="text-4xl font-black"> Audit Logs</h3>
+                <div class="glass p-10 rounded-[40px] space-y-4 max-h-[60vh] overflow-y-auto" id="logs-container"></div>
+            </section>
+
+            <!-- TAB: SETTINGS -->
+            <section id="tab-settings" class="tab-content hidden space-y-8">
+                <h3 class="text-4xl font-black"> Institutional Settings</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="glass p-12 rounded-[50px] space-y-8">
+                        <h5 class="text-xl font-black border-b border-white/5 pb-4">إعدادات الهوية</h5>
+                        <input type="text" placeholder="اسم المنشأة الرسمي" value="ZOLNGEN ENTERPRISE PRO">
+                        <input type="text" placeholder="البريد الإلكتروني للإدارة" value="hq@zolngen.com">
+                        <button onclick="UI.showToast('تم حفظ الإعدادات')" class="btn-gold px-10 py-4 rounded-xl">حفظ التغييرات</button>
+                    </div>
+                    <div class="glass p-12 rounded-[50px] space-y-8">
+                        <h5 class="text-xl font-black border-b border-white/5 pb-4">تحديثات المنظومة</h5>
+                        <p class="text-gray-700 text-sm">النسخة الحالية: V101.0 MASTER</p>
+                        <button onclick="localStorage.clear(); location.reload();" class="w-full border border-red-500/20 text-red-500 py-4 rounded-xl hover:bg-red-500 hover:text-white transition-all">إعادة تهيئة قاعدة البيانات</button>
+                    </div>
+                </div>
             </section>
         </main>
     </div>
 
     <!-- MODALS -->
     <div id="modal-bg" class="fixed inset-0 z-[600] bg-black/98 backdrop-blur-3xl hidden flex items-center justify-center p-6">
-        <div id="prod-modal" class="glass p-16 rounded-[64px] max-w-xl w-full hidden border border-gold/30">
-            <h3 class="text-4xl font-black mb-10">إدارة المنتج</h3>
+        <div id="prod-modal" class="glass p-16 rounded-[60px] max-w-xl w-full hidden border border-gold/20">
+            <h3 class="text-4xl font-black mb-10 text-gold">إدارة المنتج</h3>
             <form id="prod-form" class="space-y-6">
-                <input type="hidden" id="p-id"><input type="text" id="p-name" placeholder="الاسم"><input type="text" id="p-cat" placeholder="الفئة">
-                <div class="grid grid-cols-2 gap-6"><input type="number" id="p-price" placeholder="السعر"><input type="number" id="p-stock" placeholder="الكمية"></div>
-                <button type="submit" class="w-full bg-gold text-dark py-5 rounded-2xl font-black mt-10">حفظ البيانات</button>
-                <button type="button" onclick="closeModal()" class="w-full text-gray-700 text-xs underline mt-4">إلغاء</button>
+                <input type="hidden" id="p-id"><input type="text" id="p-name" placeholder="اسم المنتج"><input type="text" id="p-cat" placeholder="الفئة">
+                <div class="grid grid-cols-2 gap-6"><input type="number" id="p-price" placeholder="سعر الوحدة"><input type="number" id="p-stock" placeholder="الكمية المتوفرة"></div>
+                <button type="submit" class="w-full bg-gold text-dark py-5 rounded-2xl font-black mt-10 shadow-2xl shadow-gold/20">تحديث المخزون</button>
+                <button type="button" onclick="closeModal()" class="w-full text-gray-700 text-xs underline mt-6">إلغاء العملية</button>
             </form>
         </div>
-        <div id="acc-modal" class="glass p-16 rounded-[64px] max-w-xl w-full hidden border border-gold/30">
-            <h3 class="text-4xl font-black mb-10">حساب جديد</h3>
+        <div id="acc-modal" class="glass p-16 rounded-[60px] max-w-xl w-full hidden border border-gold/20">
+            <h3 class="text-4xl font-black mb-10 text-gold">حساب كادر جديد</h3>
             <form id="acc-form" class="space-y-6">
-                <input type="text" id="a-user" placeholder="المستخدم"><input type="text" id="a-name" placeholder="الاسم الكامل"><input type="password" id="a-pass" placeholder="الكلمة">
-                <select id="a-role"><option value="ADMIN">ADMIN</option><option value="STAFF">STAFF</option></select>
-                <button type="submit" class="w-full bg-gold text-dark py-5 rounded-2xl font-black mt-10">إنشاء</button>
-                <button type="button" onclick="closeModal()" class="w-full text-gray-700 text-xs underline mt-4">إلغاء</button>
+                <input type="text" id="a-user" placeholder="اسم المستخدم"><input type="text" id="a-name" placeholder="الاسم الكامل"><input type="password" id="a-pass" placeholder="كلمة المرور">
+                <select id="a-role"><option value="ADMIN">ADMIN - صلاحية كاملة</option><option value="STAFF">STAFF - صلاحية محدودة</option></select>
+                <button type="submit" class="w-full bg-gold text-dark py-5 rounded-2xl font-black mt-10 shadow-2xl shadow-gold/20">إنشاء الحساب</button>
+                <button type="button" onclick="closeModal()" class="w-full text-gray-700 text-xs underline mt-6">إلغاء</button>
             </form>
         </div>
     </div>
@@ -160,18 +222,117 @@
         const cur = document.querySelector('.cursor');
         document.addEventListener('mousemove', e => { gsap.to(cur, { x: e.clientX, y: e.clientY, duration: 0.1 }); });
 
-        // OVERRIDE ADMIN JS FOR ULTIMATE SYNC
-        const originalCheck = checkInit;
+        // MASTER OVERRIDE FOR V101.0
         checkInit = () => {
             const s = Auth.getSession();
             if(s && s.role === 'ADMIN') {
-                gsap.to('#admin-lock-screen', { opacity: 0, scale: 1.1, duration: 0.8, onComplete: () => {
+                gsap.to('#admin-lock-screen', { opacity: 0, scale: 1.2, duration: 1, ease: "expo.out", onComplete: () => {
                     document.getElementById('admin-lock-screen').style.display = 'none';
                     document.getElementById('admin-content').classList.remove('hidden');
                     renderAdmin();
                 }});
+                document.getElementById('admin-name').innerText = s.name;
+            } else {
+                document.getElementById('admin-lock-screen').style.display = 'flex';
+                document.getElementById('admin-content').classList.add('hidden');
             }
         };
+
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
+            const titles = { overview: 'Command Center', inventory: 'Supply Chain', orders: 'Operations', accounts: 'Human Capital', chat: 'Unified Comms', logs: 'Audit Logs', settings: 'Institutional Settings' };
+            document.getElementById('tab-title').innerText = titles[id];
+            renderAdmin();
+        }
+
+        function renderAdmin() {
+            const stats = DB.getProStats();
+            document.getElementById('stat-sales').innerText = stats.totalSales.toLocaleString() + ' JOD';
+            document.getElementById('stat-profit').innerText = (stats.totalSales * 0.25).toLocaleString() + ' JOD';
+            document.getElementById('stat-inv').innerText = stats.inventoryValue.toLocaleString() + ' JOD';
+            document.getElementById('stat-tck').innerText = stats.openTickets;
+
+            // Inventory
+            const search = document.getElementById('inv-search').value.toLowerCase();
+            const invBody = document.getElementById('inv-body');
+            const prods = DB.getProducts().filter(p => p.name.toLowerCase().includes(search));
+            invBody.innerHTML = prods.map(p => `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-all text-right">
+                    <td class="p-8 font-black text-sm">${p.name}</td>
+                    <td class="p-8 text-gray-700 text-[10px] font-black uppercase tracking-widest">${p.category}</td>
+                    <td class="p-8 text-gold font-black">${p.price} JOD</td>
+                    <td class="p-8 font-mono text-xs ${p.stock < 10 ? 'low-stock' : ''}">${p.stock} Units</td>
+                    <td class="p-8 flex gap-6 justify-center">
+                        <button onclick="editP('${p.id}')" class="text-gray-700 hover:text-gold transition-all"><i class="fas fa-edit"></i></button>
+                        <button onclick="if(confirm('حذف المنتج؟')){DB.deleteProduct('${p.id}');renderAdmin();}" class="text-red-500/20 hover:text-red-500 transition-all"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Stock Alerts
+            const alerts = document.getElementById('stock-alerts');
+            const low = prods.filter(p => p.stock < 10);
+            alerts.innerHTML = low.length ? low.map(p => `
+                <div class="flex justify-between items-center bg-red-500/5 p-4 rounded-2xl border border-red-500/10">
+                    <span class="text-xs font-bold">${p.name}</span>
+                    <span class="text-[10px] font-black text-red-500">مخزون حرج: ${p.stock}</span>
+                </div>
+            `).join('') : '<p class="text-gray-700 text-xs py-10 text-center">لا توجد تحذيرات حالياً</p>';
+
+            // Orders
+            const ordersGrid = document.getElementById('orders-grid');
+            const orders = DB.getOrders();
+            ordersGrid.innerHTML = orders.map(o => `
+                <div class="glass p-8 rounded-[40px] border border-white/5 relative group">
+                    <div class="absolute top-4 left-4 status-badge ${o.status === 'pending' ? 'bg-gold/20 text-gold' : 'bg-green-500/20 text-green-500'}">${o.status}</div>
+                    <h5 class="text-lg font-black mt-4">${o.entity}</h5>
+                    <p class="text-[9px] text-gray-700 uppercase tracking-widest mt-1">${o.id} • ${o.date}</p>
+                    <div class="mt-6 space-y-2">
+                        ${o.items.map(item => `<div class="text-[10px] text-gray-400">• ${item}</div>`).join('')}
+                    </div>
+                    <div class="mt-8 flex justify-between items-center">
+                        <span class="text-xl font-black text-gold">${o.total} JOD</span>
+                        <select onchange="updateOrderStatus('${o.id}', this.value)" class="text-[10px] p-2 bg-black/40 border-none w-32">
+                            <option value="pending" ${o.status==='pending'?'selected':''}>قيد الانتظار</option>
+                            <option value="processing" ${o.status==='processing'?'selected':''}>قيد المعالجة</option>
+                            <option value="shipped" ${o.status==='shipped'?'selected':''}>تم الشحن</option>
+                        </select>
+                    </div>
+                </div>
+            `).join('');
+
+            // Accounts
+            const accGrid = document.getElementById('acc-grid');
+            accGrid.innerHTML = DB.getAccounts().map(a => `
+                <div class="glass p-8 rounded-[35px] border border-white/5 relative group transition-all hover:border-gold/30">
+                    <div class="absolute top-0 left-0 w-1 h-full ${a.role==='ADMIN'?'bg-gold':'bg-blue-500'}"></div>
+                    <h5 class="font-black">${a.name}</h5>
+                    <p class="text-[9px] text-gray-700 uppercase tracking-widest mt-1">${a.role} • ${a.user}</p>
+                    <button onclick="if(confirm('حذف الحساب؟')){DB.deleteAccount('${a.user}');renderAdmin();}" class="mt-6 text-red-500/30 text-[9px] opacity-0 group-hover:opacity-100 transition-all underline">إزالة الكادر</button>
+                </div>
+            `).join('');
+
+            // Logs
+            const logsContainer = document.getElementById('logs-container');
+            const logs = DB.get('zolngen_audit') || [];
+            logsContainer.innerHTML = logs.map(l => `
+                <div class="flex justify-between items-center text-[10px] border-b border-white/5 py-4 px-4 hover:bg-white/5">
+                    <span class="text-gold font-black opacity-60">${l.action}</span>
+                    <span class="text-gray-700">${l.date}</span>
+                </div>
+            `).join('') || '<p class="text-center text-gray-700 py-20">لا يوجد نشاط مسجل</p>';
+
+            renderChart();
+        }
+
+        function updateOrderStatus(id, status) {
+            let orders = DB.getOrders();
+            const idx = orders.findIndex(o => o.id === id);
+            if(idx > -1) { orders[idx].status = status; DB.set('zolngen_orders', orders); DB.logAction(`Order ${id} status updated to ${status}`); renderAdmin(); }
+        }
 
         function openModal(id) { document.getElementById('modal-bg').classList.remove('hidden'); document.getElementById(id).classList.remove('hidden'); }
         function closeModal() { document.getElementById('modal-bg').classList.add('hidden'); document.querySelectorAll('#modal-bg > div').forEach(d => d.classList.add('hidden')); }
