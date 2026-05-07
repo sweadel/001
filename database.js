@@ -1,132 +1,76 @@
-/* ZOLNGEN DATABASE ENGINE V100.6 - THE ROBUST CORE */
+/* database.js - ZOLNGEN SINGULARITY DB V107.0 */
 const DB = {
+    init: function() {
+        if(!localStorage.getItem('zolngen_prods')) this.seed();
+    },
+    
     get: (key) => JSON.parse(localStorage.getItem(key)) || [],
     set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
+    
+    seed: function() {
+        const prods = [
+            { id: 'Z1', name: 'ZOLNGEN Server X1', category: 'Computing', price: 15000, stock: 12, ar_ready: true },
+            { id: 'Z2', name: 'Quantum Laptop Pro', category: 'Workstations', price: 3500, stock: 45, ar_ready: true },
+            { id: 'Z3', name: 'Neural Network Hub', category: 'Networking', price: 8000, stock: 8, ar_ready: false }
+        ];
+        const orders = [
+            { id: 'ORD-882', entity: 'Jordan Ministry of Tech', total: 45000, status: 'shipped', date: '2026-05-01' },
+            { id: 'ORD-901', entity: 'Zain HQ Jordan', total: 12000, status: 'pending', date: '2026-05-06' }
+        ];
+        const accounts = [
+            { user: 'admin', pass: 'admin123', name: 'System Master', role: 'ADMIN', level: 99 },
+            { user: 'staff1', pass: 'staff123', name: 'Ahmad Tech', role: 'STAFF', level: 5 }
+        ];
+        const audit = [
+            { action: 'SYSTEM_BOOT', user: 'SYSTEM', date: new Date().toLocaleString() },
+            { action: 'ADMIN_LOGIN', user: 'admin', date: new Date().toLocaleString() }
+        ];
+        const blockchain = [
+            { hash: '0x7dd8638b...', prev: '0x00000000...', data: 'Genesis Block Created' },
+            { hash: '0xba0e889c...', prev: '0x7dd8638b...', data: 'V107.0 Singularity Update' }
+        ];
 
-    // PRODUCTS CORE
-    getProducts: function() { 
-        const p = this.get('zolngen_inventory');
-        return p.length ? p : this.seed();
-    },
-    saveProduct: function(prod) {
-        let prods = this.getProducts();
-        const idx = prods.findIndex(p => p.id === prod.id);
-        if (idx > -1) {
-            prods[idx] = { ...prods[idx], ...prod };
-        } else {
-            prod.id = 'PRD-' + (prods.length + 101);
-            prods.push(prod);
-        }
-        this.set('zolngen_inventory', prods);
-        this.logAction(`Product Optimized: ${prod.name}`);
-    },
-    deleteProduct: function(id) {
-        let prods = this.getProducts().filter(p => p.id !== id);
-        this.set('zolngen_inventory', prods);
-        this.logAction(`Product Removed: ${id}`);
-    },
-
-    // ORDERS CORE
-    getOrders: function() { return this.get('zolngen_orders'); },
-    placeOrder: function(order) {
-        let orders = this.getOrders();
-        const newOrder = {
-            id: 'ORD-' + (orders.length + 5001),
-            date: new Date().toLocaleDateString('ar-EG'),
-            status: 'pending',
-            ...order
-        };
-        orders.push(newOrder);
+        this.set('zolngen_prods', prods);
         this.set('zolngen_orders', orders);
-        this.logAction(`Order Placed: ${newOrder.id}`);
+        this.set('zolngen_accounts', accounts);
+        this.set('zolngen_audit', audit);
+        this.set('zolngen_blockchain', blockchain);
     },
 
-    // TICKETS CORE
-    getTickets: function() { return this.get('zolngen_tickets'); },
-    createTicket: function(ticket) {
-        let t = this.getTickets();
-        const newTicket = {
-            id: 'TCK-' + (t.length + 800),
-            date: new Date().toLocaleDateString('ar-EG'),
-            status: 'open',
-            ...ticket
-        };
-        t.push(newTicket);
-        this.set('zolngen_tickets', t);
-        this.logAction(`Ticket Created: ${newTicket.id}`);
+    getProducts: function() { return this.get('zolngen_prods'); },
+    getOrders: function() { return this.get('zolngen_orders'); },
+    getAccounts: function() { return this.get('zolngen_accounts'); },
+    
+    saveProduct: function(p) {
+        let prods = this.getProducts();
+        const idx = prods.findIndex(x => x.id === p.id);
+        if(idx > -1) prods[idx] = p; else prods.push(p);
+        this.set('zolngen_prods', prods);
+        this.log('PRODUCT_UPDATE', p.name);
     },
 
-    // ACCOUNTS CORE
-    getAccounts: function() { 
-        let accs = this.get('zolngen_accounts');
-        if (!accs.find(a => a.user === 'admin')) {
-            accs.push({user:'admin', pass:'admin123', role:'ADMIN', name:'المدير العام', email:'ceo@zolngen.com'});
-            this.set('zolngen_accounts', accs);
-        }
-        return accs;
-    },
-    saveAccount: function(acc) {
-        let accs = this.getAccounts();
-        const idx = accs.findIndex(a => a.user === acc.user);
-        if(idx > -1) accs[idx] = { ...accs[idx], ...acc }; else accs.push(acc);
-        this.set('zolngen_accounts', accs);
-        this.logAction(`Account Synchronized: ${acc.user}`);
-    },
-    deleteAccount: function(user) {
-        let accs = this.getAccounts().filter(a => a.user !== user);
-        this.set('zolngen_accounts', accs);
-        this.logAction(`Account Removed: ${user}`);
+    deleteProduct: function(id) {
+        let prods = this.getProducts();
+        this.set('zolngen_prods', prods.filter(x => x.id !== id));
+        this.log('PRODUCT_DELETE', id);
     },
 
-    // MESSAGING CORE
-    getMessages: function(entity) {
-        return this.get('zolngen_messages').filter(m => m.entity === entity || m.receiver === entity || m.sender === 'ADMIN');
-    },
-    sendMessage: function(msg) {
-        let msgs = this.get('zolngen_messages');
-        msgs.push({ id: Date.now(), date: new Date().toLocaleString('ar-EG'), ...msg });
-        this.set('zolngen_messages', msgs);
+    log: function(action, details) {
+        let logs = this.get('zolngen_audit');
+        logs.unshift({ action, details, date: new Date().toLocaleString() });
+        this.set('zolngen_audit', logs.slice(0, 50));
     },
 
-    // ANALYTICS CORE
-    getTier: function(user) {
-        const total = this.getOrders().filter(o => o.entity === user).reduce((a,b) => a+b.total, 0);
-        if (total > 10000) return 'Platinum';
-        if (total > 5000) return 'Gold';
-        return 'Silver';
-    },
     getProStats: function() {
         const prods = this.getProducts();
         const orders = this.getOrders();
         return {
-            totalSales: Number(orders.reduce((acc, o) => acc + o.total, 0).toFixed(2)),
-            activeOrders: orders.filter(o => ['pending', 'processing'].includes(o.status)).length,
-            inventoryValue: Number(prods.reduce((acc, p) => acc + (p.price * p.stock), 0).toFixed(2)),
-            openTickets: this.getTickets().filter(t => t.status === 'open').length
+            totalSales: orders.reduce((sum, o) => sum + o.total, 0),
+            inventoryValue: prods.reduce((sum, p) => sum + (p.price * p.stock), 0),
+            activeStaff: this.getAccounts().length,
+            systemHealth: 99.8
         };
-    },
-
-    // AUDIT LOG
-    logAction: function(action) {
-        let logs = this.get('zolngen_audit');
-        logs.unshift({ id: Date.now(), action: action, date: new Date().toLocaleString('ar-EG') });
-        this.set('zolngen_audit', logs.slice(0, 100));
-    },
-
-    seed: function() {
-        const initial = [
-            { id: 'PRD-1', name: 'HP EliteBook 840 G9', price: 1250, stock: 45, category: 'أجهزة محمولة', img: 'images/hp.png', specs: 'Intel i7, 16GB RAM, 512GB SSD' },
-            { id: 'PRD-2', name: 'Dell Latitude 7430', price: 1180, stock: 5, category: 'أجهزة محمولة', img: 'images/hp.png', specs: 'Intel i5, 16GB RAM, 256GB SSD' },
-            { id: 'PRD-3', name: 'MacBook Pro M2', price: 1850, stock: 12, category: 'أجهزة محمولة', img: 'images/mac.png', specs: 'Apple M2, 16GB RAM, 512GB SSD' },
-            { id: 'PRD-4', name: 'PowerEdge R750', price: 4500, stock: 3, category: 'خوادم', img: 'images/dell.png', specs: 'Dual Xeon, 128GB RAM, 8TB' },
-            { id: 'PRD-5', name: 'ThinkPad X1 Carbon', price: 1700, stock: 15, category: 'أجهزة محمولة', img: 'images/product_thinkpad_x1.png', specs: 'Intel i7, 16GB, 1TB' },
-            { id: 'PRD-6', name: 'OptiPlex 7090', price: 850, stock: 10, category: 'مكتبي', img: 'images/product_optiplex_7090.png', specs: 'Intel i7, 8GB, 256GB' }
-        ];
-        this.set('zolngen_inventory', initial);
-        return initial;
     }
 };
 
-window.DB = DB;
-DB.getAccounts();
-if (!localStorage.getItem('zolngen_inventory')) DB.seed();
+DB.init();
