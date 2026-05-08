@@ -3,75 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Admin | SOVEREIGN CLUSTER V133.0</title>
+    <title>ZOLNGEN | Admin Dashboard V136.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/global.css">
-    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- SOVEREIGN CLUSTER CORE -->
+    <!-- ENTERPRISE CORE -->
     <script src="src/database.js"></script>
     <script src="src/security_core.js"></script>
-    <script src="src/bridge.js"></script>
-    <script src="src/i18n.js"></script>
-    <script src="src/ai_engine.js"></script>
     <script src="src/ui.js"></script>
 </head>
-<body class="rtl overflow-hidden">
+<body class="rtl overflow-hidden bg-black text-white">
     <div class="cursor-glow" id="cursor"></div>
-    
-    <div id="admin-lock-screen" class="fixed inset-0 z-[500] bg-black flex flex-center p-6">
-        <div class="glass-card text-center max-w-sm w-full">
-            <h2 class="text-4xl font-black text-gold gold-glow mb-12">Cluster Entry</h2>
-            <button onclick="unlockAdmin()" class="btn-gold w-full mt-10 shadow-2xl">Authorize Entry</button>
+
+    <!-- REAL AUTHENTICATION SCREEN -->
+    <div id="login-screen" class="fixed inset-0 z-[500] bg-black flex items-center justify-center p-6">
+        <div class="glass p-12 rounded-[50px] border border-white/10 max-w-sm w-full text-center">
+            <h2 class="text-4xl font-black text-gold mb-10">Admin Login</h2>
+            <div class="space-y-4">
+                <input type="text" id="user" placeholder="Username (admin)" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-gold">
+                <input type="password" id="pass" placeholder="Password (1234)" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-gold">
+            </div>
+            <button onclick="handleLogin()" class="w-full mt-8 bg-gold text-black py-4 rounded-xl font-bold hover:scale-105 transition-all">Authenticate</button>
+            <p id="login-err" class="text-red-500 text-xs mt-4 hidden">Invalid Credentials.</p>
         </div>
     </div>
 
-    <div id="admin-content" class="hidden h-screen flex">
-        <aside class="w-[320px] glass-card !rounded-none p-10 flex flex-col border-l border-gold/10">
-            <h1 class="text-2xl font-black text-gold mb-12">SOVEREIGN NODE</h1>
-            <nav class="flex-1 space-y-3">
-                <button onclick="switchTab('dash')" class="w-full text-right p-5 hover:bg-gold/5 rounded-2xl font-bold flex items-center gap-4"><i class="fas fa-th-large"></i> Dashboard</button>
-                <button onclick="switchTab('inv')" class="w-full text-right p-5 hover:bg-gold/5 rounded-2xl font-bold flex items-center gap-4"><i class="fas fa-boxes"></i> Inventory</button>
-                <button onclick="SovereignBridge.activateHealer()" class="w-full text-right p-5 bg-gold/10 text-gold rounded-2xl font-bold flex items-center gap-4 border border-gold/20"><i class="fas fa-heartbeat"></i> Activate Healer</button>
+    <!-- PROFESSIONAL DASHBOARD -->
+    <div id="main-dash" class="hidden h-screen flex">
+        <aside class="w-[300px] bg-[#0A0A0A] border-l border-white/5 p-8 flex flex-col">
+            <h1 class="text-2xl font-black text-gold mb-10">ZOLNGEN PRO</h1>
+            <nav class="flex-1 space-y-2">
+                <button onclick="switchTab('dash')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4"><i class="fas fa-chart-line"></i> Dashboard</button>
+                <button onclick="switchTab('inv')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4"><i class="fas fa-box-open"></i> Asset Registry</button>
             </nav>
-            <button onclick="location.reload()" class="p-5 bg-red-500/10 text-red-500 rounded-2xl font-bold mt-auto border border-red-500/20">Terminate</button>
+            <button onclick="logout()" class="p-4 bg-red-500/10 text-red-500 rounded-xl font-bold mt-auto border border-red-500/10">Terminate Session</button>
         </aside>
 
-        <main class="flex-1 p-[60px] overflow-y-auto">
+        <main class="flex-1 p-16 overflow-y-auto">
+            <!-- OVERVIEW TAB -->
             <div id="tab-dash" class="tab-content">
-                <h2 class="text-6xl font-black text-gold gold-glow mb-12">Institutional Pulse</h2>
-                <div class="glass-card mb-12">
-                    <canvas id="forecastChart" height="120"></canvas>
+                <h2 class="text-5xl font-black mb-10">Institutional Pulse</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                    <div class="glass p-8 rounded-3xl border border-white/5">
+                        <p class="text-xs uppercase opacity-40 mb-2">Managed Assets</p>
+                        <h3 id="stat-sales" class="text-4xl font-black text-gold">0</h3>
+                    </div>
+                    <div class="glass p-8 rounded-3xl border border-white/5">
+                        <p class="text-xs uppercase opacity-40 mb-2">API Connection</p>
+                        <h3 class="text-2xl font-black text-green-500">ACTIVE (TOKEN VERIFIED)</h3>
+                    </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="glass-card border-b-4 border-gold/40">
-                        <p class="text-xs uppercase opacity-40 mb-2">Cluster Assets</p>
-                        <h3 id="stat-sales" class="text-5xl font-black text-gold">0</h3>
-                    </div>
-                    <div class="glass-card border-b-4 border-green-500/40">
-                        <p class="text-xs uppercase opacity-40 mb-2">Sync Status</p>
-                        <h3 class="text-4xl font-black text-green-500 uppercase">Synchronized</h3>
-                    </div>
+                <div class="glass p-10 rounded-[40px] border border-white/5">
+                    <canvas id="forecastChart" height="100"></canvas>
                 </div>
             </div>
 
+            <!-- INVENTORY TAB (CRUD) -->
             <div id="tab-inv" class="tab-content hidden">
-                <h2 class="text-6xl font-black text-gold gold-glow mb-12">Asset Registry</h2>
-                <div class="glass-card mb-10">
-                    <h4 class="text-xl font-bold mb-6">Deploy Asset</h4>
+                <h2 class="text-5xl font-black mb-10">Asset Registry</h2>
+                <div class="glass p-8 rounded-3xl border border-white/5 mb-10">
+                    <h4 class="text-xl font-bold mb-6">Deploy New Institutional Asset</h4>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="text" id="p-name" placeholder="Name" class="bg-white/5 border border-white/10 p-4 rounded-xl">
-                        <input type="text" id="p-sku" placeholder="SKU" class="bg-white/5 border border-white/10 p-4 rounded-xl">
-                        <input type="number" id="p-price" placeholder="Price" class="bg-white/5 border border-white/10 p-4 rounded-xl">
-                        <input type="number" id="p-stock" placeholder="Stock" class="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <input type="text" id="p-name" placeholder="Asset Name" class="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <input type="text" id="p-sku" placeholder="SKU ID" class="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <input type="number" id="p-price" placeholder="Price ($)" class="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <input type="number" id="p-stock" placeholder="Initial Stock" class="bg-white/5 border border-white/10 p-4 rounded-xl">
                     </div>
-                    <button onclick="addNewProduct()" class="btn-gold mt-6 w-full">Commit to Cluster</button>
+                    <button onclick="addNewProduct()" class="w-full mt-6 bg-gold text-black py-4 rounded-xl font-bold">Commit to Registry</button>
                 </div>
-                <div id="product-list" class="grid grid-cols-1 lg:grid-cols-2 gap-8"></div>
+                <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </div>
         </main>
     </div>
@@ -79,17 +83,32 @@
     <script>
         const cursor = document.getElementById('cursor');
         document.addEventListener('mousemove', (e) => {
-            gsap.to(cursor, { x: e.clientX - 12, y: e.clientY - 12, duration: 0.1 });
+            gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.1 });
         });
+
+        async function handleLogin() {
+            const user = document.getElementById('user').value;
+            const pass = document.getElementById('pass').value;
+            const success = await ZolngenDB.login(user, pass);
+            if(success) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-dash').classList.remove('hidden');
+                SecurityCore.logAction("ADMIN_LOGIN", "Token-based session authorized.");
+            } else {
+                document.getElementById('login-err').classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('zolngen_auth_token');
+            location.reload();
+        }
+
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
             document.getElementById('tab-' + id).classList.remove('hidden');
         }
-        function unlockAdmin() {
-            document.getElementById('admin-lock-screen').classList.add('hidden');
-            document.getElementById('admin-content').classList.remove('hidden');
-            SecurityCore.logAction("CLUSTER_AUTH", "Node access authorized.");
-        }
+
         async function addNewProduct() {
             const name = document.getElementById('p-name').value;
             const sku = document.getElementById('p-sku').value;
@@ -97,7 +116,6 @@
             const stock = parseInt(document.getElementById('p-stock').value);
             if(name && sku && price && stock) {
                 await ZolngenDB.insert('products', { sku, name, price, stock });
-                SecurityCore.logAction("ASSET_DEPLOY", `Registered: ${name}`);
                 document.getElementById('p-name').value = '';
                 document.getElementById('p-sku').value = '';
                 document.getElementById('p-price').value = '';

@@ -1,23 +1,43 @@
-/* database.js - ZOLNGEN FUNCTIONAL BRIDGE V131.0 (LIVE SYNC) */
-class ZolngenSQL {
+/* database.js - ZOLNGEN PROFESSIONAL DATABASE V136.0 (REST & AUTH) */
+class ZolngenEnterpriseDB {
     constructor() {
-        this.dbKey = "zolngen_sovereign_db";
-        this.apiUrl = "/api/data";
-        this.saveUrl = "/api/save";
+        this.dbKey = "zolngen_enterprise_db";
+        this.tokenKey = "zolngen_auth_token";
+        this.apiUrl = "/api/products";
+        this.loginUrl = "/api/login";
         this.init();
     }
 
     async init() {
-        console.log("[BRIDGE] Initiating talk with Python Backend...");
         await this.syncFromServer();
-        
-        // Listen for external storage changes (cross-tab sync)
-        window.addEventListener('storage', (e) => {
-            if (e.key === this.dbKey) this.notifyUpdate();
-        });
     }
 
-    // TALK TO PYTHON: GET DATA
+    // REAL AUTH: LOGIN
+    async login(username, password) {
+        try {
+            const response = await fetch(this.loginUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem(this.tokenKey, data.token);
+                console.log("[AUTH] Token Acquired and Stored.");
+                return true;
+            }
+            return false;
+        } catch (e) {
+            console.error("[AUTH] Login Anomaly:", e);
+            return false;
+        }
+    }
+
+    getToken() {
+        return localStorage.getItem(this.tokenKey);
+    }
+
+    // REST API: GET PRODUCTS
     async syncFromServer() {
         try {
             const response = await fetch(this.apiUrl);
@@ -25,31 +45,38 @@ class ZolngenSQL {
                 const data = await response.json();
                 localStorage.setItem(this.dbKey, JSON.stringify(data));
                 this.notifyUpdate();
-                console.log("[BRIDGE] Server Sync: SUCCESS.");
                 return true;
             }
         } catch (e) {
-            console.error("[BRIDGE] Backend Unreachable. Using local fallback.");
+            console.warn("[DB] Offline Mode: Using local cache.");
             return false;
         }
     }
 
-    // TALK TO PYTHON: SAVE DATA
+    // REST API: POST PRODUCTS (SECURE)
     async syncToServer() {
         const data = this.getData();
+        const token = this.getToken();
+        if (!token) return console.error("[AUTH] Missing Security Token.");
+
         try {
-            const response = await fetch(this.saveUrl, {
+            const response = await fetch(this.apiUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
                 body: JSON.stringify(data)
             });
             if (response.ok) {
-                console.log("[BRIDGE] Data Persisted to Disk.");
+                console.log("[DB] Data Persisted via Secure REST API.");
                 return true;
+            } else if (response.status === 403) {
+                alert("SESSION EXPIRED: Please re-authorize.");
+                location.href = "admin.html";
             }
         } catch (e) {
-            console.error("[BRIDGE] Save Failed.");
-            return false;
+            console.error("[DB] Save Failed.");
         }
     }
 
@@ -77,9 +104,9 @@ class ZolngenSQL {
     }
 
     notifyUpdate() {
-        window.dispatchEvent(new Event('zolngen_sql_update'));
+        window.dispatchEvent(new Event('zolngen_db_update'));
     }
 }
 
-const db = new ZolngenSQL();
+const db = new ZolngenEnterpriseDB();
 window.ZolngenDB = db;
