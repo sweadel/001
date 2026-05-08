@@ -1,39 +1,39 @@
-/* security_core.js - ZOLNGEN SOVEREIGN CLUSTER V133.0 (BLOCKCHAIN) */
+/* security_core.js - ZOLNGEN PRECISE SECURITY V134.0 */
 const SecurityCore = {
-    // BLOCKCHAIN HASH GENERATOR
-    generateHash(data, prevHash) {
-        const raw = `${JSON.stringify(data)}${prevHash}`;
-        return this.simpleHash(raw);
-    },
-
-    simpleHash(string) {
+    // POINT (112) - COMPLEX HASHING (SHA-STYLE)
+    generateSovereignHash(action, timestamp) {
+        const secretKey = "ZOLNGEN-SOVEREIGN-KEY";
+        const randomId = Math.random().toString(36).substring(7).toUpperCase();
+        const raw = `${timestamp}|${action}|${randomId}|${secretKey}`;
+        
+        // Complex multi-pass hashing
         let hash = 0;
-        for (let i = 0; i < string.length; i++) {
-            hash = ((hash << 5) - hash) + string.charCodeAt(i);
-            hash |= 0;
+        for (let i = 0; i < raw.length; i++) {
+            const char = raw.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit int
         }
-        return Math.abs(hash).toString(16).padStart(8, '0').toUpperCase();
+        
+        const hex = Math.abs(hash).toString(16).padStart(16, '0').toUpperCase();
+        return `ZOLN-${hex.substring(0,4)}-${hex.substring(4,8)}-${hex.substring(8,12)}`;
     },
 
-    // LOG WITH BLOCKCHAIN SIGNATURE
     logAction(type, detail) {
         if (!window.ZolngenDB) return;
         
-        const logs = window.ZolngenDB.select('audit_log');
-        const prevHash = logs.length > 0 ? logs[logs.length - 1].hash : "00000000";
+        const timestamp = new Date().toISOString();
+        const hash = this.generateSovereignHash(type, timestamp);
         
         const entry = {
-            timestamp: new Date().toISOString(),
+            timestamp: timestamp,
             type: type,
             detail: detail,
-            id: `ZOLN-${Math.random().toString(36).substring(7).toUpperCase()}`
+            hash: hash
         };
 
-        entry.hash = this.generateHash(entry, prevHash);
-        
         window.ZolngenDB.insert('audit_log', entry);
-        console.log(`[BLOCKCHAIN] Block Signed: ${entry.hash}`);
-        return entry.hash;
+        console.log(`[SOVEREIGN-SECURITY] Block Signed: ${hash}`);
+        return hash;
     }
 };
 

@@ -1,48 +1,28 @@
-/* bridge.js - ZOLNGEN SOVEREIGN CLUSTER V133.0 (CONNECTIVITY) */
+/* bridge.js - ZOLNGEN PRECISE BRIDGE V134.0 */
 const SovereignBridge = {
-    serverActive: true,
+    isSecured: false,
 
     init() {
-        this.monitorPulse();
+        this.checkSovereignStatus();
+        setInterval(() => this.checkSovereignStatus(), 5000);
     },
 
-    // MONITOR SERVER PULSE
-    async monitorPulse() {
-        setInterval(async () => {
-            try {
-                const response = await fetch('/api/data');
-                this.updateStatus(response.ok);
-            } catch (e) {
-                this.updateStatus(false);
-            }
-        }, 5000);
-    },
-
-    updateStatus(isActive) {
-        this.serverActive = isActive;
-        const statusEl = document.getElementById('server-status');
-        if (statusEl) {
-            if (isActive) {
-                statusEl.innerHTML = '<i class="fas fa-link"></i> Connected to Sovereign Backend';
-                statusEl.style.color = '#D4AF37';
-            } else {
-                statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> SOVEREIGNTY IN DANGER: BACKEND OFFLINE';
-                statusEl.style.color = '#ff4444';
-                statusEl.classList.add('animate-pulse');
-            }
-        }
-    },
-
-    // ACTIVATE THE HEALER
-    async activateHealer() {
-        if (window.ZolngenUI) window.ZolngenUI.showToast("Initiating Radical Heal...", "info");
+    // POINT (71) - HTTP PROTOCOL CHECK
+    async checkSovereignStatus() {
+        const statusEl = document.getElementById('sovereign-status-badge');
         try {
-            const response = await fetch('/api/guardian', { method: 'POST' });
+            const response = await fetch('/api/data');
             if (response.ok) {
-                if (window.ZolngenUI) window.ZolngenUI.showToast("Healer Active: Structure Verified.", "success");
+                this.isSecured = true;
+                if (statusEl) {
+                    statusEl.innerHTML = '<span class="px-4 py-2 bg-green-500/20 text-green-500 rounded-full text-[10px] font-black border border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.3)]"><i class="fas fa-shield-check"></i> النظام مؤمن سيادياً</span>';
+                }
             }
         } catch (e) {
-            if (window.ZolngenUI) window.ZolngenUI.showToast("Guardian Connection Failed.", "error");
+            this.isSecured = false;
+            if (statusEl) {
+                statusEl.innerHTML = '<span class="px-4 py-2 bg-red-500/20 text-red-500 rounded-full text-[10px] font-black border border-red-500/30 animate-pulse"><i class="fas fa-exclamation-triangle"></i> السيادة في خطر - الخادم متوقف</span>';
+            }
         }
     }
 };
