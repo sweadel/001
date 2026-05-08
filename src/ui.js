@@ -1,9 +1,20 @@
-/* ui.js - ZOLNGEN OPERATIONAL UI V128.0 (PERFECTION) */
+/* ui.js - ZOLNGEN FUNCTIONAL UI V131.0 (LIVE BRIDGE) */
 const ZolngenUI = {
     init() {
+        this.createStatusIndicator();
         this.createToastContainer();
         this.bindEvents();
         this.renderAll();
+    },
+
+    createStatusIndicator() {
+        if (!document.getElementById('server-status')) {
+            const status = document.createElement('div');
+            status.id = 'server-status';
+            status.style = "position:fixed; top:20px; right:20px; font-size:10px; color:var(--gold); opacity:0.6; z-index:1000;";
+            status.innerHTML = '<i class="fas fa-link"></i> Connected to Sovereign Backend';
+            document.body.appendChild(status);
+        }
     },
 
     createToastContainer() {
@@ -30,7 +41,6 @@ const ZolngenUI = {
     bindEvents() {
         window.addEventListener('zolngen_sql_update', () => {
             this.renderAll();
-            this.showToast("Registry Updated Successfully", "success");
         });
     },
 
@@ -48,15 +58,18 @@ const ZolngenUI = {
             <div class="glass-card transition-slow">
                 <div class="flex justify-between items-start mb-6">
                     <h3 class="text-2xl font-black text-gold">${p.name}</h3>
-                    <span class="text-[10px] opacity-40 uppercase tracking-widest">SKU: ${p.sku}</span>
+                    <div class="flex gap-2">
+                        <span class="text-[10px] opacity-40 uppercase tracking-widest">SKU: ${p.sku}</span>
+                        <button onclick="ZolngenDB.delete('products', ${p.id})" class="text-red-500 hover:text-red-700 opacity-0 hover:opacity-100 transition-opacity"><i class="fas fa-trash"></i></button>
+                    </div>
                 </div>
                 <div class="flex justify-between items-end">
                     <div>
-                        <p class="text-xs opacity-50 uppercase mb-1">Institutional Value</p>
+                        <p class="text-xs opacity-50 uppercase mb-1">Price</p>
                         <span class="text-3xl font-black">$${p.price.toLocaleString()}</span>
                     </div>
                     <div class="text-left">
-                        <p class="text-xs opacity-50 uppercase mb-1">Inventory</p>
+                        <p class="text-xs opacity-50 uppercase mb-1">In Stock</p>
                         <span class="px-4 py-2 bg-gold/10 text-gold rounded-full text-sm font-bold">${p.stock} Units</span>
                     </div>
                 </div>

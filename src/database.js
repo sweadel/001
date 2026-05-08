@@ -1,4 +1,4 @@
-/* database.js - ZOLNGEN SOVEREIGN SQL ENGINE V127.0 (GRAND AUDIT) */
+/* database.js - ZOLNGEN FUNCTIONAL BRIDGE V131.0 (LIVE SYNC) */
 class ZolngenSQL {
     constructor() {
         this.dbKey = "zolngen_sovereign_db";
@@ -8,50 +8,48 @@ class ZolngenSQL {
     }
 
     async init() {
-        // Institutional Sync Protocol
+        console.log("[BRIDGE] Initiating talk with Python Backend...");
+        await this.syncFromServer();
+        
+        // Listen for external storage changes (cross-tab sync)
+        window.addEventListener('storage', (e) => {
+            if (e.key === this.dbKey) this.notifyUpdate();
+        });
+    }
+
+    // TALK TO PYTHON: GET DATA
+    async syncFromServer() {
         try {
             const response = await fetch(this.apiUrl);
             if (response.ok) {
                 const data = await response.json();
-                if (data && data.products) {
-                    localStorage.setItem(this.dbKey, JSON.stringify(data));
-                    console.log("[SQL] Institutional Data Synced from Server.");
-                }
+                localStorage.setItem(this.dbKey, JSON.stringify(data));
+                this.notifyUpdate();
+                console.log("[BRIDGE] Server Sync: SUCCESS.");
+                return true;
             }
         } catch (e) {
-            console.warn("[SQL] Server Node Unreachable. Operating in Autonomous Local Mode.");
+            console.error("[BRIDGE] Backend Unreachable. Using local fallback.");
+            return false;
         }
-
-        if (!localStorage.getItem(this.dbKey)) {
-            const initialSchema = {
-                products: [
-                    { id: 1, sku: "Z-001", name: "Quantum Blade", price: 15000, stock: 12 },
-                    { id: 2, sku: "Z-002", name: "Nebula Core", price: 8500, stock: 8 },
-                    { id: 3, sku: "Z-003", name: "Obsidian Shield", price: 4200, stock: 25 }
-                ],
-                audit_log: [],
-                settings: { theme: "dark", lang: "ar" }
-            };
-            this.saveLocally(initialSchema);
-        }
-        this.notifyUpdate();
     }
 
-    saveLocally(data) {
-        localStorage.setItem(this.dbKey, JSON.stringify(data));
-        this.syncWithServer(data);
-    }
-
-    async syncWithServer(data) {
+    // TALK TO PYTHON: SAVE DATA
+    async syncToServer() {
+        const data = this.getData();
         try {
-            await fetch(this.saveUrl, {
+            const response = await fetch(this.saveUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            console.log("[SQL] Server Persistence: SUCCESS.");
+            if (response.ok) {
+                console.log("[BRIDGE] Data Persisted to Disk.");
+                return true;
+            }
         } catch (e) {
-            console.error("[SQL] Persistence Anomaly:", e);
+            console.error("[BRIDGE] Save Failed.");
+            return false;
         }
     }
 
@@ -59,37 +57,22 @@ class ZolngenSQL {
         return JSON.parse(localStorage.getItem(this.dbKey)) || { products: [], audit_log: [] };
     }
 
-    select(table, criteria = null) {
-        const db = this.getData();
-        const data = db[table] || [];
-        if (!criteria) return data;
-        return data.filter(item => Object.keys(criteria).every(key => item[key] === criteria[key]));
-    }
-
-    insert(table, row) {
+    async insert(table, row) {
         const db = this.getData();
         if (!db[table]) db[table] = [];
         row.id = Date.now();
         db[table].push(row);
-        this.saveLocally(db);
+        localStorage.setItem(this.dbKey, JSON.stringify(db));
+        await this.syncToServer();
         this.notifyUpdate();
         return row;
     }
 
-    update(table, id, newValues) {
-        const db = this.getData();
-        const index = db[table].findIndex(item => item.id === id);
-        if (index !== -1) {
-            db[table][index] = { ...db[table][index], ...newValues };
-            this.saveLocally(db);
-            this.notifyUpdate();
-        }
-    }
-
-    delete(table, id) {
+    async delete(table, id) {
         const db = this.getData();
         db[table] = db[table].filter(item => item.id !== id);
-        this.saveLocally(db);
+        localStorage.setItem(this.dbKey, JSON.stringify(db));
+        await this.syncToServer();
         this.notifyUpdate();
     }
 
