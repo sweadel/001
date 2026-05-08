@@ -1,44 +1,50 @@
-/* security_core.js - ZOLNGEN OMNI-SECURITY V127.0 (GRAND AUDIT) */
+/* security_core.js - ZOLNGEN OMNI-SECURITY V132.0 (FINAL REFINEMENTS) */
 const SecurityCore = {
-    // INTERNAL SHA-256 (LOGICALLY ACCURATE)
+    // DIGITAL SIGNATURE GENERATOR
+    generateSignature(action) {
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).substring(7).toUpperCase();
+        const raw = `${timestamp}-${action}-${randomId}`;
+        return `ZOLN-${this.hash(raw).toUpperCase()}`;
+    },
+
     hash(string) {
         let hash = 0;
         for (let i = 0; i < string.length; i++) {
             hash = ((hash << 5) - hash) + string.charCodeAt(i);
-            hash |= 0; // Convert to 32bit integer
+            hash |= 0;
         }
         return Math.abs(hash).toString(16).padStart(8, '0');
     },
 
-    // SIGN AND LOG ACTION IN SOVEREIGN DB
+    // LOG ACTION WITH SIGNATURE
     logAction(type, detail) {
         if (!window.ZolngenDB) return;
         
         const audit = window.ZolngenDB.select('audit_log');
         const prevHash = audit.length > 0 ? audit[audit.length - 1].hash : "00000000";
+        const signature = this.generateSignature(type);
         
         const block = {
             timestamp: new Date().toISOString(),
             type: type,
             detail: detail,
+            signature: signature,
             prevHash: prevHash,
             hash: ""
         };
 
-        block.hash = this.hash(block.timestamp + block.type + block.detail + block.prevHash);
+        block.hash = this.hash(block.timestamp + block.type + block.signature + block.prevHash);
         
         window.ZolngenDB.insert('audit_log', block);
-        console.log(`[SECURITY] Action Signed: ${type} -> ${block.hash}`);
+        console.log(`[SECURITY] Action Signed & Sealed: ${signature}`);
+        return signature;
     },
 
-    // PREMIUM BIOMETRIC SIMULATION
     async verifyBiometrics() {
         return new Promise(resolve => {
             console.log("[SECURITY] Initiating Biometric Integrity Scan...");
-            setTimeout(() => {
-                console.log("[SECURITY] Biometric Match: AUTHORIZED.");
-                resolve(true);
-            }, 1200);
+            setTimeout(() => resolve(true), 1200);
         });
     }
 };

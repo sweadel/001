@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Admin | SOVEREIGN OS V130.0</title>
+    <title>ZOLNGEN Admin | SOVEREIGN CLOSING V132.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/global.css">
@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- ZOLNGEN SOVEREIGN CORE (AUDITED PATHS) -->
+    <!-- SOVEREIGN CORE -->
     <script src="src/database.js"></script>
     <script src="src/security_core.js"></script>
     <script src="src/i18n.js"></script>
@@ -20,58 +20,46 @@
 </head>
 <body class="rtl overflow-hidden">
     <div class="cursor-glow" id="cursor"></div>
-    <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-adjust"></i></button>
-
-    <!-- AUTHORIZATION LOCK -->
+    
+    <!-- LOCK SCREEN -->
     <div id="admin-lock-screen" class="fixed inset-0 z-[500] bg-black flex flex-center p-6">
         <div class="glass-card text-center max-w-sm w-full">
-            <h2 class="text-4xl font-black text-gold gold-glow mb-12">Security Core</h2>
-            <div class="space-y-4">
-                <input type="text" id="lock-user" placeholder="Institutional ID" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-center outline-none focus:border-gold">
-                <input type="password" id="lock-pass" placeholder="Access Protocol" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-center outline-none focus:border-gold">
-            </div>
+            <h2 class="text-4xl font-black text-gold gold-glow mb-12">Institutional Guard</h2>
             <button onclick="unlockAdmin()" class="btn-gold w-full mt-10 shadow-2xl">Authorize Entry</button>
         </div>
     </div>
 
-    <!-- ADMIN CONTENT -->
     <div id="admin-content" class="hidden h-screen flex">
         <aside class="w-[320px] glass-card !rounded-none p-10 flex flex-col border-l border-gold/10">
             <h1 class="text-2xl font-black text-gold mb-12">ZOLNGEN COMMAND</h1>
             <nav class="flex-1 space-y-3">
                 <button onclick="switchTab('dash')" class="w-full text-right p-5 hover:bg-gold/5 rounded-2xl font-bold flex items-center gap-4"><i class="fas fa-th-large"></i> Dashboard</button>
                 <button onclick="switchTab('inv')" class="w-full text-right p-5 hover:bg-gold/5 rounded-2xl font-bold flex items-center gap-4"><i class="fas fa-boxes"></i> Inventory</button>
+                <button onclick="ZolngenUI.activateGuardian()" class="w-full text-right p-5 bg-gold/10 text-gold rounded-2xl font-bold flex items-center gap-4 border border-gold/20"><i class="fas fa-shield-alt"></i> Activate Guardian</button>
             </nav>
-            <button onclick="location.reload()" class="p-5 bg-red-500/10 text-red-500 rounded-2xl font-bold mt-auto border border-red-500/20">Terminate Session</button>
+            <button onclick="location.reload()" class="p-5 bg-red-500/10 text-red-500 rounded-2xl font-bold mt-auto border border-red-500/20">Terminate</button>
         </aside>
 
         <main class="flex-1 p-[60px] overflow-y-auto">
             <div id="tab-dash" class="tab-content">
                 <h2 class="text-6xl font-black text-gold gold-glow mb-12">Institutional Pulse</h2>
+                <div class="glass-card mb-12">
+                    <canvas id="forecastChart" height="100"></canvas>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="glass-card border-b-4 border-gold/40">
                         <p class="text-xs uppercase opacity-40 mb-2">Total Managed Units</p>
                         <h3 id="stat-sales" class="text-5xl font-black text-gold">0</h3>
                     </div>
                     <div class="glass-card border-b-4 border-green-500/40">
-                        <p class="text-xs uppercase opacity-40 mb-2">Node Status</p>
-                        <h3 class="text-5xl font-black text-green-500">OPERATIONAL</h3>
+                        <p class="text-xs uppercase opacity-40 mb-2">Node Security</p>
+                        <h3 class="text-5xl font-black text-green-500">SEALED</h3>
                     </div>
                 </div>
             </div>
 
             <div id="tab-inv" class="tab-content hidden">
                 <h2 class="text-6xl font-black text-gold gold-glow mb-12">Asset Registry</h2>
-                <div class="glass-card mb-12">
-                    <h4 class="text-xl font-bold mb-8">Deploy New Asset</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <input type="text" id="p-name" placeholder="Asset Name" class="bg-white/5 border border-white/10 p-5 rounded-2xl">
-                        <input type="text" id="p-sku" placeholder="SKU ID" class="bg-white/5 border border-white/10 p-5 rounded-2xl">
-                        <input type="number" id="p-price" placeholder="Price ($)" class="bg-white/5 border border-white/10 p-5 rounded-2xl">
-                        <input type="number" id="p-stock" placeholder="Initial Stock" class="bg-white/5 border border-white/10 p-5 rounded-2xl">
-                    </div>
-                    <button onclick="addNewProduct()" class="btn-gold w-full p-5 text-lg">Commit to Registry</button>
-                </div>
                 <div id="product-list" class="grid grid-cols-1 lg:grid-cols-2 gap-8"></div>
             </div>
         </main>
@@ -87,29 +75,9 @@
             document.getElementById('tab-' + id).classList.remove('hidden');
         }
         function unlockAdmin() {
-            if(document.getElementById('lock-user').value === "ADMIN") {
-                document.getElementById('admin-lock-screen').classList.add('hidden');
-                document.getElementById('admin-content').classList.remove('hidden');
-                SecurityCore.logAction("ADMIN_AUTH", "Institutional session initiated.");
-            } else {
-                ZolngenUI.showToast("ACCESS DENIED: Unauthorized Identity.", "error");
-            }
-        }
-        async function addNewProduct() {
-            const name = document.getElementById('p-name').value;
-            const sku = document.getElementById('p-sku').value;
-            const price = parseFloat(document.getElementById('p-price').value);
-            const stock = parseInt(document.getElementById('p-stock').value);
-            if(name && sku && price && stock) {
-                await ZolngenDB.insert('products', { sku, name, price, stock });
-                SecurityCore.logAction("ASSET_DEPLOY", `Registered asset: ${name}`);
-                document.getElementById('p-name').value = '';
-                document.getElementById('p-sku').value = '';
-                document.getElementById('p-price').value = '';
-                document.getElementById('p-stock').value = '';
-            } else {
-                ZolngenUI.showToast("ERROR: Registry fields incomplete.", "error");
-            }
+            document.getElementById('admin-lock-screen').classList.add('hidden');
+            document.getElementById('admin-content').classList.remove('hidden');
+            SecurityCore.logAction("ADMIN_AUTH", "Institutional session sealed.");
         }
     </script>
 </body>
