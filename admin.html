@@ -3,144 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | Admin Command V138.0</title>
+    <title>ZOLNGEN | Hyper-Admin V141.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/global.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- ENTERPRISE CORE -->
     <script src="src/database.js"></script>
-    <script src="src/ui.js"></script>
 </head>
-<body class="rtl bg-[#050505] text-white">
-    <div class="cursor-glow" id="cursor"></div>
-
-    <!-- LOGIN SCREEN -->
+<body class="rtl bg-[#050505] text-white overflow-hidden">
+    <!-- LOGIN SCREEN (Same logic) -->
     <div id="login-screen" class="fixed inset-0 z-[1000] bg-black flex items-center justify-center">
         <div class="glass p-12 rounded-[40px] border border-white/5 w-full max-w-md text-center">
-            <h2 class="text-4xl font-black text-gold mb-10">Institutional Access</h2>
+            <h2 class="text-4xl font-black text-gold mb-10">Admin Access</h2>
             <div class="space-y-4">
                 <input type="text" id="user" placeholder="Username" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
                 <input type="password" id="pass" placeholder="Password" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
             </div>
-            <button onclick="handleLogin()" class="w-full mt-8 bg-gold text-black py-5 rounded-2xl font-bold hover:scale-105 transition-all">Authenticate</button>
+            <button onclick="handleLogin()" class="w-full mt-8 bg-gold text-black py-5 rounded-2xl font-bold">Authenticate</button>
         </div>
     </div>
 
-    <!-- MAIN INTERFACE -->
-    <div id="main-dash" class="hidden flex h-screen overflow-hidden">
-        <aside class="w-[300px] bg-[#0A0A0A] border-l border-white/5 flex flex-col fixed inset-y-0 right-0 z-50">
-            <div class="p-10 text-center">
-                <h1 class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN PRO</h1>
-                <p class="text-[10px] opacity-40 uppercase mt-2">Enterprise Finale V138.0</p>
-            </div>
-            <nav class="flex-1 px-6 space-y-2">
-                <button onclick="switchTab('dash')" class="tab-btn w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-chart-pie text-gold"></i> Dashboard</button>
-                <button onclick="switchTab('inv')" class="tab-btn w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-box-open text-gold"></i> Inventory</button>
-                <button onclick="switchTab('orders')" class="tab-btn w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-shopping-cart text-gold"></i> Orders</button>
+    <!-- HYPER INTERFACE -->
+    <div id="main-dash" class="hidden flex h-screen">
+        <aside class="w-[280px] bg-[#0A0A0A] border-l border-white/5 flex flex-col fixed inset-y-0 right-0 z-50">
+            <div class="p-10 font-black text-2xl text-gold">ZOLNGEN PRO</div>
+            <nav class="flex-1 px-4 space-y-1">
+                <button onclick="switchTab('dash')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 transition-all"><i class="fas fa-chart-line"></i> Dashboard</button>
+                <button onclick="switchTab('inv')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 transition-all"><i class="fas fa-box"></i> Inventory</button>
+                <button onclick="switchTab('orders')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 transition-all"><i class="fas fa-shopping-cart"></i> Orders</button>
+                <button onclick="switchTab('inquiries')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 transition-all"><i class="fas fa-envelope"></i> Inquiries</button>
+                <button onclick="switchTab('logs')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 transition-all"><i class="fas fa-terminal text-xs"></i> Logs</button>
             </nav>
-            <div class="p-10 border-t border-white/5">
-                <button onclick="logout()" class="text-red-500 font-bold flex items-center gap-4 hover:scale-105 transition-all"><i class="fas fa-power-off"></i> Logout</button>
-            </div>
+            <div class="p-8 border-t border-white/5"><button onclick="location.reload()" class="text-red-500 font-bold">Logout</button></div>
         </aside>
 
-        <main class="flex-1 mr-[300px] p-20 overflow-y-auto">
-            <div id="loader" class="hidden fixed top-10 left-10"><i class="fas fa-circle-notch animate-spin text-gold text-2xl"></i></div>
+        <main class="flex-1 mr-[280px] p-20 overflow-y-auto">
+            <!-- INVENTORY VIEW (WITH EDIT) -->
+            <div id="tab-inv" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-10">
+                    <h2 class="text-5xl font-black">Registry Control</h2>
+                    <button onclick="openModal('add')" class="bg-gold text-black px-6 py-3 rounded-xl font-bold">+ New Asset</button>
+                </div>
+                <div id="product-list" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+            </div>
+
+            <!-- ORDERS VIEW (WITH STATUS TOGGLE) -->
+            <div id="tab-orders" class="tab-content hidden">
+                <h2 class="text-5xl font-black mb-10">Order Fulfilment</h2>
+                <div class="glass rounded-3xl overflow-hidden">
+                    <table class="w-full text-right">
+                        <thead class="bg-white/5"><tr class="text-xs text-gold uppercase tracking-widest"><th class="p-6">ID</th><th class="p-6">Customer</th><th class="p-6">Value</th><th class="p-6">Status</th><th class="p-6">Action</th></tr></thead>
+                        <tbody id="order-list"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- LOGS VIEW -->
+            <div id="tab-logs" class="tab-content hidden">
+                <h2 class="text-5xl font-black mb-10">Audit Stream</h2>
+                <div id="log-list" class="font-mono text-xs text-white/40 space-y-2 p-8 glass rounded-3xl"></div>
+            </div>
+
+            <!-- INQUIRIES VIEW -->
+            <div id="tab-inquiries" class="tab-content hidden">
+                <h2 class="text-5xl font-black mb-10">Institutional Inquiries</h2>
+                <div id="inquiry-list" class="grid grid-cols-1 gap-4"></div>
+            </div>
 
             <!-- DASHBOARD VIEW -->
             <div id="tab-dash" class="tab-content">
-                <h2 class="text-6xl font-black mb-12">Enterprise Pulse</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-                    <div class="glass p-10 rounded-[40px] border border-white/5 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-all"><i class="fas fa-box text-6xl"></i></div>
-                        <p class="text-xs uppercase opacity-40 mb-2">Total Assets</p>
-                        <h3 id="stat-products" class="text-5xl font-black text-gold">0</h3>
-                    </div>
-                    <div class="glass p-10 rounded-[40px] border border-white/5 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-all"><i class="fas fa-dollar-sign text-6xl"></i></div>
-                        <p class="text-xs uppercase opacity-40 mb-2">Revenue Flow</p>
-                        <h3 id="stat-revenue" class="text-5xl font-black text-green-500">$0</h3>
-                    </div>
-                    <div class="glass p-10 rounded-[40px] border border-white/5 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-all"><i class="fas fa-users text-6xl"></i></div>
-                        <p class="text-xs uppercase opacity-40 mb-2">Order Count</p>
-                        <h3 id="stat-orders" class="text-5xl font-black text-blue-500">0</h3>
-                    </div>
-                </div>
-                <div class="glass p-12 rounded-[50px] border border-white/5">
-                    <canvas id="enterpriseChart" height="100"></canvas>
-                </div>
-            </div>
-
-            <!-- INVENTORY VIEW -->
-            <div id="tab-inv" class="tab-content hidden">
-                <div class="flex justify-between items-center mb-12">
-                    <h2 class="text-6xl font-black">Asset Registry</h2>
-                    <button onclick="openAddModal()" class="bg-gold text-black px-8 py-4 rounded-2xl font-bold hover:scale-105 transition-all">+ Deploy Asset</button>
-                </div>
-                <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
-            </div>
-
-            <!-- ORDERS VIEW -->
-            <div id="tab-orders" class="tab-content hidden">
-                <h2 class="text-6xl font-black mb-12">Order History</h2>
-                <div class="glass rounded-[40px] border border-white/5 overflow-hidden">
-                    <table class="w-full text-right">
-                        <thead class="bg-white/5 text-gold uppercase text-xs font-black tracking-widest">
-                            <tr>
-                                <th class="p-8">Node ID</th>
-                                <th class="p-8">Customer</th>
-                                <th class="p-8">Total Value</th>
-                                <th class="p-8">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="order-list"></tbody>
-                    </table>
+                <h2 class="text-5xl font-black mb-10">System Pulse</h2>
+                <div class="grid grid-cols-3 gap-6">
+                    <div class="glass p-10 rounded-3xl border border-white/5"><p class="text-xs opacity-30 uppercase">Assets</p><h3 id="stat-products" class="text-4xl font-black text-gold">0</h3></div>
+                    <div class="glass p-10 rounded-3xl border border-white/5"><p class="text-xs opacity-30 uppercase">Revenue</p><h3 id="stat-rev" class="text-4xl font-black text-green-500">$0</h3></div>
+                    <div class="glass p-10 rounded-3xl border border-white/5"><p class="text-xs opacity-30 uppercase">Open Inquiries</p><h3 id="stat-inq" class="text-4xl font-black text-blue-500">0</h3></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- MODAL -->
-    <div id="add-modal" class="hidden fixed inset-0 z-[2000] bg-black/95 flex items-center justify-center p-10">
-        <div class="glass p-16 rounded-[60px] border border-gold/20 w-full max-w-xl">
-            <h3 class="text-3xl font-black text-gold mb-12">Asset Deployment</h3>
-            <div class="grid grid-cols-1 gap-6">
-                <input type="text" id="p-name" placeholder="Asset Name" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
-                <div class="grid grid-cols-3 gap-4">
-                    <input type="text" id="p-sku" placeholder="SKU" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
-                    <input type="number" id="p-price" placeholder="Price" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
-                    <input type="number" id="p-stock" placeholder="Stock" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
+    <!-- EDIT/ADD MODAL -->
+    <div id="modal" class="hidden fixed inset-0 z-[2000] bg-black/90 flex items-center justify-center p-10">
+        <div class="glass p-12 rounded-[50px] border border-gold/20 w-full max-w-lg">
+            <h3 id="modal-title" class="text-2xl font-black text-gold mb-8">Asset Modification</h3>
+            <input type="hidden" id="edit-id">
+            <div class="space-y-4">
+                <input type="text" id="m-name" placeholder="Name" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none">
+                <input type="text" id="m-sku" placeholder="SKU" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="m-price" placeholder="Price" class="bg-white/5 border border-white/10 p-4 rounded-xl outline-none">
+                    <input type="number" id="m-stock" placeholder="Stock" class="bg-white/5 border border-white/10 p-4 rounded-xl outline-none">
                 </div>
             </div>
-            <div class="flex gap-4 mt-12">
-                <button onclick="submitProduct()" class="flex-1 bg-gold text-black py-5 rounded-2xl font-bold hover:scale-105 transition-all">Confirm SQL Transaction</button>
-                <button onclick="closeAddModal()" class="px-10 border border-white/10 rounded-2xl hover:bg-white/5">Abort</button>
+            <div class="flex gap-4 mt-10">
+                <button onclick="commitModal()" class="flex-1 bg-gold text-black py-4 rounded-xl font-bold">Commit Changes</button>
+                <button onclick="closeModal()" class="px-8 border border-white/10 rounded-xl">Cancel</button>
             </div>
         </div>
     </div>
 
     <script>
-        const cursor = document.getElementById('cursor');
-        document.addEventListener('mousemove', (e) => {
-            gsap.to(cursor, { x: e.clientX - 12, y: e.clientY - 12, duration: 0.1 });
-        });
-
-        let currentChart = null;
-
         async function handleLogin() {
-            const success = await ZolngenDB.login(document.getElementById('user').value, document.getElementById('pass').value);
-            if(success) {
+            if(await ZolngenDB.login(document.getElementById('user').value, document.getElementById('pass').value)) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-dash').classList.remove('hidden');
                 refreshAll();
             }
         }
-
-        function logout() { localStorage.removeItem('zolngen_auth_token'); location.reload(); }
 
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
@@ -149,76 +119,75 @@
         }
 
         async function refreshAll() {
-            document.getElementById('loader').classList.remove('hidden');
             const products = await ZolngenDB.getProducts();
             const orders = await ZolngenDB.getOrders();
-            
+            const inquiries = await ZolngenDB.getInquiries();
+            const logs = await ZolngenDB.getLogs();
+
             // Stats
             document.getElementById('stat-products').innerText = products.length;
-            document.getElementById('stat-orders').innerText = orders.length;
-            const revenue = orders.reduce((sum, o) => sum + o.total, 0);
-            document.getElementById('stat-revenue').innerText = `$${revenue.toLocaleString()}`;
+            document.getElementById('stat-inq').innerText = inquiries.length;
+            document.getElementById('stat-rev').innerText = `$${orders.reduce((s, o) => s + o.total, 0).toLocaleString()}`;
 
-            // Chart
-            const ctx = document.getElementById('enterpriseChart');
-            if(currentChart) currentChart.destroy();
-            currentChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: orders.map(o => o.date.split('T')[0]),
-                    datasets: [{
-                        label: 'Institutional Revenue Flow',
-                        data: orders.map(o => o.total),
-                        borderColor: '#D4AF37',
-                        backgroundColor: 'rgba(212, 175, 55, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: { scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } } } }
-            });
-
-            // Inventory List
-            const pList = document.getElementById('product-list');
-            pList.innerHTML = products.map(p => `
-                <div class="glass p-10 rounded-[40px] border border-white/5 hover:border-gold/20 transition-all">
-                    <h4 class="text-2xl font-black text-gold">${p.name}</h4>
-                    <p class="text-[10px] opacity-40 uppercase mb-8">SKU: ${p.sku}</p>
-                    <div class="flex justify-between items-end">
-                        <span class="text-4xl font-black">$${p.price.toLocaleString()}</span>
-                        <span class="text-blue-500 font-bold">${p.stock} Units</span>
+            // Inventory (with Edit button)
+            document.getElementById('product-list').innerHTML = products.map(p => `
+                <div class="glass p-8 rounded-3xl border border-white/5 flex justify-between items-center">
+                    <div><h4 class="text-xl font-black text-gold">${p.name}</h4><p class="text-xs opacity-40">$${p.price.toLocaleString()} | ${p.stock} Units</p></div>
+                    <div class="flex gap-2">
+                        <button onclick="openModal('edit', ${JSON.stringify(p).replace(/"/g, '&quot;')})" class="p-3 bg-white/5 rounded-xl hover:text-gold"><i class="fas fa-edit"></i></button>
                     </div>
                 </div>
             `).join('');
 
-            // Order List
+            // Orders (with Status toggle)
             document.getElementById('order-list').innerHTML = orders.map(o => `
-                <tr class="border-t border-white/5 hover:bg-white/5 transition-all">
-                    <td class="p-8 font-mono text-[10px] opacity-50">#${o.id}</td>
-                    <td class="p-8 font-bold">${o.customer}</td>
-                    <td class="p-8 text-gold font-black">$${o.total.toLocaleString()}</td>
-                    <td class="p-8"><span class="px-4 py-2 bg-blue-500/10 text-blue-500 rounded-full text-[10px] font-black uppercase">${o.status}</span></td>
+                <tr class="border-t border-white/5">
+                    <td class="p-6 opacity-40">#${o.id}</td>
+                    <td class="p-6 font-bold">${o.customer}</td>
+                    <td class="p-6 text-gold">$${o.total.toLocaleString()}</td>
+                    <td class="p-6"><span class="px-3 py-1 bg-white/5 rounded-full text-[10px] uppercase">${o.status}</span></td>
+                    <td class="p-6"><button onclick="updateStatus(${o.id}, '${o.status === 'Pending' ? 'Completed' : 'Pending'}')" class="text-xs text-blue-500">Toggle Status</button></td>
                 </tr>
             `).join('');
 
-            document.getElementById('loader').classList.add('hidden');
+            // Inquiries
+            document.getElementById('inquiry-list').innerHTML = inquiries.map(i => `
+                <div class="glass p-6 rounded-2xl border border-white/5">
+                    <div class="flex justify-between font-bold mb-2 text-gold"><span>${i.name}</span><span class="text-xs opacity-40">${i.date}</span></div>
+                    <p class="text-sm opacity-60">${i.message}</p>
+                </div>
+            `).join('');
+
+            // Logs
+            document.getElementById('log-list').innerHTML = logs.map(l => `<div>[${l.timestamp}] ${l.action}</div>`).join('');
         }
 
-        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); }
-        function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); }
+        async function updateStatus(id, s) { await ZolngenDB.updateOrderStatus(id, s); refreshAll(); }
 
-        async function submitProduct() {
-            const p = {
-                name: document.getElementById('p-name').value,
-                sku: document.getElementById('p-sku').value,
-                price: parseFloat(document.getElementById('p-price').value),
-                stock: parseInt(document.getElementById('p-stock').value)
-            };
-            if(await ZolngenDB.createProduct(p)) {
-                closeAddModal();
-                refreshAll();
-                if(window.ZolngenUI) ZolngenUI.showToast("Registry Entry Confirmed", "success");
+        function openModal(type, p = null) {
+            document.getElementById('modal').classList.remove('hidden');
+            if(type === 'edit') {
+                document.getElementById('edit-id').value = p.id;
+                document.getElementById('m-name').value = p.name;
+                document.getElementById('m-sku').value = p.sku;
+                document.getElementById('m-price').value = p.price;
+                document.getElementById('m-stock').value = p.stock;
+            } else {
+                document.getElementById('edit-id').value = "";
+                document.getElementById('m-name').value = "";
+                document.getElementById('m-sku').value = "";
+                document.getElementById('m-price').value = "";
+                document.getElementById('m-stock').value = "";
             }
+        }
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+
+        async function commitModal() {
+            const id = document.getElementById('edit-id').value;
+            const p = { name: document.getElementById('m-name').value, sku: document.getElementById('m-sku').value, price: parseFloat(document.getElementById('m-price').value), stock: parseInt(document.getElementById('m-stock').value) };
+            if(id) { p.id = id; await ZolngenDB.updateProduct(p); } 
+            else { await ZolngenDB.createProduct(p); }
+            closeModal(); refreshAll();
         }
     </script>
 </body>
