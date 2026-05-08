@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZOLNGEN | Asset Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/global.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="src/database.js"></script>
+</head>
+<body class="rtl bg-[#050505] text-white overflow-x-hidden">
+    <div class="cursor-glow" id="cursor"></div>
+
+    <nav class="p-8 flex justify-between items-center glass fixed top-0 inset-x-0 z-[100]">
+        <a href="index.html" class="text-xl opacity-50 hover:opacity-100 hover:text-gold transition-all"><i class="fas fa-arrow-right ml-2"></i> Return to Registry</a>
+        <h1 class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN</h1>
+    </nav>
+
+    <main id="details-container" class="pt-40 px-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 pb-40">
+        <!-- Dynamic Content -->
+        <div class="flex items-center justify-center py-40 col-span-2 opacity-20"><i class="fas fa-circle-notch animate-spin text-6xl"></i></div>
+    </main>
+
+    <script>
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, { x: e.clientX - 12, y: e.clientY - 12, duration: 0.1 });
+        });
+
+        async function initDetails() {
+            const urlParams = new URLSearchParams(window.URL.search);
+            const productId = urlParams.get('id');
+            const products = await ZolngenDB.getProducts();
+            const p = products.find(item => item.id == productId);
+
+            if(!p) {
+                document.getElementById('details-container').innerHTML = '<h2 class="text-4xl font-black opacity-20 col-span-2 text-center">Asset not found in registry.</h2>';
+                return;
+            }
+
+            document.getElementById('details-container').innerHTML = `
+                <div class="space-y-12 animate-slide-in">
+                    <div class="glass p-2 rounded-full inline-block px-6 py-2 border border-gold/20 text-gold text-xs font-black uppercase tracking-[5px]">Institutional Asset</div>
+                    <h2 class="text-7xl font-black tracking-tighter">${p.name}</h2>
+                    <p class="text-xl opacity-60 leading-relaxed">Experience the ultimate in hardware engineering. This ZOLNGEN verified asset delivers peak performance for professional enterprise nodes.</p>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div class="glass p-8 rounded-3xl border border-white/5">
+                            <p class="text-xs uppercase opacity-40 mb-2">Registry ID</p>
+                            <h4 class="text-xl font-bold font-mono">${p.sku}</h4>
+                        </div>
+                        <div class="glass p-8 rounded-3xl border border-white/5">
+                            <p class="text-xs uppercase opacity-40 mb-2">Availability</p>
+                            <h4 class="text-xl font-bold text-green-500">${p.stock} Units In Stock</h4>
+                        </div>
+                    </div>
+                    <div class="pt-10 flex items-center gap-8">
+                        <span class="text-6xl font-black">$${p.price.toLocaleString()}</span>
+                        <button class="flex-1 bg-gold text-black py-6 rounded-3xl font-black text-xl hover:scale-105 transition-all shadow-[0_0_50px_rgba(212,175,55,0.3)]">Acquire Asset</button>
+                    </div>
+                </div>
+                <div class="relative flex items-center justify-center">
+                    <div class="absolute inset-0 bg-gold/10 blur-[150px] rounded-full"></div>
+                    <i class="fas fa-microchip text-[300px] text-gold opacity-10 floating"></i>
+                </div>
+            `;
+            
+            gsap.from(".animate-slide-in > *", { 
+                y: 50, 
+                opacity: 0, 
+                stagger: 0.2, 
+                duration: 1, 
+                ease: "power4.out" 
+            });
+        }
+
+        initDetails();
+    </script>
+
+    <style>
+        .floating { animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
+    </style>
+</body>
+</html>
