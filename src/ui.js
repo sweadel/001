@@ -1,87 +1,78 @@
-/* ui.js - ZOLNGEN NUCLEAR CURSOR FIX V155.0 */
+/* ui.js - ZOLNGEN SOVEREIGN PURGE ENGINE V158.0 */
 const ZolngenUI = {
     init() {
+        this.purgeLegacyCursors();
         this.injectNuclearStyles();
         this.createNuclearCursor();
         this.createToastContainer();
         this.setupCursorEvents();
-        console.log("[SYSTEM] ZOLNGEN NUCLEAR UI V155.0 READY.");
+        console.log("[SYSTEM] ZOLNGEN SOVEREIGN UI V158.0 READY.");
+    },
+
+    purgeLegacyCursors() {
+        // Find and destroy any old cursor elements from legacy files
+        const legacy = document.querySelectorAll('#cursor, .cursor, .cursor-glow, #master-cursor, #nuclear-cursor');
+        legacy.forEach(el => el.remove());
     },
 
     injectNuclearStyles() {
         const style = document.createElement('style');
-        style.id = "zolngen-nuclear-styles";
+        style.id = "zolngen-v158-styles";
         style.textContent = `
-            /* DO NOT HIDE CURSOR BY DEFAULT */
+            /* FORCE SHOW DEFAULT CURSOR BY DEFAULT */
             body, html, * { cursor: auto !important; } 
 
             .nuclear-cursor { 
-                width: 25px; height: 25px; 
+                width: 20px; height: 20px; 
                 background: #D4AF37; 
                 border-radius: 50%; 
                 position: fixed; 
                 pointer-events: none; 
-                z-index: 2147483647 !important; /* MAXIMUM POSSIBLE Z-INDEX */
-                box-shadow: 0 0 25px #D4AF37, 0 0 50px rgba(212, 175, 55, 0.6);
+                z-index: 2147483647 !important; 
+                box-shadow: 0 0 20px #D4AF37, 0 0 40px rgba(212, 175, 55, 0.5);
                 mix-blend-mode: difference;
                 display: none;
                 border: 2px solid white;
             }
             .nuclear-cursor.active { display: block; }
             
-            /* HIDE DEFAULT ONLY WHEN CUSTOM IS ACTIVE AND MOVING */
+            /* ONLY HIDE DEFAULT WHEN CUSTOM IS MOVING */
             html.custom-active * { cursor: none !important; }
         `;
         document.head.appendChild(style);
     },
 
     createNuclearCursor() {
-        if (!document.getElementById('nuclear-cursor')) {
-            const cursor = document.createElement('div');
-            cursor.id = 'nuclear-cursor';
-            cursor.className = 'nuclear-cursor';
-            document.body.appendChild(cursor);
+        const cursor = document.createElement('div');
+        cursor.id = 'nuclear-cursor';
+        cursor.className = 'nuclear-cursor';
+        document.body.appendChild(cursor);
 
-            let hasMoved = false;
-            document.addEventListener('mousemove', (e) => {
-                if(!hasMoved) {
-                    hasMoved = true;
-                    cursor.classList.add('active');
-                    document.documentElement.classList.add('custom-active');
-                }
-                
-                // Nuclear Fallback: Use standard transform if GSAP fails
-                if (window.gsap) {
-                    gsap.to(cursor, { x: e.clientX - 12, y: e.clientY - 12, duration: 0.05 });
-                } else {
-                    cursor.style.left = (e.clientX - 12) + 'px';
-                    cursor.style.top = (e.clientY - 12) + 'px';
-                }
-            });
-
-            // Restore cursor if mouse leaves window
-            document.addEventListener('mouseleave', () => {
-                document.documentElement.classList.remove('custom-active');
-                cursor.classList.remove('active');
-            });
+        let moving = false;
+        document.addEventListener('mousemove', (e) => {
+            if(!moving) {
+                moving = true;
+                cursor.classList.add('active');
+                document.documentElement.classList.add('custom-active');
+            }
             
-            document.addEventListener('mouseenter', () => {
-                if(hasMoved) {
-                    document.documentElement.classList.add('custom-active');
-                    cursor.classList.add('active');
-                }
-            });
-        }
+            if (window.gsap) {
+                gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.05 });
+            } else {
+                cursor.style.left = (e.clientX - 10) + 'px';
+                cursor.style.top = (e.clientY - 10) + 'px';
+            }
+        });
     },
 
     setupCursorEvents() {
         const cursor = document.getElementById('nuclear-cursor');
-        const trigger = 'button, a, input, [onclick], .glass, .card';
+        const trigger = 'button, a, input, [onclick], .glass, .card, .product-card-premium';
         
         document.addEventListener('mouseover', (e) => {
             if (e.target.closest(trigger)) {
-                if(window.gsap) gsap.to(cursor, { scale: 2.5, backgroundColor: '#FFF', duration: 0.2 });
-                else cursor.style.transform = 'scale(2.5)';
+                if(window.gsap) gsap.to(cursor, { scale: 3, backgroundColor: '#FFF', duration: 0.2 });
+                else cursor.style.transform = 'scale(3)';
             }
         });
 
@@ -105,7 +96,7 @@ const ZolngenUI = {
     showToast(msg, type = "success") {
         const container = document.getElementById('zoln-toasts');
         const t = document.createElement('div');
-        t.className = "glass p-6 rounded-2xl border border-gold/30 text-gold font-bold shadow-2xl animate-fade-in";
+        t.className = "glass p-6 rounded-2xl border border-gold/30 text-gold font-bold shadow-2xl";
         t.innerHTML = msg;
         container.appendChild(t);
         setTimeout(() => t.remove(), 3000);
