@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | Admin Dashboard V136.0</title>
+    <title>ZOLNGEN | Admin Dashboard V137.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/global.css">
@@ -14,112 +14,193 @@
     <!-- ENTERPRISE CORE -->
     <script src="src/database.js"></script>
     <script src="src/security_core.js"></script>
-    <script src="src/ui.js"></script>
 </head>
-<body class="rtl overflow-hidden bg-black text-white">
+<body class="rtl bg-[#050505] text-white">
     <div class="cursor-glow" id="cursor"></div>
 
-    <!-- REAL AUTHENTICATION SCREEN -->
-    <div id="login-screen" class="fixed inset-0 z-[500] bg-black flex items-center justify-center p-6">
-        <div class="glass p-12 rounded-[50px] border border-white/10 max-w-sm w-full text-center">
-            <h2 class="text-4xl font-black text-gold mb-10">Admin Login</h2>
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 z-[1000] bg-black flex items-center justify-center">
+        <div class="glass p-12 rounded-[40px] border border-white/5 w-full max-w-md text-center">
+            <h2 class="text-4xl font-black text-gold mb-10">Admin Access</h2>
             <div class="space-y-4">
-                <input type="text" id="user" placeholder="Username (admin)" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-gold">
-                <input type="password" id="pass" placeholder="Password (1234)" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-gold">
+                <input type="text" id="user" placeholder="Username" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
+                <input type="password" id="pass" placeholder="Password" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
             </div>
-            <button onclick="handleLogin()" class="w-full mt-8 bg-gold text-black py-4 rounded-xl font-bold hover:scale-105 transition-all">Authenticate</button>
-            <p id="login-err" class="text-red-500 text-xs mt-4 hidden">Invalid Credentials.</p>
+            <button onclick="handleLogin()" class="w-full mt-8 bg-gold text-black py-5 rounded-2xl font-bold hover:scale-105 transition-all">Authenticate</button>
         </div>
     </div>
 
-    <!-- PROFESSIONAL DASHBOARD -->
-    <div id="main-dash" class="hidden h-screen flex">
-        <aside class="w-[300px] bg-[#0A0A0A] border-l border-white/5 p-8 flex flex-col">
-            <h1 class="text-2xl font-black text-gold mb-10">ZOLNGEN PRO</h1>
-            <nav class="flex-1 space-y-2">
-                <button onclick="switchTab('dash')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4"><i class="fas fa-chart-line"></i> Dashboard</button>
-                <button onclick="switchTab('inv')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4"><i class="fas fa-box-open"></i> Asset Registry</button>
+    <!-- ENTERPRISE DASHBOARD -->
+    <div id="main-dash" class="hidden flex h-screen overflow-hidden">
+        <!-- FIXED SIDEBAR -->
+        <aside class="w-[300px] bg-[#0A0A0A] border-l border-white/5 flex flex-col fixed inset-y-0 right-0 z-50">
+            <div class="p-10">
+                <h1 class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN PRO</h1>
+                <p class="text-[10px] opacity-40 uppercase mt-2">Enterprise Edition V137.0</p>
+            </div>
+            <nav class="flex-1 px-6 space-y-2">
+                <button onclick="switchTab('dash')" class="w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-chart-line text-gold"></i> Overview</button>
+                <button onclick="switchTab('inv')" class="w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-box-open text-gold"></i> Inventory</button>
+                <button onclick="switchTab('orders')" class="w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-shopping-cart text-gold"></i> Orders</button>
             </nav>
-            <button onclick="logout()" class="p-4 bg-red-500/10 text-red-500 rounded-xl font-bold mt-auto border border-red-500/10">Terminate Session</button>
+            <div class="p-10 border-t border-white/5">
+                <button onclick="logout()" class="text-red-500 font-bold flex items-center gap-4"><i class="fas fa-power-off"></i> Logout</button>
+            </div>
         </aside>
 
-        <main class="flex-1 p-16 overflow-y-auto">
-            <!-- OVERVIEW TAB -->
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 mr-[300px] p-20 overflow-y-auto">
+            <div id="loader" class="hidden fixed top-10 left-10"><i class="fas fa-circle-notch animate-spin text-gold text-2xl"></i></div>
+
+            <!-- DASHBOARD TAB -->
             <div id="tab-dash" class="tab-content">
-                <h2 class="text-5xl font-black mb-10">Institutional Pulse</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-                    <div class="glass p-8 rounded-3xl border border-white/5">
-                        <p class="text-xs uppercase opacity-40 mb-2">Managed Assets</p>
-                        <h3 id="stat-sales" class="text-4xl font-black text-gold">0</h3>
+                <h2 class="text-6xl font-black mb-12">Institutional Pulse</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                    <div class="glass p-10 rounded-[40px] border border-white/5">
+                        <p class="text-xs uppercase opacity-40 mb-2">Total Inventory</p>
+                        <h3 id="stat-products" class="text-5xl font-black text-gold">0</h3>
                     </div>
-                    <div class="glass p-8 rounded-3xl border border-white/5">
-                        <p class="text-xs uppercase opacity-40 mb-2">API Connection</p>
-                        <h3 class="text-2xl font-black text-green-500">ACTIVE (TOKEN VERIFIED)</h3>
+                    <div class="glass p-10 rounded-[40px] border border-white/5">
+                        <p class="text-xs uppercase opacity-40 mb-2">Total Orders</p>
+                        <h3 id="stat-orders" class="text-5xl font-black text-blue-500">0</h3>
+                    </div>
+                    <div class="glass p-10 rounded-[40px] border border-white/5">
+                        <p class="text-xs uppercase opacity-40 mb-2">System Status</p>
+                        <h3 class="text-2xl font-black text-green-500 uppercase">Synchronized</h3>
                     </div>
                 </div>
-                <div class="glass p-10 rounded-[40px] border border-white/5">
+                <div class="glass p-12 rounded-[50px] border border-white/5">
                     <canvas id="forecastChart" height="100"></canvas>
                 </div>
             </div>
 
-            <!-- INVENTORY TAB (CRUD) -->
+            <!-- INVENTORY TAB -->
             <div id="tab-inv" class="tab-content hidden">
-                <h2 class="text-5xl font-black mb-10">Asset Registry</h2>
-                <div class="glass p-8 rounded-3xl border border-white/5 mb-10">
-                    <h4 class="text-xl font-bold mb-6">Deploy New Institutional Asset</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="text" id="p-name" placeholder="Asset Name" class="bg-white/5 border border-white/10 p-4 rounded-xl">
-                        <input type="text" id="p-sku" placeholder="SKU ID" class="bg-white/5 border border-white/10 p-4 rounded-xl">
-                        <input type="number" id="p-price" placeholder="Price ($)" class="bg-white/5 border border-white/10 p-4 rounded-xl">
-                        <input type="number" id="p-stock" placeholder="Initial Stock" class="bg-white/5 border border-white/10 p-4 rounded-xl">
-                    </div>
-                    <button onclick="addNewProduct()" class="w-full mt-6 bg-gold text-black py-4 rounded-xl font-bold">Commit to Registry</button>
+                <div class="flex justify-between items-center mb-12">
+                    <h2 class="text-6xl font-black">Asset Registry</h2>
+                    <button onclick="openAddModal()" class="bg-gold text-black px-8 py-4 rounded-2xl font-bold">+ New Asset</button>
                 </div>
-                <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- LOADING STATE -->
+                    <div class="p-20 text-center opacity-30"><i class="fas fa-spinner animate-spin text-4xl"></i></div>
+                </div>
+            </div>
+
+            <!-- ORDERS TAB -->
+            <div id="tab-orders" class="tab-content hidden">
+                <h2 class="text-6xl font-black mb-12">Incoming Orders</h2>
+                <div class="glass rounded-[40px] border border-white/5 overflow-hidden">
+                    <table class="w-full text-right">
+                        <thead class="bg-white/5">
+                            <tr>
+                                <th class="p-6">ID</th>
+                                <th class="p-6">Customer</th>
+                                <th class="p-6">Total</th>
+                                <th class="p-6">Status</th>
+                                <th class="p-6">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="order-list">
+                            <!-- Dynamic rendering -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
+    </div>
+
+    <!-- ADD PRODUCT MODAL -->
+    <div id="add-modal" class="hidden fixed inset-0 z-[2000] bg-black/90 flex items-center justify-center p-10">
+        <div class="glass p-16 rounded-[60px] border border-gold/20 w-full max-w-2xl">
+            <h3 class="text-3xl font-black text-gold mb-10">Deploy New Asset</h3>
+            <div class="grid grid-cols-2 gap-6">
+                <input type="text" id="p-name" placeholder="Name" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none">
+                <input type="text" id="p-sku" placeholder="SKU" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none">
+                <input type="number" id="p-price" placeholder="Price" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none">
+                <input type="number" id="p-stock" placeholder="Stock" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none">
+            </div>
+            <div class="flex gap-4 mt-12">
+                <button onclick="submitProduct()" class="flex-1 bg-gold text-black py-5 rounded-2xl font-bold">Commit to SQL</button>
+                <button onclick="closeAddModal()" class="px-10 border border-white/10 rounded-2xl">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script>
         const cursor = document.getElementById('cursor');
         document.addEventListener('mousemove', (e) => {
-            gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.1 });
+            gsap.to(cursor, { x: e.clientX - 12, y: e.clientY - 12, duration: 0.1 });
         });
 
         async function handleLogin() {
-            const user = document.getElementById('user').value;
-            const pass = document.getElementById('pass').value;
-            const success = await ZolngenDB.login(user, pass);
+            const success = await ZolngenDB.login(document.getElementById('user').value, document.getElementById('pass').value);
             if(success) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-dash').classList.remove('hidden');
-                SecurityCore.logAction("ADMIN_LOGIN", "Token-based session authorized.");
-            } else {
-                document.getElementById('login-err').classList.remove('hidden');
+                refreshData();
             }
         }
 
-        function logout() {
-            localStorage.removeItem('zolngen_auth_token');
-            location.reload();
-        }
+        function logout() { localStorage.removeItem('zolngen_auth_token'); location.reload(); }
 
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
             document.getElementById('tab-' + id).classList.remove('hidden');
+            refreshData();
         }
 
-        async function addNewProduct() {
-            const name = document.getElementById('p-name').value;
-            const sku = document.getElementById('p-sku').value;
-            const price = parseFloat(document.getElementById('p-price').value);
-            const stock = parseInt(document.getElementById('p-stock').value);
-            if(name && sku && price && stock) {
-                await ZolngenDB.insert('products', { sku, name, price, stock });
-                document.getElementById('p-name').value = '';
-                document.getElementById('p-sku').value = '';
-                document.getElementById('p-price').value = '';
-                document.getElementById('p-stock').value = '';
+        async function refreshData() {
+            document.getElementById('loader').classList.remove('hidden');
+            const products = await ZolngenDB.getProducts();
+            const orders = await ZolngenDB.getOrders();
+            
+            document.getElementById('stat-products').innerText = products.length;
+            document.getElementById('stat-orders').innerText = orders.length;
+
+            // Render Products
+            const pList = document.getElementById('product-list');
+            if(products.length === 0) {
+                pList.innerHTML = '<div class="col-span-2 p-20 text-center opacity-30">No assets in registry.</div>';
+            } else {
+                pList.innerHTML = products.map(p => `
+                    <div class="glass p-10 rounded-[40px] border border-white/5">
+                        <h4 class="text-2xl font-black text-gold mb-2">${p.name}</h4>
+                        <p class="text-xs opacity-40 uppercase mb-6">SKU: ${p.sku}</p>
+                        <div class="flex justify-between items-end">
+                            <span class="text-4xl font-black">$${p.price.toLocaleString()}</span>
+                            <span class="text-blue-500 font-bold">${p.stock} Units</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Render Orders
+            document.getElementById('order-list').innerHTML = orders.map(o => `
+                <tr class="border-t border-white/5 hover:bg-white/5">
+                    <td class="p-6">#${o.id}</td>
+                    <td class="p-6">${o.customer}</td>
+                    <td class="p-6 text-gold">$${o.total.toLocaleString()}</td>
+                    <td class="p-6"><span class="px-4 py-2 bg-blue-500/10 text-blue-500 rounded-full text-xs">${o.status}</span></td>
+                    <td class="p-6 opacity-40 text-xs">${o.date}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('loader').classList.add('hidden');
+        }
+
+        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); }
+        function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); }
+
+        async function submitProduct() {
+            const p = {
+                name: document.getElementById('p-name').value,
+                sku: document.getElementById('p-sku').value,
+                price: parseFloat(document.getElementById('p-price').value),
+                stock: parseInt(document.getElementById('p-stock').value)
+            };
+            if(await ZolngenDB.createProduct(p)) {
+                closeAddModal();
+                refreshData();
             }
         }
     </script>
