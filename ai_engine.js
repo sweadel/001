@@ -1,42 +1,49 @@
-/* ai_engine.js - ZOLNGEN SINGULARITY AI V111.0 */
-const AIEngine = {
-    // 1. GENERATIVE AI: IMAGE STUDIO
-    generateAsset: function(prompt) {
-        UI.showToast('AI Neural Mapping: ' + prompt);
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const id = Math.floor(Math.random() * 1000000);
-                const url = `https://picsum.photos/800/600?random=${id}`;
-                resolve({ id, url, prompt, date: new Date().toLocaleString() });
-            }, 2500);
-        });
+/* ai_engine.js - ZOLNGEN SOVEREIGN AI V124.0 (100% INTERNAL) */
+const SovereignAI = {
+    // INTERNAL NLP PATTERNS
+    patterns: {
+        navigation: ["افتح", "اذهب", "بوابة", "open", "go to", "portal"],
+        finance: ["مبيعات", "أرباح", "فلوس", "sales", "profit", "money"],
+        security: ["أمن", "حماية", "بلوكشين", "security", "protect", "blockchain"],
+        repair: ["إصلاح", "صيانة", "fix", "repair", "heal"]
     },
 
-    // 2. NLP: VOICE COMMAND PARSER
-    parseVoiceCommand: function(transcript) {
-        const cmd = transcript.toLowerCase();
-        UI.showToast('Voice Processing: ' + cmd);
-        
-        if(cmd.includes('show inventory') || cmd.includes('المخزون')) return { action: 'TAB', target: 'supply' };
-        if(cmd.includes('finance') || cmd.includes('مالية')) return { action: 'TAB', target: 'dashboard' };
-        if(cmd.includes('security') || cmd.includes('أمان')) return { action: 'TAB', target: 'security' };
-        if(cmd.includes('block') || cmd.includes('بلوكشين')) return { action: 'TAB', target: 'blockchain' };
-        
-        return { action: 'CHAT', response: Bot.process(cmd) };
+    // INTERNAL SENTIMENT DICTIONARY
+    sentimentDict: {
+        positive: ["ممتاز", "رائع", "شكر", "excellent", "great", "thanks"],
+        negative: ["مشكلة", "خطأ", "سيء", "problem", "error", "bad"]
     },
 
-    // 3. SENTIMENT ANALYSIS
-    analyzeSentiment: function(text) {
-        const keywords = {
-            positive: ['good', 'great', 'excellent', 'ممتاز', 'رائع', 'شكر'],
-            negative: ['bad', 'error', 'slow', 'سيء', 'بطيء', 'مشكلة']
-        };
+    // ANALYZE COMMAND (LOCAL LOGIC)
+    analyze(command) {
+        command = command.toLowerCase();
+        let intent = "UNKNOWN";
+        
+        for (let [key, keywords] of Object.entries(this.patterns)) {
+            if (keywords.some(k => command.includes(k))) {
+                intent = key.toUpperCase();
+                break;
+            }
+        }
+        
+        console.log(`[SOVEREIGN AI] Intent Detected: ${intent}`);
+        return intent;
+    },
+
+    // PREDICT SALES (INTERNAL HEURISTICS)
+    predictSales() {
+        const data = ZolngenDB.getData();
+        const sales = data.sales.length;
+        // Simple predictive logic based on current velocity
+        const prediction = sales * 1.25 + 5; 
+        return Math.floor(prediction);
+    },
+
+    // SENTIMENT SCORE
+    getSentiment(text) {
         let score = 0;
-        keywords.positive.forEach(k => { if(text.includes(k)) score++; });
-        keywords.negative.forEach(k => { if(text.includes(k)) score--; });
-        
-        return score > 0 ? 'POSITIVE' : (score < 0 ? 'NEGATIVE' : 'NEUTRAL');
+        this.sentimentDict.positive.forEach(k => { if(text.includes(k)) score++ });
+        this.sentimentDict.negative.forEach(k => { if(text.includes(k)) score-- });
+        return score > 0 ? "POSITIVE" : (score < 0 ? "NEGATIVE" : "NEUTRAL");
     }
 };
-
-window.AIEngine = AIEngine;
