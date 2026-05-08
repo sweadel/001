@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | Institutional Support V141.0</title>
+    <title>ZOLNGEN | Institutional Support V149.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/global.css">
@@ -13,61 +13,68 @@
     <script src="src/ui.js"></script>
 </head>
 <body class="rtl bg-[#050505] text-white">
-    <nav class="p-8 flex justify-between items-center glass fixed top-0 inset-x-0 z-[100]">
-        <h1 class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN</h1>
+    <div id="cursor"></div>
+
+    <nav class="p-8 flex justify-between items-center glass sticky top-0 z-[100]">
+        <a href="index.html" class="text-2xl font-black text-gold tracking-tighter">ZOLNGEN</a>
         <div class="flex gap-10">
-            <a href="index.html" class="opacity-50 hover:opacity-100 transition-all font-bold">Registry</a>
-            <a href="contact.html" class="text-gold font-bold">Support Hub</a>
+            <a href="index.html" class="opacity-50 hover:opacity-100 transition-all font-bold">Store</a>
+            <a href="contact.html" class="text-gold font-bold">Support</a>
         </div>
     </nav>
 
-    <main class="pt-40 px-10 max-w-7xl mx-auto pb-40">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
-            <div class="glass p-16 rounded-[60px] border border-white/5">
-                <h3 class="text-3xl font-black mb-10">Inquiry Protocol</h3>
-                <form id="contact-form" class="space-y-6">
-                    <input type="text" id="c-name" placeholder="Full Name" required class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
-                    <input type="email" id="c-email" placeholder="Institutional Email" required class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
-                    <textarea id="c-msg" placeholder="Your Message" rows="5" required class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold"></textarea>
-                    <button type="submit" id="submit-btn" class="w-full bg-gold text-black py-5 rounded-2xl font-black text-lg hover:scale-105 transition-all">Transmit Message</button>
-                </form>
-            </div>
+    <main class="max-w-4xl mx-auto px-10 py-40">
+        <div class="text-center mb-20">
+            <h1 class="text-7xl font-black mb-6 tracking-tighter gold-glow">Support Node</h1>
+            <p class="text-gold opacity-50 uppercase tracking-[10px] text-xs">Direct Institutional Communication</p>
+        </div>
 
-            <div class="space-y-10">
-                <h3 class="text-5xl font-black mb-10 tracking-tighter">Knowledge<br>Registry</h3>
-                <div class="glass p-10 rounded-[40px] border border-white/5 hover:border-gold/20 transition-all">
-                    <h4 class="text-xl font-bold text-gold mb-4">Sovereign Deployment?</h4>
-                    <p class="opacity-40 leading-relaxed">All acquisitions are logged in the SQLite registry and deployed via our global logistics network within 48 hours.</p>
+        <div class="glass p-16 rounded-[60px] border border-white/5">
+            <form id="contact-form" onsubmit="handleSubmit(event)" class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-xs opacity-40 uppercase ml-4">Full Identity</label>
+                        <input type="text" id="name" required class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs opacity-40 uppercase ml-4">Communication Node (Email)</label>
+                        <input type="email" id="email" required class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
+                    </div>
                 </div>
-                <div class="glass p-10 rounded-[40px] border border-white/5 hover:border-gold/20 transition-all">
-                    <h4 class="text-xl font-bold text-gold mb-4">API Documentation?</h4>
-                    <p class="opacity-40 leading-relaxed">Institutional partners can access our REST API documentation through the Admin Command Center after authorization.</p>
+                <div class="space-y-2">
+                    <label class="text-xs opacity-40 uppercase ml-4">Message Packet</label>
+                    <textarea id="message" required rows="6" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold"></textarea>
                 </div>
-            </div>
+                <button type="submit" id="submit-btn" class="w-full bg-gold text-black py-6 rounded-2xl font-black text-xl hover:scale-105 transition-all">Transmit Inquiry</button>
+            </form>
         </div>
     </main>
 
+    <footer class="py-20 text-center opacity-20 text-[10px] uppercase tracking-[10px]">
+        &copy; 2026 ZOLNGEN SOVEREIGN COMMUNICATIONS
+    </footer>
+
     <script>
-        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+        async function handleSubmit(e) {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
             btn.innerText = "Transmitting...";
-            
+            btn.disabled = true;
+
             const data = {
-                name: document.getElementById('c-name').value,
-                email: document.getElementById('c-email').value,
-                message: document.getElementById('c-msg').value
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                message: document.getElementById('message').value
             };
 
-            if(await ZolngenDB.submitInquiry(data)) {
-                ZolngenUI.showToast("Inquiry successfully logged", "success");
+            const success = await ZolngenDB.submitInquiry(data);
+            if(success) {
+                ZolngenUI.showToast("Communication Packet Received", "success");
                 document.getElementById('contact-form').reset();
-                btn.innerText = "Transmit Message";
-            } else {
-                ZolngenUI.showToast("Transmission Error", "error");
-                btn.innerText = "Transmit Message";
             }
-        });
+            btn.innerText = "Transmit Inquiry";
+            btn.disabled = false;
+        }
     </script>
 </body>
 </html>
