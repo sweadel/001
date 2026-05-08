@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | Admin Dashboard V137.0</title>
+    <title>ZOLNGEN | Admin Command V138.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/global.css">
@@ -13,7 +13,7 @@
 
     <!-- ENTERPRISE CORE -->
     <script src="src/database.js"></script>
-    <script src="src/security_core.js"></script>
+    <script src="src/ui.js"></script>
 </head>
 <body class="rtl bg-[#050505] text-white">
     <div class="cursor-glow" id="cursor"></div>
@@ -21,7 +21,7 @@
     <!-- LOGIN SCREEN -->
     <div id="login-screen" class="fixed inset-0 z-[1000] bg-black flex items-center justify-center">
         <div class="glass p-12 rounded-[40px] border border-white/5 w-full max-w-md text-center">
-            <h2 class="text-4xl font-black text-gold mb-10">Admin Access</h2>
+            <h2 class="text-4xl font-black text-gold mb-10">Institutional Access</h2>
             <div class="space-y-4">
                 <input type="text" id="user" placeholder="Username" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
                 <input type="password" id="pass" placeholder="Password" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
@@ -30,98 +30,95 @@
         </div>
     </div>
 
-    <!-- ENTERPRISE DASHBOARD -->
+    <!-- MAIN INTERFACE -->
     <div id="main-dash" class="hidden flex h-screen overflow-hidden">
-        <!-- FIXED SIDEBAR -->
         <aside class="w-[300px] bg-[#0A0A0A] border-l border-white/5 flex flex-col fixed inset-y-0 right-0 z-50">
-            <div class="p-10">
+            <div class="p-10 text-center">
                 <h1 class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN PRO</h1>
-                <p class="text-[10px] opacity-40 uppercase mt-2">Enterprise Edition V137.0</p>
+                <p class="text-[10px] opacity-40 uppercase mt-2">Enterprise Finale V138.0</p>
             </div>
             <nav class="flex-1 px-6 space-y-2">
-                <button onclick="switchTab('dash')" class="w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-chart-line text-gold"></i> Overview</button>
-                <button onclick="switchTab('inv')" class="w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-box-open text-gold"></i> Inventory</button>
-                <button onclick="switchTab('orders')" class="w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-shopping-cart text-gold"></i> Orders</button>
+                <button onclick="switchTab('dash')" class="tab-btn w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-chart-pie text-gold"></i> Dashboard</button>
+                <button onclick="switchTab('inv')" class="tab-btn w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-box-open text-gold"></i> Inventory</button>
+                <button onclick="switchTab('orders')" class="tab-btn w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-shopping-cart text-gold"></i> Orders</button>
             </nav>
             <div class="p-10 border-t border-white/5">
-                <button onclick="logout()" class="text-red-500 font-bold flex items-center gap-4"><i class="fas fa-power-off"></i> Logout</button>
+                <button onclick="logout()" class="text-red-500 font-bold flex items-center gap-4 hover:scale-105 transition-all"><i class="fas fa-power-off"></i> Logout</button>
             </div>
         </aside>
 
-        <!-- MAIN CONTENT AREA -->
         <main class="flex-1 mr-[300px] p-20 overflow-y-auto">
             <div id="loader" class="hidden fixed top-10 left-10"><i class="fas fa-circle-notch animate-spin text-gold text-2xl"></i></div>
 
-            <!-- DASHBOARD TAB -->
+            <!-- DASHBOARD VIEW -->
             <div id="tab-dash" class="tab-content">
-                <h2 class="text-6xl font-black mb-12">Institutional Pulse</h2>
+                <h2 class="text-6xl font-black mb-12">Enterprise Pulse</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-                    <div class="glass p-10 rounded-[40px] border border-white/5">
-                        <p class="text-xs uppercase opacity-40 mb-2">Total Inventory</p>
+                    <div class="glass p-10 rounded-[40px] border border-white/5 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-all"><i class="fas fa-box text-6xl"></i></div>
+                        <p class="text-xs uppercase opacity-40 mb-2">Total Assets</p>
                         <h3 id="stat-products" class="text-5xl font-black text-gold">0</h3>
                     </div>
-                    <div class="glass p-10 rounded-[40px] border border-white/5">
-                        <p class="text-xs uppercase opacity-40 mb-2">Total Orders</p>
-                        <h3 id="stat-orders" class="text-5xl font-black text-blue-500">0</h3>
+                    <div class="glass p-10 rounded-[40px] border border-white/5 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-all"><i class="fas fa-dollar-sign text-6xl"></i></div>
+                        <p class="text-xs uppercase opacity-40 mb-2">Revenue Flow</p>
+                        <h3 id="stat-revenue" class="text-5xl font-black text-green-500">$0</h3>
                     </div>
-                    <div class="glass p-10 rounded-[40px] border border-white/5">
-                        <p class="text-xs uppercase opacity-40 mb-2">System Status</p>
-                        <h3 class="text-2xl font-black text-green-500 uppercase">Synchronized</h3>
+                    <div class="glass p-10 rounded-[40px] border border-white/5 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-all"><i class="fas fa-users text-6xl"></i></div>
+                        <p class="text-xs uppercase opacity-40 mb-2">Order Count</p>
+                        <h3 id="stat-orders" class="text-5xl font-black text-blue-500">0</h3>
                     </div>
                 </div>
                 <div class="glass p-12 rounded-[50px] border border-white/5">
-                    <canvas id="forecastChart" height="100"></canvas>
+                    <canvas id="enterpriseChart" height="100"></canvas>
                 </div>
             </div>
 
-            <!-- INVENTORY TAB -->
+            <!-- INVENTORY VIEW -->
             <div id="tab-inv" class="tab-content hidden">
                 <div class="flex justify-between items-center mb-12">
                     <h2 class="text-6xl font-black">Asset Registry</h2>
-                    <button onclick="openAddModal()" class="bg-gold text-black px-8 py-4 rounded-2xl font-bold">+ New Asset</button>
+                    <button onclick="openAddModal()" class="bg-gold text-black px-8 py-4 rounded-2xl font-bold hover:scale-105 transition-all">+ Deploy Asset</button>
                 </div>
-                <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- LOADING STATE -->
-                    <div class="p-20 text-center opacity-30"><i class="fas fa-spinner animate-spin text-4xl"></i></div>
-                </div>
+                <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
             </div>
 
-            <!-- ORDERS TAB -->
+            <!-- ORDERS VIEW -->
             <div id="tab-orders" class="tab-content hidden">
-                <h2 class="text-6xl font-black mb-12">Incoming Orders</h2>
+                <h2 class="text-6xl font-black mb-12">Order History</h2>
                 <div class="glass rounded-[40px] border border-white/5 overflow-hidden">
                     <table class="w-full text-right">
-                        <thead class="bg-white/5">
+                        <thead class="bg-white/5 text-gold uppercase text-xs font-black tracking-widest">
                             <tr>
-                                <th class="p-6">ID</th>
-                                <th class="p-6">Customer</th>
-                                <th class="p-6">Total</th>
-                                <th class="p-6">Status</th>
-                                <th class="p-6">Date</th>
+                                <th class="p-8">Node ID</th>
+                                <th class="p-8">Customer</th>
+                                <th class="p-8">Total Value</th>
+                                <th class="p-8">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="order-list">
-                            <!-- Dynamic rendering -->
-                        </tbody>
+                        <tbody id="order-list"></tbody>
                     </table>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- ADD PRODUCT MODAL -->
-    <div id="add-modal" class="hidden fixed inset-0 z-[2000] bg-black/90 flex items-center justify-center p-10">
-        <div class="glass p-16 rounded-[60px] border border-gold/20 w-full max-w-2xl">
-            <h3 class="text-3xl font-black text-gold mb-10">Deploy New Asset</h3>
-            <div class="grid grid-cols-2 gap-6">
-                <input type="text" id="p-name" placeholder="Name" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none">
-                <input type="text" id="p-sku" placeholder="SKU" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none">
-                <input type="number" id="p-price" placeholder="Price" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none">
-                <input type="number" id="p-stock" placeholder="Stock" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none">
+    <!-- MODAL -->
+    <div id="add-modal" class="hidden fixed inset-0 z-[2000] bg-black/95 flex items-center justify-center p-10">
+        <div class="glass p-16 rounded-[60px] border border-gold/20 w-full max-w-xl">
+            <h3 class="text-3xl font-black text-gold mb-12">Asset Deployment</h3>
+            <div class="grid grid-cols-1 gap-6">
+                <input type="text" id="p-name" placeholder="Asset Name" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
+                <div class="grid grid-cols-3 gap-4">
+                    <input type="text" id="p-sku" placeholder="SKU" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
+                    <input type="number" id="p-price" placeholder="Price" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
+                    <input type="number" id="p-stock" placeholder="Stock" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
+                </div>
             </div>
             <div class="flex gap-4 mt-12">
-                <button onclick="submitProduct()" class="flex-1 bg-gold text-black py-5 rounded-2xl font-bold">Commit to SQL</button>
-                <button onclick="closeAddModal()" class="px-10 border border-white/10 rounded-2xl">Cancel</button>
+                <button onclick="submitProduct()" class="flex-1 bg-gold text-black py-5 rounded-2xl font-bold hover:scale-105 transition-all">Confirm SQL Transaction</button>
+                <button onclick="closeAddModal()" class="px-10 border border-white/10 rounded-2xl hover:bg-white/5">Abort</button>
             </div>
         </div>
     </div>
@@ -132,12 +129,14 @@
             gsap.to(cursor, { x: e.clientX - 12, y: e.clientY - 12, duration: 0.1 });
         });
 
+        let currentChart = null;
+
         async function handleLogin() {
             const success = await ZolngenDB.login(document.getElementById('user').value, document.getElementById('pass').value);
             if(success) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-dash').classList.remove('hidden');
-                refreshData();
+                refreshAll();
             }
         }
 
@@ -146,42 +145,59 @@
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
             document.getElementById('tab-' + id).classList.remove('hidden');
-            refreshData();
+            refreshAll();
         }
 
-        async function refreshData() {
+        async function refreshAll() {
             document.getElementById('loader').classList.remove('hidden');
             const products = await ZolngenDB.getProducts();
             const orders = await ZolngenDB.getOrders();
             
+            // Stats
             document.getElementById('stat-products').innerText = products.length;
             document.getElementById('stat-orders').innerText = orders.length;
+            const revenue = orders.reduce((sum, o) => sum + o.total, 0);
+            document.getElementById('stat-revenue').innerText = `$${revenue.toLocaleString()}`;
 
-            // Render Products
+            // Chart
+            const ctx = document.getElementById('enterpriseChart');
+            if(currentChart) currentChart.destroy();
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: orders.map(o => o.date.split('T')[0]),
+                    datasets: [{
+                        label: 'Institutional Revenue Flow',
+                        data: orders.map(o => o.total),
+                        borderColor: '#D4AF37',
+                        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } } } }
+            });
+
+            // Inventory List
             const pList = document.getElementById('product-list');
-            if(products.length === 0) {
-                pList.innerHTML = '<div class="col-span-2 p-20 text-center opacity-30">No assets in registry.</div>';
-            } else {
-                pList.innerHTML = products.map(p => `
-                    <div class="glass p-10 rounded-[40px] border border-white/5">
-                        <h4 class="text-2xl font-black text-gold mb-2">${p.name}</h4>
-                        <p class="text-xs opacity-40 uppercase mb-6">SKU: ${p.sku}</p>
-                        <div class="flex justify-between items-end">
-                            <span class="text-4xl font-black">$${p.price.toLocaleString()}</span>
-                            <span class="text-blue-500 font-bold">${p.stock} Units</span>
-                        </div>
+            pList.innerHTML = products.map(p => `
+                <div class="glass p-10 rounded-[40px] border border-white/5 hover:border-gold/20 transition-all">
+                    <h4 class="text-2xl font-black text-gold">${p.name}</h4>
+                    <p class="text-[10px] opacity-40 uppercase mb-8">SKU: ${p.sku}</p>
+                    <div class="flex justify-between items-end">
+                        <span class="text-4xl font-black">$${p.price.toLocaleString()}</span>
+                        <span class="text-blue-500 font-bold">${p.stock} Units</span>
                     </div>
-                `).join('');
-            }
+                </div>
+            `).join('');
 
-            // Render Orders
+            // Order List
             document.getElementById('order-list').innerHTML = orders.map(o => `
-                <tr class="border-t border-white/5 hover:bg-white/5">
-                    <td class="p-6">#${o.id}</td>
-                    <td class="p-6">${o.customer}</td>
-                    <td class="p-6 text-gold">$${o.total.toLocaleString()}</td>
-                    <td class="p-6"><span class="px-4 py-2 bg-blue-500/10 text-blue-500 rounded-full text-xs">${o.status}</span></td>
-                    <td class="p-6 opacity-40 text-xs">${o.date}</td>
+                <tr class="border-t border-white/5 hover:bg-white/5 transition-all">
+                    <td class="p-8 font-mono text-[10px] opacity-50">#${o.id}</td>
+                    <td class="p-8 font-bold">${o.customer}</td>
+                    <td class="p-8 text-gold font-black">$${o.total.toLocaleString()}</td>
+                    <td class="p-8"><span class="px-4 py-2 bg-blue-500/10 text-blue-500 rounded-full text-[10px] font-black uppercase">${o.status}</span></td>
                 </tr>
             `).join('');
 
@@ -200,7 +216,8 @@
             };
             if(await ZolngenDB.createProduct(p)) {
                 closeAddModal();
-                refreshData();
+                refreshAll();
+                if(window.ZolngenUI) ZolngenUI.showToast("Registry Entry Confirmed", "success");
             }
         }
     </script>

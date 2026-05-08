@@ -3,55 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | SOVEREIGN OS V130.0</title>
+    <title>ZOLNGEN | Enterprise Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/global.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    
-    <!-- ZOLNGEN SOVEREIGN CORE (AUDITED PATHS) -->
+
+    <!-- CORE SCRIPTS -->
     <script src="src/database.js"></script>
-    <script src="src/security_core.js"></script>
-    <script src="src/i18n.js"></script>
-    <script src="src/ai_engine.js"></script>
     <script src="src/ui.js"></script>
 </head>
-<body class="rtl">
+<body class="rtl bg-[#050505] text-white">
     <div class="cursor-glow" id="cursor"></div>
-    <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-adjust"></i></button>
 
-    <main class="min-h-screen flex flex-center flex-col p-10">
-        <div class="text-center mb-16">
-            <h1 class="text-9xl font-black text-gold gold-glow mb-4">ZOLNGEN</h1>
-            <p class="text-xl opacity-60 tracking-[0.5em] uppercase">Sovereign Singularity</p>
+    <!-- NAVBAR -->
+    <nav class="fixed top-0 inset-x-0 z-[100] p-8 flex justify-between items-center glass">
+        <h1 class="text-3xl font-black text-gold tracking-tighter">ZOLNGEN</h1>
+        <div class="flex items-center gap-8">
+            <button onclick="toggleCart()" class="relative text-xl">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-gold text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+            </button>
+            <a href="admin.html" class="text-sm opacity-50 hover:opacity-100 transition-all">Admin Console</a>
         </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 w-full max-w-5xl">
-            <a href="admin.html" class="glass-card text-center hover:scale-105 transition-slow">
-                <i class="fas fa-user-shield text-6xl text-gold mb-8"></i>
-                <h2 class="text-3xl font-bold mb-4" data-i18n="admin_portal">Admin Portal</h2>
-                <p class="text-xs opacity-40 uppercase tracking-widest">Command & Control</p>
-            </a>
-            <a href="products.html" class="glass-card text-center hover:scale-105 transition-slow">
-                <i class="fas fa-shopping-cart text-6xl text-gold mb-8"></i>
-                <h2 class="text-3xl font-bold mb-4" data-i18n="product_catalog">B2B Catalog</h2>
-                <p class="text-xs opacity-40 uppercase tracking-widest">Asset Management</p>
-            </a>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="pt-40 pb-20 px-10 text-center">
+        <h2 class="text-7xl font-black mb-6 tracking-tighter">Premium Assets</h2>
+        <p class="text-gold opacity-60 uppercase tracking-[10px] text-xs">Excellence in Hardware</p>
+    </header>
+
+    <!-- PRODUCT GRID -->
+    <main class="max-w-7xl mx-auto px-10 pb-40">
+        <div id="store-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <!-- Loading State -->
+            <div class="col-span-3 py-40 text-center opacity-20"><i class="fas fa-spinner animate-spin text-4xl"></i></div>
         </div>
     </main>
 
+    <!-- SHOPPING CART DRAWER -->
+    <div id="cart-drawer" class="fixed inset-y-0 left-0 w-[400px] bg-[#0A0A0A] z-[500] border-r border-white/5 p-12 translate-x-[-100%] transition-transform duration-500">
+        <div class="flex justify-between items-center mb-12">
+            <h3 class="text-3xl font-black">Your Order</h3>
+            <button onclick="toggleCart()" class="text-2xl">&times;</button>
+        </div>
+        <div id="cart-items" class="space-y-6 mb-12 max-h-[50vh] overflow-y-auto">
+            <!-- Items here -->
+        </div>
+        <div class="border-t border-white/5 pt-8">
+            <div class="flex justify-between text-2xl font-black mb-8">
+                <span>Total</span>
+                <span id="cart-total">$0</span>
+            </div>
+            <button onclick="checkout()" id="checkout-btn" class="w-full bg-gold text-black py-5 rounded-2xl font-bold">Submit Order</button>
+        </div>
+    </div>
+
     <script>
-        const cursor = document.getElementById('cursor');
-        document.addEventListener('mousemove', (e) => {
-            gsap.to(cursor, { x: e.clientX - 12, y: e.clientY - 12, duration: 0.1 });
-        });
-        function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const target = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', target);
-            localStorage.setItem('zolngen_theme', target);
+        let cart = [];
+
+        async function initStore() {
+            const products = await ZolngenDB.getProducts();
+            const grid = document.getElementById('store-grid');
+            if(products.length === 0) {
+                grid.innerHTML = '<div class="col-span-3 text-center opacity-20">Store currently empty.</div>';
+                return;
+            }
+            grid.innerHTML = products.map(p => `
+                <div class="glass p-10 rounded-[50px] border border-white/5 hover:border-gold/30 transition-all group">
+                    <div class="h-40 bg-white/5 rounded-[30px] mb-8 flex items-center justify-center">
+                        <i class="fas fa-laptop text-4xl opacity-10 group-hover:scale-125 transition-all"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-gold mb-2">${p.name}</h3>
+                    <p class="text-[10px] opacity-40 uppercase tracking-widest mb-6">Asset SKU: ${p.sku}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-3xl font-black">$${p.price.toLocaleString()}</span>
+                        <button onclick="addToCart(${JSON.stringify(p).replace(/"/g, '&quot;')})" class="bg-white/5 p-4 rounded-2xl hover:bg-gold hover:text-black transition-all">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
         }
+
+        function addToCart(p) {
+            cart.push(p);
+            updateCartUI();
+            if(window.ZolngenUI) ZolngenUI.showToast("Asset added to cart", "success");
+        }
+
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const items = document.getElementById('cart-items');
+            items.innerHTML = cart.map((item, idx) => `
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h4 class="font-bold">${item.name}</h4>
+                        <p class="text-xs opacity-40">$${item.price.toLocaleString()}</p>
+                    </div>
+                    <button onclick="removeFromCart(${idx})" class="text-red-500 opacity-20 hover:opacity-100"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `).join('');
+            
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('cart-total').innerText = `$${total.toLocaleString()}`;
+        }
+
+        function removeFromCart(idx) {
+            cart.splice(idx, 1);
+            updateCartUI();
+        }
+
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.style.transform = drawer.style.transform === 'translateX(0%)' ? 'translateX(-100%)' : 'translateX(0%)';
+        }
+
+        async function checkout() {
+            if(cart.length === 0) return;
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const order = {
+                customer: "Anonymous Partner",
+                total: total
+            };
+            
+            document.getElementById('checkout-btn').innerText = "Processing...";
+            if(await ZolngenDB.placeOrder(order)) {
+                cart = [];
+                updateCartUI();
+                toggleCart();
+                if(window.ZolngenUI) ZolngenUI.showToast("Order Submitted to Registry", "success");
+                document.getElementById('checkout-btn').innerText = "Submit Order";
+            }
+        }
+
+        initStore();
     </script>
 </body>
 </html>
