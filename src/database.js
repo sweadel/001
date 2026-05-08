@@ -1,4 +1,4 @@
-/* database.js - ZOLNGEN OPERATIONAL SQL ENGINE V126.0 (HYBRID SYNC) */
+/* database.js - ZOLNGEN SOVEREIGN SQL ENGINE V127.0 (GRAND AUDIT) */
 class ZolngenSQL {
     constructor() {
         this.dbKey = "zolngen_sovereign_db";
@@ -8,23 +8,26 @@ class ZolngenSQL {
     }
 
     async init() {
-        // Try to load from server first
+        // Institutional Sync Protocol
         try {
             const response = await fetch(this.apiUrl);
             if (response.ok) {
                 const data = await response.json();
-                localStorage.setItem(this.dbKey, JSON.stringify(data));
-                console.log("[SQL] Server Data Loaded Successfully.");
+                if (data && data.products) {
+                    localStorage.setItem(this.dbKey, JSON.stringify(data));
+                    console.log("[SQL] Institutional Data Synced from Server.");
+                }
             }
         } catch (e) {
-            console.warn("[SQL] Server Offline. Using Local Cache.");
+            console.warn("[SQL] Server Node Unreachable. Operating in Autonomous Local Mode.");
         }
 
         if (!localStorage.getItem(this.dbKey)) {
             const initialSchema = {
                 products: [
-                    { id: 1, sku: "Z-001", name: "Quantum Blade", price: 15000, stock: 10 },
-                    { id: 2, sku: "Z-002", name: "Nebula Core", price: 8500, stock: 5 }
+                    { id: 1, sku: "Z-001", name: "Quantum Blade", price: 15000, stock: 12 },
+                    { id: 2, sku: "Z-002", name: "Nebula Core", price: 8500, stock: 8 },
+                    { id: 3, sku: "Z-003", name: "Obsidian Shield", price: 4200, stock: 25 }
                 ],
                 audit_log: [],
                 settings: { theme: "dark", lang: "ar" }
@@ -43,16 +46,17 @@ class ZolngenSQL {
         try {
             await fetch(this.saveUrl, {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            console.log("[SQL] Server Sync: COMPLETE.");
+            console.log("[SQL] Server Persistence: SUCCESS.");
         } catch (e) {
-            console.error("[SQL] Sync Failed:", e);
+            console.error("[SQL] Persistence Anomaly:", e);
         }
     }
 
     getData() {
-        return JSON.parse(localStorage.getItem(this.dbKey));
+        return JSON.parse(localStorage.getItem(this.dbKey)) || { products: [], audit_log: [] };
     }
 
     select(table, criteria = null) {

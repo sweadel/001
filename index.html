@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | SOVEREIGN OS V125.0</title>
+    <title>ZOLNGEN | SOVEREIGN OS V127.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/global.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
-    <!-- SOVEREIGN CORE -->
+    <!-- ZOLNGEN INTEGRATED CORE -->
     <script src="src/database.js"></script>
     <script src="src/security_core.js"></script>
     <script src="src/i18n.js"></script>
     <script src="src/ai_engine.js"></script>
+    <script src="src/ui.js"></script>
 </head>
 <body class="rtl">
     <div class="cursor-glow" id="cursor"></div>
@@ -39,22 +40,16 @@
     </main>
 
     <script>
-        // CURSOR LOGIC
         const cursor = document.getElementById('cursor');
         document.addEventListener('mousemove', (e) => {
-            gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.1 });
+            gsap.to(cursor, { x: e.clientX - 12, y: e.clientY - 12, duration: 0.1 });
         });
-
-        // THEME LOGIC
         function toggleTheme() {
             const current = document.documentElement.getAttribute('data-theme');
             const target = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', target);
             localStorage.setItem('zolngen_theme', target);
         }
-        
-        const savedTheme = localStorage.getItem('zolngen_theme');
-        if(savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 </body>
 </html>
