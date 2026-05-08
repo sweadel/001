@@ -1,9 +1,10 @@
-/* global.css - ZOLNGEN MASTER STYLES V146.0 */
+/* global.css - ZOLNGEN GLOBAL EXCELLENCE V150.0 */
 :root {
     --gold: #D4AF37;
     --black: #050505;
+    --dark-grey: #0A0A0A;
     --glass: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.07);
+    --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 body {
@@ -14,53 +15,84 @@ body {
     overflow-x: hidden;
 }
 
-.glass {
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-}
-
+.glass { background: var(--glass); backdrop-filter: blur(30px); border: 1px solid var(--glass-border); }
 .text-gold { color: var(--gold); }
 .bg-gold { background-color: var(--gold); }
-.border-gold { border-color: var(--gold); }
 
-.gold-glow {
-    text-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+/* AI Badges */
+.ai-badge {
+    background: linear-gradient(90deg, #D4AF37, #FFD700);
+    color: black;
+    font-size: 8px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-weight: 900;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
-/* Animations */
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+/* Footer Styles */
+.main-footer {
+    background: var(--dark-grey);
+    border-top: 1px solid var(--glass-border);
+    padding: 100px 50px;
+    margin-top: 100px;
 }
 
-.animate-fade-up {
-    animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 50px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--black); }
-::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+.footer-section h4 {
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    font-size: 12px;
+    margin-bottom: 30px;
+}
 
-/* Custom Utilities */
-.cursor-glow {
-    width: 20px;
-    height: 20px;
+.footer-section ul { list-style: none; padding: 0; margin: 0; }
+.footer-section ul li { margin-bottom: 15px; opacity: 0.4; transition: 0.3s; cursor: pointer; }
+.footer-section ul li:hover { opacity: 1; color: var(--gold); }
+
+/* Newsletter Form */
+.newsletter-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.newsletter-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    padding: 15px 20px;
+    border-radius: 15px;
+    color: white;
+    flex: 1;
+    outline: none;
+}
+
+.newsletter-btn {
     background: var(--gold);
-    border-radius: 50%;
-    position: fixed;
-    pointer-events: none;
-    z-index: 9999;
-    mix-blend-mode: difference;
-    transition: transform 0.1s;
+    color: black;
+    padding: 0 30px;
+    border-radius: 15px;
+    font-weight: 900;
 }
 
-.tab-content.hidden { display: none; }
+/* General Layout */
+.gold-glow { text-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
+.animate-pulse-slow { animation: pulse 3s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-table th { text-align: right; }
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+/* Responsive Sidebar for Admin */
+@media (max-width: 1024px) {
+    .sidebar { transform: translateX(100%); }
+    .sidebar.open { transform: translateX(0); }
 }
