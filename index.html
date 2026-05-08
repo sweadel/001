@@ -13,14 +13,17 @@
     <script src="src/ui.js"></script>
 </head>
 <body class="bg-black text-white">
+    <div id="cursor"></div>
+
+    <!-- HEADER -->
     <nav class="navbar-premium flex justify-between items-center sticky top-0 z-[1000]">
         <div class="flex items-center gap-8">
             <h1 class="text-3xl font-black text-gold">ZOLNGEN</h1>
             <div class="hidden lg:flex gap-6 text-sm font-bold opacity-70">
-                <a href="#" class="text-gold">الرئيسية</a>
-                <a href="#">المنتجات</a>
+                <a href="index.html" class="text-gold">الرئيسية</a>
+                <a href="#product-grid">المنتجات</a>
                 <a href="#">العروض</a>
-                <a href="#">طلباتي</a>
+                <a href="admin.html">طلباتي</a>
                 <a href="contact.html">تواصل معنا</a>
                 <a href="#">من نحن</a>
             </div>
@@ -28,19 +31,19 @@
         <div class="flex items-center gap-6">
             <span class="text-xs font-bold opacity-50">AR | EN</span>
             <a href="admin.html" class="flex items-center gap-2"><i class="fas fa-user-circle text-xl"></i> تسجيل الدخول</a>
-            <div class="relative"><i class="fas fa-shopping-cart text-xl"></i><span class="absolute -top-2 -right-2 bg-gold text-black text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-black">0</span></div>
+            <div class="relative"><i class="fas fa-shopping-cart text-xl"></i><span id="cart-count" class="absolute -top-2 -right-2 bg-gold text-black text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-black">0</span></div>
         </div>
     </nav>
 
     <!-- HERO SECTION -->
     <header class="hero-gold min-h-[80vh] flex flex-col lg:flex-row items-center justify-between gap-10">
-        <div class="max-w-2xl">
-            <div class="mb-6"><img src="https://zolngen.com/logo-gold.png" alt="" class="h-24 opacity-80" onerror="this.style.display='none'"></div>
+        <div class="max-w-2xl px-10">
+            <div class="ai-badge mb-6 animate-pulse"><i class="fas fa-microchip"></i> AI Verified Sovereign Platform</div>
             <h1 class="hero-title mb-6">ZOLNGEN</h1>
             <h2 class="text-3xl lg:text-5xl font-bold mb-8 leading-tight">منصة طلب الأجهزة الإلكترونية<br>للشركات والجهات والمؤسسات</h2>
             <div class="flex gap-4">
-                <button class="gold-button flex items-center gap-3">تقديم طلب <i class="fas fa-shopping-bag"></i></button>
-                <button class="gold-button-outline">تصفح المنتجات</button>
+                <button onclick="location.href='#product-grid'" class="gold-button flex items-center gap-3">تقديم طلب <i class="fas fa-shopping-bag"></i></button>
+                <button onclick="location.href='#product-grid'" class="gold-button-outline">تصفح المنتجات</button>
             </div>
         </div>
         <div class="relative">
@@ -52,46 +55,18 @@
     <section class="py-20 px-5 lg:px-20">
         <div class="text-center mb-16"><h3 class="text-gold uppercase tracking-[10px] text-xs mb-4">تصفح الأقسام</h3><div class="h-1 w-20 bg-gold mx-auto"></div></div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div class="cat-card">
-                <i class="fas fa-laptop text-5xl text-gold mb-6"></i>
-                <h4 class="text-xl font-bold mb-4">لابتوبات</h4>
-                <p class="text-xs opacity-50 mb-6 uppercase">LAPTOPS</p>
-                <button class="text-xs text-gold border-b border-gold pb-1">عرض المنتجات</button>
-            </div>
-            <div class="cat-card">
-                <i class="fas fa-desktop text-5xl text-gold mb-6"></i>
-                <h4 class="text-xl font-bold mb-4">أجهزة مكتبية</h4>
-                <p class="text-xs opacity-50 mb-6 uppercase">DESKTOPS</p>
-                <button class="text-xs text-gold border-b border-gold pb-1">عرض المنتجات</button>
-            </div>
-            <div class="cat-card">
-                <i class="fas fa-plug text-5xl text-gold mb-6"></i>
-                <h4 class="text-xl font-bold mb-4">أجهزة كهربائية</h4>
-                <p class="text-xs opacity-50 mb-6 uppercase">ELECTRONICS</p>
-                <button class="text-xs text-gold border-b border-gold pb-1">عرض المنتجات</button>
-            </div>
-            <div class="cat-card">
-                <i class="fas fa-headphones text-5xl text-gold mb-6"></i>
-                <h4 class="text-xl font-bold mb-4">إكسسوارات</h4>
-                <p class="text-xs opacity-50 mb-6 uppercase">ACCESSORIES</p>
-                <button class="text-xs text-gold border-b border-gold pb-1">عرض المنتجات</button>
-            </div>
+            <div class="cat-card"><i class="fas fa-laptop text-5xl text-gold mb-6"></i><h4 class="text-xl font-bold mb-4">لابتوبات</h4><p class="text-xs opacity-50 mb-6">LAPTOPS</p></div>
+            <div class="cat-card"><i class="fas fa-desktop text-5xl text-gold mb-6"></i><h4 class="text-xl font-bold mb-4">أجهزة مكتبية</h4><p class="text-xs opacity-50 mb-6">DESKTOPS</p></div>
+            <div class="cat-card"><i class="fas fa-plug text-5xl text-gold mb-6"></i><h4 class="text-xl font-bold mb-4">أجهزة كهربائية</h4><p class="text-xs opacity-50 mb-6">ELECTRONICS</p></div>
+            <div class="cat-card"><i class="fas fa-headphones text-5xl text-gold mb-6"></i><h4 class="text-xl font-bold mb-4">إكسسوارات</h4><p class="text-xs opacity-50 mb-6">ACCESSORIES</p></div>
         </div>
     </section>
 
-    <!-- FEATURES -->
-    <div class="py-12 bg-[#080808] border-y border-white/5 grid grid-cols-2 lg:grid-cols-4 gap-10 px-5 lg:px-20 text-center">
-        <div class="flex items-center justify-center gap-4"><i class="fas fa-headset text-gold text-2xl"></i> <div><h5 class="text-sm font-bold">دعم فني</h5><p class="text-[10px] opacity-40">مساعدتك في كل وقت</p></div></div>
-        <div class="flex items-center justify-center gap-4"><i class="fas fa-university text-gold text-2xl"></i> <div><h5 class="text-sm font-bold">مناسب للجهات</h5><p class="text-[10px] opacity-40">نخدم كافة المؤسسات</p></div></div>
-        <div class="flex items-center justify-center gap-4"><i class="fas fa-shield-alt text-gold text-2xl"></i> <div><h5 class="text-sm font-bold">طلب آمن</h5><p class="text-[10px] opacity-40">حماية بياناتك</p></div></div>
-        <div class="flex items-center justify-center gap-4"><i class="fas fa-truck text-gold text-2xl"></i> <div><h5 class="text-sm font-bold">توصيل سريع</h5><p class="text-[10px] opacity-40">لكافة المناطق</p></div></div>
-    </div>
-
     <!-- PRODUCTS -->
-    <section class="py-20 px-5 lg:px-20 bg-white/5">
-        <div class="flex justify-between items-center mb-16"><h3 class="text-3xl font-black border-r-4 border-gold pr-6">منتجات مميزة</h3><button class="text-xs opacity-50 hover:text-gold">عرض الكل</button></div>
+    <section class="py-20 px-5 lg:px-20 bg-white/5" id="product-grid-section">
+        <div class="flex justify-between items-center mb-16"><h3 class="text-3xl font-black border-r-4 border-gold pr-6">منتجات مميزة</h3><button class="text-xs opacity-50">عرض الكل</button></div>
         <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <!-- Dynamically Loaded from SQLite -->
+            <!-- Loaded via Database -->
         </div>
     </section>
 
@@ -99,78 +74,47 @@
     <section class="py-20 px-5 lg:px-20 text-center">
         <div class="text-center mb-16"><h3 class="text-gold uppercase tracking-[10px] text-xs mb-4">طريقة تقديم الطلب</h3><div class="h-1 w-20 bg-gold mx-auto"></div></div>
         <div class="flex flex-wrap justify-center gap-10 lg:gap-20">
-            <div class="timeline-step active"><i class="fas fa-truck-loading text-4xl mb-4"></i><h5 class="text-xs font-bold">تم التسليم</h5><p class="text-[8px] opacity-40 mt-2">استلم طلبك بنجاح</p></div>
-            <div class="timeline-step"><i class="fas fa-spinner fa-spin text-4xl mb-4"></i><h5 class="text-xs font-bold">قيد التنفيذ</h5><p class="text-[8px] opacity-40 mt-2">نعمل على تجهيز طلبك</p></div>
-            <div class="timeline-step"><i class="fas fa-check-double text-4xl mb-4"></i><h5 class="text-xs font-bold">تم استلام الطلب</h5><p class="text-[8px] opacity-40 mt-2">سنقوم بمراجعة طلبك</p></div>
-            <div class="timeline-step"><i class="fas fa-file-invoice text-4xl mb-4"></i><h5 class="text-xs font-bold">قدم الطلب</h5><p class="text-[8px] opacity-40 mt-2">املأ بياناتك وبيانات الجهة</p></div>
+            <div class="timeline-step active"><i class="fas fa-truck-loading text-4xl mb-4"></i><h5 class="text-xs font-bold">تم التسليم</h5></div>
+            <div class="timeline-step"><i class="fas fa-spinner fa-spin text-4xl mb-4"></i><h5 class="text-xs font-bold">قيد التنفيذ</h5></div>
+            <div class="timeline-step"><i class="fas fa-check-double text-4xl mb-4"></i><h5 class="text-xs font-bold">تم استلام الطلب</h5></div>
+            <div class="timeline-step"><i class="fas fa-file-invoice text-4xl mb-4"></i><h5 class="text-xs font-bold">قدم الطلب</h5></div>
         </div>
     </section>
 
     <!-- FOOTER -->
     <footer class="footer-premium text-right">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20">
-            <div class="space-y-6">
-                <h4 class="text-3xl font-black text-gold">ZOLNGEN</h4>
-                <p class="text-sm opacity-40 leading-relaxed">جودة عالية. خدمة موثوقة. طلب أسهل بكثير للمؤسسات والشركات الكبرى.</p>
-                <div class="flex gap-4 text-xl">
-                    <i class="fab fa-facebook hover:text-gold cursor-pointer"></i>
-                    <i class="fab fa-twitter hover:text-gold cursor-pointer"></i>
-                    <i class="fab fa-linkedin hover:text-gold cursor-pointer"></i>
-                    <i class="fab fa-instagram hover:text-gold cursor-pointer"></i>
-                </div>
-            </div>
-            <div class="space-y-6">
-                <h4 class="text-gold text-sm font-bold uppercase tracking-widest">روابط سريعة</h4>
-                <ul class="space-y-4 text-xs opacity-50">
-                    <li>الرئيسية</li>
-                    <li>المنتجات</li>
-                    <li>العروض</li>
-                    <li>طلباتي</li>
-                    <li>تواصل معنا</li>
-                    <li>من نحن</li>
-                </ul>
-            </div>
-            <div class="space-y-6">
-                <h4 class="text-gold text-sm font-bold uppercase tracking-widest">معلومات</h4>
-                <ul class="space-y-4 text-xs opacity-50">
-                    <li>الأسئلة الشائعة</li>
-                    <li>سياسة الخصوصية</li>
-                    <li>الشروط والأحكام</li>
-                    <li>سياسة الاسترجاع</li>
-                    <li>تتبع الطلب</li>
-                </ul>
-            </div>
-            <div class="space-y-6">
-                <h4 class="text-gold text-sm font-bold uppercase tracking-widest">تواصل معنا</h4>
-                <ul class="space-y-4 text-xs opacity-50">
-                    <li class="flex items-center gap-4 justify-end"><span dir="ltr">+962 79 123 4567</span> <i class="fas fa-phone"></i></li>
-                    <li class="flex items-center gap-4 justify-end">info@zolngen.com <i class="fas fa-envelope"></i></li>
-                    <li class="flex items-center gap-4 justify-end">عمان - الأردن <i class="fas fa-map-marker-alt"></i></li>
-                    <li class="flex items-center gap-4 justify-end">السبت - الخميس <br> 8:00 صباحاً - 6:00 مساءً <i class="fas fa-clock"></i></li>
-                </ul>
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20 px-10">
+            <div class="space-y-6"><h4 class="text-3xl font-black text-gold">ZOLNGEN</h4><p class="text-sm opacity-40">جودة عالية. خدمة موثوقة. طلب أسهل للمؤسسات.</p></div>
+            <div class="space-y-6"><h4 class="text-gold text-sm font-bold uppercase tracking-widest">روابط سريعة</h4><ul class="space-y-4 text-xs opacity-50"><li>الرئيسية</li><li>المنتجات</li><li>تواصل معنا</li></ul></div>
+            <div class="space-y-6"><h4 class="text-gold text-sm font-bold uppercase tracking-widest">معلومات</h4><ul class="space-y-4 text-xs opacity-50"><li>الأسئلة الشائعة</li><li>سياسة الخصوصية</li><li>الشروط والأحكام</li></ul></div>
+            <div class="space-y-6"><h4 class="text-gold text-sm font-bold uppercase tracking-widest">تواصل معنا</h4><ul class="space-y-4 text-xs opacity-50"><li dir="ltr">+962 79 123 4567 <i class="fas fa-phone"></i></li><li>info@zolngen.com <i class="fas fa-envelope"></i></li><li>عمان - الأردن <i class="fas fa-map-marker-alt"></i></li></ul></div>
         </div>
-        <div class="mt-20 pt-10 border-t border-white/5 text-center text-[10px] opacity-20">جميع الحقوق محفوظة &copy; 2024 ZOLNGEN</div>
     </footer>
 
     <script>
-        async function loadProducts() {
+        async function init() {
             const products = await ZolngenDB.getProducts();
             const grid = document.getElementById('product-grid');
-            grid.innerHTML = products.slice(0, 4).map(p => `
+            grid.innerHTML = products.slice(0, 8).map(p => `
                 <div class="product-card-premium group">
-                    <div class="h-48 flex items-center justify-center mb-6 overflow-hidden">
-                        <i class="fas fa-laptop text-6xl text-black/10 group-hover:scale-110 transition-all"></i>
-                    </div>
+                    <div class="h-48 flex items-center justify-center mb-6"><i class="fas fa-microchip text-6xl text-black/10 group-hover:scale-110 transition-all"></i></div>
                     <h4 class="font-bold text-lg mb-2">${p.name}</h4>
-                    <p class="text-[10px] opacity-40 mb-4 uppercase">لابتوب أعمال</p>
+                    <p class="text-[10px] opacity-40 mb-4 uppercase">${p.sku}</p>
                     <div class="p-price mb-6">د.أ ${p.price.toLocaleString()}</div>
-                    <button class="btn-add-order hover:bg-gold hover:text-black transition-all">أضف إلى الطلب</button>
+                    <button onclick="handleOrder('${p.name}', ${p.price})" class="btn-add-order hover:bg-gold hover:text-black transition-all">أضف إلى الطلب</button>
                 </div>
             `).join('');
             gsap.from(".product-card-premium", { opacity: 0, y: 30, stagger: 0.1, duration: 1 });
         }
-        document.addEventListener('DOMContentLoaded', loadProducts);
+
+        async function handleOrder(name, price) {
+            if(await ZolngenDB.placeOrder({ customer: "Institutional Client", total: price })) {
+                ZolngenUI.showToast(`تمت إضافة ${name} إلى قائمة طلباتك`, "success");
+                let count = parseInt(document.getElementById('cart-count').innerText);
+                document.getElementById('cart-count').innerText = count + 1;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
