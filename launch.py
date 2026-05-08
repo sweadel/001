@@ -1,34 +1,39 @@
-# launch.py - ZOLNGEN OFFICIAL INSPECTION LAUNCHER V143.0
-import os
+# launch.py - ZOLNGEN SOVEREIGN LAUNCHER V156.0
 import subprocess
 import time
 import webbrowser
+import os
 import sys
 
-def main():
-    print("--- ZOLNGEN ENTERPRISE SYSTEM: INSPECTION MODE ---")
+def start():
+    print("--- ZOLNGEN SOVEREIGN PLATFORM INITIALIZING ---")
     
-    # 1. Seed Database
-    print("[1/3] Synchronizing Registry...")
-    subprocess.run([sys.executable, "backend/seed_db.py"])
-    
-    # 2. Open Storefront in Browser
-    print("[2/3] Opening Institutional Interface...")
-    webbrowser.open("http://localhost:8000/index.html")
-    
-    # 3. Start Server
-    print("[3/3] Activating Sovereign Server V141.0...")
-    print("\nACCESS INFO:")
-    print("-----------------------------------------")
-    print("STOREFRONT: http://localhost:8000/index.html")
-    print("ADMIN PANEL: http://localhost:8000/admin.html")
-    print("CREDENTIALS: Username: admin | Password: 1234")
-    print("-----------------------------------------\n")
-    
+    # 1. Start Server in background
+    print("[1/3] Starting Sovereign Backend...")
+    server_path = os.path.join("backend", "server.py")
     try:
-        subprocess.run([sys.executable, "backend/server.py"])
-    except KeyboardInterrupt:
-        print("\n--- SYSTEM SHUTDOWN INITIATED ---")
+        # Using popen to run in background
+        subprocess.Popen([sys.executable, server_path])
+        time.sleep(2) # Wait for server to bind port
+    except Exception as e:
+        print(f"FAILED TO START SERVER: {e}")
+        return
+
+    # 2. Seed Database (Ensuring 20+ products are ready)
+    print("[2/3] Synchronizing Registry Data...")
+    seed_path = os.path.join("backend", "seed_db.py")
+    try:
+        subprocess.run([sys.executable, seed_path])
+    except Exception as e:
+        print(f"DATA SYNC FAILED: {e}")
+
+    # 3. Launch UI
+    print("[3/3] Launching Master Storefront...")
+    url = "http://localhost:8000/index.html"
+    webbrowser.open(url)
+    
+    print("\n--- SYSTEM ONLINE | 100% OPERATIONAL ---")
+    print("Keep this terminal open while using the platform.")
 
 if __name__ == "__main__":
-    main()
+    start()

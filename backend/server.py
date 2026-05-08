@@ -1,4 +1,4 @@
-# server.py - ZOLNGEN SOVEREIGN MASTER SERVER V150.0
+# server.py - ZOLNGEN ABSOLUTE MASTER SERVER V156.0
 import http.server
 import socketserver
 import json
@@ -20,11 +20,12 @@ def init_db():
     cursor.execute("CREATE TABLE IF NOT EXISTS inquiries (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT, message TEXT, date TEXT)")
     cursor.execute("CREATE TABLE IF NOT EXISTS logs (id INTEGER PRIMARY KEY AUTOINCREMENT, action TEXT, timestamp TEXT)")
     cursor.execute("CREATE TABLE IF NOT EXISTS subscribers (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, date TEXT)")
+    cursor.execute("INSERT INTO logs (action, timestamp) VALUES (?, ?)", ("System Master Init V156.0 Successful", datetime.now().isoformat()))
     conn.commit(); conn.close()
 
 init_db()
 
-class ZolngenGlobalHandler(http.server.SimpleHTTPRequestHandler):
+class ZolngenMasterHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=PROJECT_ROOT, **kwargs)
 
@@ -53,6 +54,7 @@ class ZolngenGlobalHandler(http.server.SimpleHTTPRequestHandler):
                     cursor.execute("SELECT * FROM logs ORDER BY id DESC LIMIT 50"); self._send_json([dict(r) for r in cursor.fetchall()])
                 elif self.path == '/api/subscribers':
                     cursor.execute("SELECT * FROM subscribers"); self._send_json([dict(r) for r in cursor.fetchall()])
+                else: self._send_json({"error": "Endpoint not found"}, 404)
             except Exception as e: self._send_json({"error": str(e)}, 500)
             finally: conn.close()
         else: return super().do_GET()
@@ -71,11 +73,11 @@ class ZolngenGlobalHandler(http.server.SimpleHTTPRequestHandler):
                 conn.commit(); self._send_json({"msg": "Subscribed"}, 201)
             elif self.path == '/api/products':
                 if self.headers.get('Authorization') == f"Bearer {SECRET_TOKEN}":
-                    cursor.execute("INSERT INTO products (sku, name, price, stock) VALUES (?, ?, ?, ?)", (data['sku'], data['name'], data['price'], data['stock']))
+                    cursor.execute("INSERT INTO products (sku, name, price, stock) VALUES (?, ?, ?, ?)", (data['sku'], data['name'], float(data['price']), int(data['stock'])))
                     conn.commit(); self._send_json({"msg": "Created"}, 201)
                 else: self._send_json({"error": "Forbidden"}, 403)
             elif self.path == '/api/orders':
-                cursor.execute("INSERT INTO orders (customer, total, status, date) VALUES (?, ?, ?, ?)", (data['customer'], data['total'], 'Pending', datetime.now().isoformat()))
+                cursor.execute("INSERT INTO orders (customer, total, status, date) VALUES (?, ?, ?, ?)", (data['customer'], float(data['total']), 'Pending', datetime.now().isoformat()))
                 conn.commit(); self._send_json({"msg": "Order Placed"}, 201)
             elif self.path == '/api/inquiries':
                 cursor.execute("INSERT INTO inquiries (name, email, message, date) VALUES (?, ?, ?, ?)", (data['name'], data['email'], data['message'], datetime.now().isoformat()))
@@ -88,15 +90,15 @@ class ZolngenGlobalHandler(http.server.SimpleHTTPRequestHandler):
         conn = sqlite3.connect(DB_PATH); cursor = conn.cursor()
         try:
             if self.path == '/api/orders/status':
-                cursor.execute("UPDATE orders SET status = ? WHERE id = ?", (data['status'], data['id']))
+                cursor.execute("UPDATE orders SET status = ? WHERE id = ?", (data['status'], int(data['id'])))
                 conn.commit(); self._send_json({"msg": "Updated"})
             elif self.path == '/api/products/update':
-                cursor.execute("UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?", (data['name'], data['price'], data['stock'], data['id']))
+                cursor.execute("UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?", (data['name'], float(data['price']), int(data['stock']), int(data['id'])))
                 conn.commit(); self._send_json({"msg": "Updated"})
         except Exception as e: self._send_json({"error": str(e)}, 500)
         finally: conn.close()
 
 if __name__ == "__main__":
-    with socketserver.TCPServer(("", PORT), ZolngenGlobalHandler) as httpd:
-        print(f"--- ZOLNGEN GLOBAL SERVER V150.0 ON PORT {PORT} ---")
+    with socketserver.TCPServer(("", PORT), ZolngenMasterHandler) as httpd:
+        print(f"--- ZOLNGEN MASTER SERVER V156.0 ONLINE ---")
         httpd.serve_forever()
