@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN Admin | SOVEREIGN OS V125.0</title>
+    <title>ZOLNGEN Admin | OPERATIONAL OS V126.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/global.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <!-- SOVEREIGN CORE -->
     <script src="src/database.js"></script>
     <script src="src/security_core.js"></script>
     <script src="src/i18n.js"></script>
     <script src="src/ai_engine.js"></script>
+    <script src="src/ui.js"></script>
 </head>
 <body class="rtl overflow-hidden">
     <div class="cursor-glow" id="cursor"></div>
@@ -40,17 +40,42 @@
                 <button onclick="switchTab('dash')" class="w-full text-right p-4 hover:bg-gold/5 rounded-xl font-bold flex items-center gap-4"><i class="fas fa-th-large w-4"></i> Dashboard</button>
                 <button onclick="switchTab('inv')" class="w-full text-right p-4 hover:bg-gold/5 rounded-xl font-bold flex items-center gap-4"><i class="fas fa-boxes w-4"></i> Inventory</button>
             </nav>
-            <button onclick="Auth.logout()" class="p-4 bg-red-500/10 text-red-500 rounded-xl font-bold mt-auto border border-red-500/20">Terminate</button>
+            <button onclick="location.reload()" class="p-4 bg-red-500/10 text-red-500 rounded-xl font-bold mt-auto border border-red-500/20">Terminate</button>
         </aside>
 
         <main class="flex-1 p-[60px] overflow-y-auto">
+            <!-- DASHBOARD TAB -->
             <div id="tab-dash" class="tab-content">
                 <h2 class="text-5xl font-black text-gold gold-glow mb-10">Institutional Pulse</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                    <div class="glass p-8 rounded-3xl border-b-4 border-gold/40"><p class="text-[10px] uppercase opacity-50 mb-2">Total Sales</p><h3 id="stat-sales" class="text-3xl font-black text-gold">0</h3></div>
-                    <div class="glass p-8 rounded-3xl border-b-4 border-green-500/40"><p class="text-[10px] uppercase opacity-50 mb-2">System Health</p><h3 class="text-3xl font-black text-green-500">OPTIMAL</h3></div>
+                    <div class="glass p-8 rounded-3xl border-b-4 border-gold/40">
+                        <p class="text-[10px] uppercase opacity-50 mb-2">Total Units</p>
+                        <h3 id="stat-sales" class="text-3xl font-black text-gold">0</h3>
+                    </div>
+                    <div class="glass p-8 rounded-3xl border-b-4 border-green-500/40">
+                        <p class="text-[10px] uppercase opacity-50 mb-2">System Health</p>
+                        <h3 class="text-3xl font-black text-green-500">OPTIMAL</h3>
+                    </div>
                 </div>
-                <div class="glass p-10 rounded-[40px] border border-gold/10"><canvas id="forecastChart" height="100"></canvas></div>
+            </div>
+
+            <!-- INVENTORY TAB -->
+            <div id="tab-inv" class="tab-content hidden">
+                <h2 class="text-5xl font-black text-gold gold-glow mb-10">Supply Chain Control</h2>
+                <div class="glass p-10 rounded-[40px] border border-gold/10 mb-10">
+                    <h4 class="text-xl font-bold mb-6">Add New Institutional Asset</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input type="text" id="p-name" placeholder="Asset Name" class="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <input type="text" id="p-sku" placeholder="SKU ID" class="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <input type="number" id="p-price" placeholder="Price ($)" class="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <input type="number" id="p-stock" placeholder="Initial Stock" class="bg-white/5 border border-white/10 p-4 rounded-xl">
+                    </div>
+                    <button onclick="addNewProduct()" class="btn-gold mt-6 w-full">Deploy to Registry</button>
+                </div>
+
+                <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Dynamic rendering by ui.js -->
+                </div>
             </div>
         </main>
     </div>
@@ -62,28 +87,44 @@
             gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.1 });
         });
 
-        // THEME LOGIC
-        function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const target = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', target);
-            localStorage.setItem('zolngen_theme', target);
-        }
-        
-        const savedTheme = localStorage.getItem('zolngen_theme');
-        if(savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
-
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
             document.getElementById('tab-' + id).classList.remove('hidden');
         }
 
         function unlockAdmin() {
-            // Simulated Unlock for demonstration
-            document.getElementById('admin-lock-screen').classList.add('hidden');
-            document.getElementById('admin-content').classList.remove('hidden');
-            SecurityCore.logAction("ADMIN_LOGIN", "Authorized access granted.");
+            const user = document.getElementById('lock-user').value;
+            if(user === "ADMIN") {
+                document.getElementById('admin-lock-screen').classList.add('hidden');
+                document.getElementById('admin-content').classList.remove('hidden');
+                SecurityCore.logAction("ADMIN_LOGIN", "Authorized access granted to node 001.");
+            } else {
+                alert("ACCESS DENIED: Credentials Anomaly.");
+            }
         }
+
+        async function addNewProduct() {
+            const name = document.getElementById('p-name').value;
+            const sku = document.getElementById('p-sku').value;
+            const price = parseFloat(document.getElementById('p-price').value);
+            const stock = parseInt(document.getElementById('p-stock').value);
+
+            if(name && sku && price && stock) {
+                await ZolngenDB.insert('products', { sku, name, price, stock });
+                SecurityCore.logAction("ASSET_DEPLOY", `Deployed ${name} [${sku}] to registry.`);
+                // Clear inputs
+                document.getElementById('p-name').value = '';
+                document.getElementById('p-sku').value = '';
+                document.getElementById('p-price').value = '';
+                document.getElementById('p-stock').value = '';
+            } else {
+                alert("ERROR: Institutional data fields incomplete.");
+            }
+        }
+
+        // INITIAL LOAD
+        const savedTheme = localStorage.getItem('zolngen_theme');
+        if(savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 </body>
 </html>

@@ -1,11 +1,25 @@
-/* database.js - ZOLNGEN SOVEREIGN SQL ENGINE V125.0 (INTERNAL) */
+/* database.js - ZOLNGEN OPERATIONAL SQL ENGINE V126.0 (HYBRID SYNC) */
 class ZolngenSQL {
     constructor() {
         this.dbKey = "zolngen_sovereign_db";
+        this.apiUrl = "/api/data";
+        this.saveUrl = "/api/save";
         this.init();
     }
 
-    init() {
+    async init() {
+        // Try to load from server first
+        try {
+            const response = await fetch(this.apiUrl);
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem(this.dbKey, JSON.stringify(data));
+                console.log("[SQL] Server Data Loaded Successfully.");
+            }
+        } catch (e) {
+            console.warn("[SQL] Server Offline. Using Local Cache.");
+        }
+
         if (!localStorage.getItem(this.dbKey)) {
             const initialSchema = {
                 products: [
@@ -15,46 +29,63 @@ class ZolngenSQL {
                 audit_log: [],
                 settings: { theme: "dark", lang: "ar" }
             };
-            localStorage.setItem(this.dbKey, JSON.stringify(initialSchema));
-            console.log("[SQL] Sovereign Database Initialized.");
+            this.saveLocally(initialSchema);
+        }
+        this.notifyUpdate();
+    }
+
+    saveLocally(data) {
+        localStorage.setItem(this.dbKey, JSON.stringify(data));
+        this.syncWithServer(data);
+    }
+
+    async syncWithServer(data) {
+        try {
+            await fetch(this.saveUrl, {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+            console.log("[SQL] Server Sync: COMPLETE.");
+        } catch (e) {
+            console.error("[SQL] Sync Failed:", e);
         }
     }
 
-    // SELECT QUERY
+    getData() {
+        return JSON.parse(localStorage.getItem(this.dbKey));
+    }
+
     select(table, criteria = null) {
-        const db = JSON.parse(localStorage.getItem(this.dbKey));
+        const db = this.getData();
         const data = db[table] || [];
         if (!criteria) return data;
         return data.filter(item => Object.keys(criteria).every(key => item[key] === criteria[key]));
     }
 
-    // INSERT QUERY
     insert(table, row) {
-        const db = JSON.parse(localStorage.getItem(this.dbKey));
+        const db = this.getData();
         if (!db[table]) db[table] = [];
         row.id = Date.now();
         db[table].push(row);
-        localStorage.setItem(this.dbKey, JSON.stringify(db));
+        this.saveLocally(db);
         this.notifyUpdate();
         return row;
     }
 
-    // UPDATE QUERY
     update(table, id, newValues) {
-        const db = JSON.parse(localStorage.getItem(this.dbKey));
+        const db = this.getData();
         const index = db[table].findIndex(item => item.id === id);
         if (index !== -1) {
             db[table][index] = { ...db[table][index], ...newValues };
-            localStorage.setItem(this.dbKey, JSON.stringify(db));
+            this.saveLocally(db);
             this.notifyUpdate();
         }
     }
 
-    // DELETE QUERY
     delete(table, id) {
-        const db = JSON.parse(localStorage.getItem(this.dbKey));
+        const db = this.getData();
         db[table] = db[table].filter(item => item.id !== id);
-        localStorage.setItem(this.dbKey, JSON.stringify(db));
+        this.saveLocally(db);
         this.notifyUpdate();
     }
 
