@@ -1,18 +1,23 @@
-/* database.js - ZOLNGEN ULTRA-PRECISE DATABASE V147.0 */
+/* database.js - ZOLNGEN HYBRID CONNECTIVITY V153.0 */
 class ZolngenEnterpriseDB {
     constructor() {
         this.tokenKey = "zolngen_auth_token";
+        
+        // SMART ROUTING: Detect if running on GitHub or Localhost
+        const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+        this.baseUrl = isLocal ? "" : "http://localhost:8000";
+
         this.api = {
-            products: "/api/products",
-            orders: "/api/orders",
-            login: "/api/login",
-            inquiries: "/api/inquiries",
-            logs: "/api/logs",
-            heal: "/api/heal"
+            products: `${this.baseUrl}/api/products`,
+            orders: `${this.baseUrl}/api/orders`,
+            login: `${this.baseUrl}/api/login`,
+            inquiries: `${this.baseUrl}/api/inquiries`,
+            logs: `${this.baseUrl}/api/logs`,
+            heal: `${this.baseUrl}/api/heal`,
+            subscribe: `${this.baseUrl}/api/subscribe`
         };
     }
 
-    // SHARED REQUEST HANDLER WITH STRICT ERROR CATCHING
     async call(url, options = {}) {
         try {
             const response = await fetch(url, options);
@@ -26,6 +31,10 @@ class ZolngenEnterpriseDB {
             return data;
         } catch (e) {
             console.error(`[DATABASE ERROR] at ${url}:`, e.message);
+            // If running from GitHub and server not started, show a specific hint
+            if (this.baseUrl && e.message.includes('Failed to fetch')) {
+                if (window.ZolngenUI) ZolngenUI.showToast("Local Server Offline. Run launch.py!", "error");
+            }
             throw e;
         }
     }
@@ -42,81 +51,52 @@ class ZolngenEnterpriseDB {
         } catch (e) { return false; }
     }
 
-    // PRODUCTS (STRICT TYPE CASTING)
     async getProducts() { return this.call(this.api.products).catch(() => []); }
+    async getOrders() { return this.call(this.api.orders).catch(() => []); }
+    async getInquiries() { return this.call(this.api.inquiries).catch(() => []); }
+    async getLogs() { return this.call(this.api.logs).catch(() => []); }
     
     async createProduct(p) {
-        // Ensure numeric data integrity
-        const cleanProduct = {
-            sku: String(p.sku),
-            name: String(p.name),
-            price: parseFloat(p.price) || 0,
-            stock: parseInt(p.stock) || 0
-        };
         const token = localStorage.getItem(this.tokenKey);
         return this.call(this.api.products, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify(cleanProduct)
+            body: JSON.stringify(p)
         }).then(() => true).catch(() => false);
     }
 
     async updateProduct(p) {
-        const cleanProduct = {
-            id: parseInt(p.id),
-            name: String(p.name),
-            price: parseFloat(p.price) || 0,
-            stock: parseInt(p.stock) || 0
-        };
         const token = localStorage.getItem(this.tokenKey);
-        return this.call(`${this.api.products}/update`, {
+        return this.call(`${this.baseUrl}/api/products/update`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify(cleanProduct)
+            body: JSON.stringify(p)
         }).then(() => true).catch(() => false);
     }
 
-    // ORDERS & STATUS
-    async getOrders() { return this.call(this.api.orders).catch(() => []); }
     async updateOrderStatus(id, status) {
         const token = localStorage.getItem(this.tokenKey);
-        return this.call(`${this.api.orders}/status`, {
+        return this.call(`${this.baseUrl}/api/orders/status`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ id: parseInt(id), status: String(status) })
+            body: JSON.stringify({ id, status })
         }).then(() => true).catch(() => false);
     }
 
     async placeOrder(order) {
-        const cleanOrder = {
-            customer: String(order.customer || 'Anonymous'),
-            total: parseFloat(order.total) || 0
-        };
         return this.call(this.api.orders, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(cleanOrder)
+            body: JSON.stringify(order)
         }).then(() => true).catch(() => false);
     }
 
-    // INQUIRIES & LOGS
-    async getInquiries() { return this.call(this.api.inquiries).catch(() => []); }
-    async getLogs() { return this.call(this.api.logs).catch(() => []); }
-    
     async submitInquiry(data) {
         return this.call(this.api.inquiries, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         }).then(() => true).catch(() => false);
-    }
-
-    async runHealer() {
-        const token = localStorage.getItem(this.tokenKey);
-        return this.call(this.api.heal, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
-        });
     }
 }
 
