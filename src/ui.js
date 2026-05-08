@@ -1,11 +1,11 @@
-/* ui.js - ZOLNGEN PRECISE UI V134.0 */
+/* ui.js - ZOLNGEN SOVEREIGN INTERACTION V135.0 */
 const ZolngenUI = {
     chart: null,
 
     init() {
         this.createStatusBadgeContainer();
         this.createToastContainer();
-        this.setupCursorInteraction();
+        this.setupCursorInteraction(); // POINT (125)
         this.bindEvents();
         this.renderAll();
     },
@@ -23,28 +23,55 @@ const ZolngenUI = {
         if (!document.getElementById('toast-container')) {
             const container = document.createElement('div');
             container.id = 'toast-container';
+            container.className = "fixed bottom-10 right-10 flex flex-col gap-3 z-[4000]";
             document.body.appendChild(container);
         }
     },
 
-    // POINT (125) - REACTIVE GOLDEN HALO
+    // POINT (167) - GSAP GOLDEN TOASTS
+    showToast(message, type = "info") {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `glass p-5 rounded-2xl border border-gold/30 text-gold font-bold shadow-2xl flex items-center gap-4`;
+        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'} text-gold"></i> ${message}`;
+        
+        container.appendChild(toast);
+        
+        // GSAP Entrance
+        gsap.from(toast, { x: 100, opacity: 0, duration: 0.5, ease: "back.out" });
+
+        setTimeout(() => {
+            gsap.to(toast, { 
+                opacity: 0, 
+                y: -20, 
+                duration: 0.5, 
+                onComplete: () => toast.remove() 
+            });
+        }, 3500);
+    },
+
+    // POINT (125) - REACTIVE GOLDEN HALO (SCALE)
     setupCursorInteraction() {
         const cursor = document.getElementById('cursor');
+        if (!cursor) return;
+        
         document.querySelectorAll('.btn-gold, button, .glass-card, a').forEach(el => {
             el.addEventListener('mouseenter', () => {
                 gsap.to(cursor, { 
-                    scale: 4, 
+                    scale: 3.5, 
                     backgroundColor: 'rgba(212, 175, 55, 0.4)', 
-                    boxShadow: '0 0 40px rgba(212, 175, 55, 0.8)',
-                    duration: 0.4 
+                    boxShadow: '0 0 50px rgba(212, 175, 55, 0.9)',
+                    duration: 0.4,
+                    ease: "power2.out"
                 });
             });
             el.addEventListener('mouseleave', () => {
                 gsap.to(cursor, { 
                     scale: 1, 
-                    backgroundColor: 'rgba(212, 175, 55, 0.1)', 
-                    boxShadow: '0 0 10px rgba(212, 175, 55, 0.5)',
-                    duration: 0.4 
+                    backgroundColor: 'rgba(212, 175, 55, 0.15)', 
+                    boxShadow: '0 0 15px rgba(212, 175, 55, 0.5)',
+                    duration: 0.4,
+                    ease: "power2.inOut"
                 });
             });
         });
@@ -52,7 +79,7 @@ const ZolngenUI = {
 
     bindEvents() {
         window.addEventListener('zolngen_sql_update', () => {
-            this.renderAll(); // POINT (137) - IMMEDIATE RE-RENDER
+            this.renderAll();
         });
     },
 
@@ -60,7 +87,7 @@ const ZolngenUI = {
         this.renderProducts();
         this.renderStats();
         this.updateCharts();
-        this.setupCursorInteraction(); // Re-apply for new items
+        this.setupCursorInteraction(); 
     },
 
     renderProducts() {
@@ -68,14 +95,14 @@ const ZolngenUI = {
         if (!list) return;
         const products = ZolngenDB.select('products');
         list.innerHTML = products.map(p => `
-            <div class="glass-card">
-                <div class="flex justify-between items-start">
+            <div class="glass p-8 rounded-[40px] border border-gold/10 hover:border-gold/40 transition-all">
+                <div class="flex justify-between items-start mb-6">
                     <h3 class="text-2xl font-black text-gold">${p.name}</h3>
-                    <button onclick="ZolngenDB.delete('products', ${p.id})" class="text-red-500 opacity-20 hover:opacity-100"><i class="fas fa-trash"></i></button>
+                    <button onclick="ZolngenDB.delete('products', ${p.id})" class="text-red-500 opacity-20 hover:opacity-100 transition-opacity"><i class="fas fa-trash"></i></button>
                 </div>
-                <div class="mt-6 flex justify-between items-end">
+                <div class="flex justify-between items-end">
                     <span class="text-3xl font-black">$${p.price.toLocaleString()}</span>
-                    <span class="text-xs opacity-50 uppercase">${p.stock} Units</span>
+                    <span class="px-4 py-2 bg-gold/10 text-gold rounded-full text-xs font-bold uppercase tracking-widest">${p.stock} Units</span>
                 </div>
             </div>
         `).join('');
@@ -85,7 +112,7 @@ const ZolngenUI = {
         const stat = document.getElementById('stat-sales');
         if (stat) {
             const products = ZolngenDB.select('products');
-            stat.innerText = products.length; // Dynamic Count
+            stat.innerText = products.length;
         }
     },
 
@@ -93,29 +120,21 @@ const ZolngenUI = {
         const ctx = document.getElementById('forecastChart');
         if (!ctx) return;
         const products = ZolngenDB.select('products');
-        
         if (this.chart) this.chart.destroy();
         this.chart = new Chart(ctx, {
-            type: 'doughnut',
+            type: 'bar',
             data: {
-                labels: ['Active Assets', 'Available Capacity'],
+                labels: products.map(p => p.name),
                 datasets: [{
-                    data: [products.length, 100 - products.length],
-                    backgroundColor: ['#D4AF37', 'rgba(212, 175, 55, 0.1)'],
-                    borderWidth: 0
+                    label: 'Asset Levels',
+                    data: products.map(p => p.stock),
+                    backgroundColor: 'rgba(212, 175, 55, 0.3)',
+                    borderColor: '#D4AF37',
+                    borderWidth: 2
                 }]
             },
-            options: { cutout: '80%', plugins: { legend: { display: false } } }
+            options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { color: '#D4AF37' } } } }
         });
-    },
-
-    showToast(msg, type) {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerText = msg;
-        container.appendChild(toast);
-        setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
     }
 };
 
