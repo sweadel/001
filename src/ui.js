@@ -1,76 +1,101 @@
-/* ui.js - ZOLNGEN ZERO-DEFECT UI V142.0 */
+/* ui.js - ZOLNGEN SOVEREIGN CURSOR ENGINE V148.0 */
 const ZolngenUI = {
-    chart: null,
-
     init() {
         this.injectGlobalStyles();
         this.createCursor();
         this.createToastContainer();
         this.setupGlobalEvents();
         this.checkAuthPersistence();
-        console.log("[SYSTEM] ZOLNGEN UI V142.0 INITIALIZED.");
+        console.log("[SYSTEM] ZOLNGEN MASTER UI V148.0 READY.");
     },
 
     injectGlobalStyles() {
         const style = document.createElement('style');
         style.textContent = `
-            * { cursor: none !important; scroll-behavior: smooth; }
+            /* ONLY HIDE CURSOR IF CUSTOM ONE IS READY */
+            html.custom-cursor-active * { cursor: none !important; }
+            
             .cursor-glow { 
-                width: 25px; height: 25px; background: rgba(212, 175, 55, 0.1); 
-                border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 50%; 
-                position: fixed; pointer-events: none; z-index: 9999; 
-                backdrop-filter: blur(2px); transition: transform 0.1s;
+                width: 20px; height: 20px; 
+                background: #D4AF37; 
+                border-radius: 50%; 
+                position: fixed; 
+                pointer-events: none; 
+                z-index: 999999; 
+                box-shadow: 0 0 20px #D4AF37, 0 0 40px rgba(212, 175, 55, 0.5);
+                mix-blend-mode: difference;
+                display: none; /* Initially hidden until JS confirms movement */
             }
-            .toast { 
-                background: rgba(10,10,10,0.9); backdrop-filter: blur(20px); 
-                border: 1px solid rgba(212,175,55,0.3); padding: 20px 40px; 
-                border-radius: 20px; color: #D4AF37; font-weight: 900; 
-                box-shadow: 0 20px 50px rgba(0,0,0,0.5); z-index: 10000;
+            .cursor-glow.visible { display: block; }
+
+            /* TOASTS */
+            .toast-zoln { 
+                background: rgba(10,10,10,0.95); backdrop-filter: blur(30px); 
+                border: 1px solid rgba(212,175,55,0.4); padding: 20px 40px; 
+                border-radius: 25px; color: #D4AF37; font-weight: 900; 
+                box-shadow: 0 25px 60px rgba(0,0,0,0.8); z-index: 1000000;
+                font-family: 'Tajawal', sans-serif;
             }
         `;
         document.head.appendChild(style);
     },
 
     createCursor() {
-        if (!document.getElementById('cursor')) {
+        if (!document.getElementById('master-cursor')) {
             const cursor = document.createElement('div');
-            cursor.id = 'cursor';
+            cursor.id = 'master-cursor';
             cursor.className = 'cursor-glow';
             document.body.appendChild(cursor);
+
+            let cursorReady = false;
             document.addEventListener('mousemove', (e) => {
-                gsap.to(cursor, { x: e.clientX - 12, y: e.clientY - 12, duration: 0.1 });
+                if(!cursorReady) {
+                    cursorReady = true;
+                    cursor.classList.add('visible');
+                    document.documentElement.classList.add('custom-cursor-active');
+                }
+                gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.1, ease: "power2.out" });
             });
             this.setupCursorInteraction();
         }
     },
 
     setupCursorInteraction() {
-        const cursor = document.getElementById('cursor');
-        document.querySelectorAll('button, a, input, .glass-card, .glass').forEach(el => {
-            el.addEventListener('mouseenter', () => gsap.to(cursor, { scale: 3, backgroundColor: 'rgba(212, 175, 55, 0.3)', duration: 0.3 }));
-            el.addEventListener('mouseleave', () => gsap.to(cursor, { scale: 1, backgroundColor: 'rgba(212, 175, 55, 0.1)', duration: 0.3 }));
+        const cursor = document.getElementById('master-cursor');
+        const interactive = 'button, a, input, select, textarea, .glass, .card, [onclick]';
+        
+        document.body.addEventListener('mouseover', (e) => {
+            if (e.target.closest(interactive)) {
+                gsap.to(cursor, { scale: 3, backgroundColor: 'rgba(212, 175, 55, 0.8)', duration: 0.3 });
+            }
+        });
+
+        document.body.addEventListener('mouseout', (e) => {
+            if (e.target.closest(interactive)) {
+                gsap.to(cursor, { scale: 1, backgroundColor: '#D4AF37', duration: 0.3 });
+            }
         });
     },
 
     createToastContainer() {
-        if (!document.getElementById('toast-container')) {
+        if (!document.getElementById('toast-container-zoln')) {
             const container = document.createElement('div');
-            container.id = 'toast-container';
-            container.className = "fixed bottom-10 right-10 flex flex-col gap-4 z-[10000]";
+            container.id = 'toast-container-zoln';
+            container.className = "fixed bottom-12 right-12 flex flex-col gap-5 z-[1000000]";
             document.body.appendChild(container);
         }
     },
 
     showToast(msg, type = "success") {
-        const container = document.getElementById('toast-container');
+        const container = document.getElementById('toast-container-zoln');
         const toast = document.createElement('div');
-        toast.className = 'toast animate-fade-up';
-        toast.innerHTML = `<i class="fas fa-shield-check mr-3"></i> ${msg}`;
+        toast.className = 'toast-zoln';
+        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'} mr-3"></i> ${msg}`;
         container.appendChild(toast);
         gsap.from(toast, { x: 100, opacity: 0, duration: 0.5 });
         setTimeout(() => {
-            gsap.to(toast, { opacity: 0, y: -20, duration: 0.5, onComplete: () => toast.remove() });
-        }, 3000);
+            gsap.to(toast, { opacity: 0, y: -30, duration: 0.5, onComplete: () => toast.remove() });
+        }, 3500);
     },
 
     checkAuthPersistence() {
@@ -85,8 +110,11 @@ const ZolngenUI = {
     },
 
     setupGlobalEvents() {
-        window.addEventListener('load', () => this.setupCursorInteraction());
+        // Handle dynamic content
+        const observer = new MutationObserver(() => this.setupCursorInteraction());
+        observer.observe(document.body, { childList: true, subtree: true });
     }
 };
 
 document.addEventListener('DOMContentLoaded', () => ZolngenUI.init());
+window.ZolngenUI = ZolngenUI;

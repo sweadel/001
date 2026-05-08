@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOLNGEN | Master Admin V146.0</title>
+    <title>ZOLNGEN | Sovereign Admin V148.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/global.css">
@@ -15,10 +15,8 @@
     <script src="src/database.js"></script>
     <script src="src/ui.js"></script>
 </head>
-<body class="rtl bg-[#050505] text-white">
-    <div id="cursor"></div>
-
-    <!-- LOGIN SCREEN -->
+<body class="rtl bg-[#050505] text-white overflow-x-hidden">
+    <!-- AUTH SCREEN -->
     <div id="login-screen" class="fixed inset-0 z-[1000] bg-black flex items-center justify-center p-6">
         <div class="glass p-12 rounded-[50px] border border-white/5 w-full max-w-md text-center">
             <h2 class="text-4xl font-black text-gold mb-10 tracking-tighter">Command Entry</h2>
@@ -26,65 +24,65 @@
                 <input type="text" id="user" placeholder="Username" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
                 <input type="password" id="pass" placeholder="Password" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
             </div>
-            <button onclick="handleLogin()" class="w-full mt-8 bg-gold text-black py-5 rounded-2xl font-black text-lg hover:scale-105 transition-all">Authorize Access</button>
+            <button onclick="handleLogin()" class="w-full mt-8 bg-gold text-black py-5 rounded-2xl font-black text-lg">Authorize Access</button>
         </div>
     </div>
 
-    <!-- MASTER DASHBOARD -->
+    <!-- MAIN INTERFACE -->
     <div id="main-dash" class="hidden flex h-screen overflow-hidden">
-        <aside class="w-[300px] bg-[#0A0A0A] border-l border-white/5 flex flex-col fixed inset-y-0 right-0 z-50">
-            <div class="p-10 text-center"><h1 class="text-3xl font-black text-gold">ZOLNGEN</h1><p class="text-[10px] opacity-20 uppercase tracking-[5px] mt-2">Master Suite v146.0</p></div>
-            <nav class="flex-1 px-6 space-y-1">
-                <button onclick="switchTab('dash')" class="w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-chart-pie text-gold"></i> Pulse</button>
-                <button onclick="switchTab('inv')" class="w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-box text-gold"></i> Inventory</button>
-                <button onclick="switchTab('orders')" class="w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-shopping-cart text-gold"></i> Orders</button>
-                <button onclick="switchTab('inq')" class="w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-envelope text-gold"></i> Support</button>
-                <button onclick="switchTab('logs')" class="w-full text-right p-5 hover:bg-white/5 rounded-2xl flex items-center gap-4 transition-all"><i class="fas fa-terminal text-gold"></i> Logs</button>
+        <aside class="w-[280px] bg-[#0A0A0A] border-l border-white/5 flex flex-col fixed inset-y-0 right-0 z-[150]">
+            <div class="p-10 text-center font-black text-gold text-2xl tracking-tighter">ZOLNGEN PRO</div>
+            <nav class="flex-1 px-4 space-y-1">
+                <button onclick="switchTab('dash')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 transition-all"><i class="fas fa-chart-line text-gold"></i> Pulse</button>
+                <button onclick="switchTab('inv')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 transition-all"><i class="fas fa-box-open text-gold"></i> Inventory</button>
+                <button onclick="switchTab('orders')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 transition-all"><i class="fas fa-receipt text-gold"></i> Orders</button>
+                <button onclick="switchTab('inq')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 transition-all"><i class="fas fa-headset text-gold"></i> Support</button>
+                <button onclick="switchTab('logs')" class="w-full text-right p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 transition-all"><i class="fas fa-microchip text-gold"></i> Logs</button>
             </nav>
-            <div class="p-10 border-t border-white/5"><button onclick="logout()" class="text-red-500 font-bold flex items-center gap-4"><i class="fas fa-power-off"></i> Terminate</button></div>
+            <div class="p-8 border-t border-white/5"><button onclick="logout()" class="text-red-500 font-bold w-full text-right"><i class="fas fa-power-off ml-2"></i> Logout</button></div>
         </aside>
 
-        <main class="flex-1 mr-[300px] p-20 overflow-y-auto">
-            <!-- DASHBOARD TAB -->
+        <main class="flex-1 mr-[280px] p-6 lg:p-20 overflow-y-auto">
+            <!-- TABS -->
             <div id="tab-dash" class="tab-content">
-                <h2 class="text-6xl font-black mb-12">Institutional Pulse</h2>
-                <div class="grid grid-cols-3 gap-8 mb-16">
-                    <div class="glass p-10 rounded-[40px] border border-white/5 text-center"><p class="text-xs opacity-40 uppercase mb-2">Assets</p><h3 id="stat-p" class="text-5xl font-black text-gold">0</h3></div>
-                    <div class="glass p-10 rounded-[40px] border border-white/5 text-center"><p class="text-xs opacity-40 uppercase mb-2">Revenue</p><h3 id="stat-r" class="text-5xl font-black text-green-500">$0</h3></div>
-                    <div class="glass p-10 rounded-[40px] border border-white/5 text-center"><p class="text-xs opacity-40 uppercase mb-2">Health</p><h3 class="text-4xl font-black text-blue-500">100%</h3></div>
+                <h2 class="text-5xl font-black mb-12 tracking-tighter">Institutional Pulse</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    <div class="glass p-10 rounded-3xl border border-white/5"><p class="text-xs opacity-30 mb-2 uppercase">Global Assets</p><h3 id="stat-p" class="text-5xl font-black text-gold">0</h3></div>
+                    <div class="glass p-10 rounded-3xl border border-white/5"><p class="text-xs opacity-30 mb-2 uppercase">Node Revenue</p><h3 id="stat-r" class="text-5xl font-black text-green-500">$0</h3></div>
+                    <div class="glass p-10 rounded-3xl border border-white/5 flex items-center justify-center"><h3 class="text-2xl font-black text-blue-500">SYSTEM SECURE</h3></div>
                 </div>
-                <div class="glass p-12 rounded-[50px] border border-white/5"><canvas id="pChart" height="100"></canvas></div>
+                <div class="glass p-10 rounded-[40px] border border-white/5"><canvas id="pChart" height="100"></canvas></div>
             </div>
 
-            <!-- INVENTORY TAB -->
+            <!-- INVENTORY -->
             <div id="tab-inv" class="tab-content hidden">
-                <div class="flex justify-between items-center mb-12"><h2 class="text-6xl font-black">Registry Control</h2><button onclick="openModal('add')" class="bg-gold text-black px-8 py-4 rounded-xl font-bold">+ New Asset</button></div>
-                <div id="p-list" class="grid grid-cols-2 gap-6"></div>
+                <div class="flex justify-between items-center mb-12"><h2 class="text-5xl font-black tracking-tighter">Asset Registry</h2><button onclick="openModal('add')" class="bg-gold text-black px-10 py-4 rounded-xl font-black">+ New Asset</button></div>
+                <div id="p-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </div>
 
-            <!-- ORDERS TAB -->
-            <div id="tab-orders" class="tab-content hidden"><h2 class="text-6xl font-black mb-12">Order Flow</h2><div class="glass rounded-[40px] overflow-hidden"><table class="w-full text-right"><thead class="bg-white/5"><tr class="text-xs text-gold uppercase tracking-widest"><th class="p-8">ID</th><th class="p-8">Node</th><th class="p-8">Value</th><th class="p-8">Status</th><th class="p-8">Action</th></tr></thead><tbody id="o-list"></tbody></table></div></div>
-
+            <!-- ORDERS -->
+            <div id="tab-orders" class="tab-content hidden"><h2 class="text-5xl font-black mb-12 tracking-tighter">Order Processing</h2><div class="glass rounded-3xl overflow-hidden"><table class="w-full text-right"><thead class="bg-white/5 text-gold text-xs uppercase"><tr class="p-6"><th>Customer</th><th>Value</th><th>Status</th><th>Action</th></tr></thead><tbody id="o-list"></tbody></table></div></div>
+            
             <!-- INQUIRIES & LOGS -->
-            <div id="tab-inq" class="tab-content hidden"><h2 class="text-6xl font-black mb-12">Inquiries</h2><div id="inq-list" class="space-y-4"></div></div>
-            <div id="tab-logs" class="tab-content hidden"><h2 class="text-6xl font-black mb-12">Logs</h2><div id="log-list" class="font-mono text-xs opacity-40 p-10 glass rounded-3xl space-y-2"></div></div>
+            <div id="tab-inq" class="tab-content hidden"><h2 class="text-5xl font-black mb-12">Support Inquiries</h2><div id="inq-list" class="space-y-6"></div></div>
+            <div id="tab-logs" class="tab-content hidden"><h2 class="text-5xl font-black mb-12">System Logs</h2><div id="log-list" class="font-mono text-xs opacity-40 glass p-10 rounded-3xl space-y-2"></div></div>
         </main>
     </div>
 
     <!-- MODAL -->
-    <div id="modal" class="hidden fixed inset-0 z-[2000] bg-black/95 flex items-center justify-center p-10">
-        <div class="glass p-16 rounded-[60px] border border-gold/20 w-full max-w-xl">
-            <h3 id="m-title" class="text-3xl font-black text-gold mb-10">Asset Deployment</h3>
+    <div id="modal" class="hidden fixed inset-0 z-[2000] bg-black/95 flex items-center justify-center p-6">
+        <div class="glass p-12 rounded-[50px] border border-gold/20 w-full max-w-xl">
+            <h3 id="m-title" class="text-3xl font-black text-gold mb-10">Asset Registry Update</h3>
             <input type="hidden" id="m-id">
             <div class="space-y-6">
-                <input type="text" id="m-name" placeholder="Name" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
-                <input type="text" id="m-sku" placeholder="SKU" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
+                <input type="text" id="m-name" placeholder="Asset Name" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none">
+                <input type="text" id="m-sku" placeholder="SKU ID" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none">
                 <div class="grid grid-cols-2 gap-6">
-                    <input type="number" id="m-price" placeholder="Price" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
-                    <input type="number" id="m-stock" placeholder="Stock" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-gold">
+                    <input type="number" id="m-price" placeholder="Price" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none">
+                    <input type="number" id="m-stock" placeholder="Stock" class="bg-white/5 border border-white/10 p-5 rounded-2xl outline-none">
                 </div>
             </div>
-            <div class="flex gap-4 mt-12"><button onclick="commitModal()" class="flex-1 bg-gold text-black py-5 rounded-2xl font-bold">Commit</button><button onclick="closeModal()" class="px-10 border border-white/10 rounded-2xl">Abort</button></div>
+            <div class="flex gap-4 mt-12"><button onclick="commitModal()" class="flex-1 bg-gold text-black py-5 rounded-2xl font-black">Commit</button><button onclick="closeModal()" class="px-10 border border-white/10 rounded-2xl">Abort</button></div>
         </div>
     </div>
 
@@ -107,15 +105,13 @@
             document.getElementById('stat-p').innerText = ps.length;
             document.getElementById('stat-r').innerText = `$${os.reduce((s,o)=>s+o.total,0).toLocaleString()}`;
 
-            // Chart
             const ctx = document.getElementById('pChart');
             if(mainChart) mainChart.destroy();
             mainChart = new Chart(ctx, { type: 'line', data: { labels: os.map(o=>o.date.split('T')[0]), datasets: [{ label: 'Revenue Pulse', data: os.map(o=>o.total), borderColor: '#D4AF37', tension:0.4 }] } });
 
-            // Lists
-            document.getElementById('p-list').innerHTML = ps.map(p=>`<div class="glass p-10 rounded-[40px] border border-white/5 flex justify-between items-center"><div><h4 class="text-2xl font-black text-gold">${p.name}</h4><p class="text-xs opacity-40 uppercase tracking-widest">$${p.price.toLocaleString()} | STOCK: ${p.stock}</p></div><button onclick="openModal('edit', ${JSON.stringify(p).replace(/"/g, '&quot;')})" class="p-4 bg-white/5 rounded-2xl hover:text-gold transition-all"><i class="fas fa-edit"></i></button></div>`).join('');
-            document.getElementById('o-list').innerHTML = os.map(o=>`<tr class="border-t border-white/5"><td class="p-8 font-mono opacity-30 text-[10px]">#${o.id}</td><td class="p-8 font-bold">${o.customer}</td><td class="p-8 text-gold font-black">$${o.total.toLocaleString()}</td><td class="p-8"><span class="px-4 py-2 bg-blue-500/10 text-blue-500 rounded-full text-[10px] uppercase font-black">${o.status}</span></td><td class="p-8"><button onclick="updateStatus(${o.id}, '${o.status === 'Pending' ? 'Completed' : 'Pending'}')" class="text-xs hover:text-gold">Toggle Status</button></td></tr>`).join('');
-            document.getElementById('inq-list').innerHTML = inqs.map(i=>`<div class="glass p-10 rounded-3xl border border-white/5"><div class="flex justify-between mb-4 font-black"><span>${i.name}</span><span class="text-xs opacity-30">${i.date}</span></div><p class="opacity-50 text-sm">${i.message}</p></div>`).join('');
+            document.getElementById('p-list').innerHTML = ps.map(p=>`<div class="glass p-10 rounded-3xl border border-white/5 flex justify-between items-center"><div><h4 class="text-xl font-black text-gold">${p.name}</h4><p class="text-[10px] opacity-40 uppercase">${p.sku} | $${p.price.toLocaleString()}</p></div><button onclick="openModal('edit', ${JSON.stringify(p).replace(/"/g, '&quot;')})" class="p-4 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fas fa-edit"></i></button></div>`).join('');
+            document.getElementById('o-list').innerHTML = os.map(o=>`<tr class="border-t border-white/5"><td class="p-6 font-bold">${o.customer}</td><td class="p-6 text-gold">$${o.total.toLocaleString()}</td><td class="p-6"><span class="px-4 py-1 bg-blue-500/10 text-blue-500 rounded-full text-[10px] font-black uppercase">${o.status}</span></td><td class="p-6"><button onclick="updateStatus(${o.id}, '${o.status === 'Pending' ? 'Completed' : 'Pending'}')" class="text-xs hover:text-gold transition-all">Toggle</button></td></tr>`).join('');
+            document.getElementById('inq-list').innerHTML = inqs.map(i=>`<div class="glass p-8 rounded-3xl border border-white/5"><div><span class="font-black text-gold">${i.name}</span><span class="text-[10px] opacity-20 mr-4">${i.date}</span></div><p class="opacity-50 mt-4 text-sm">${i.message}</p></div>`).join('');
             document.getElementById('log-list').innerHTML = logs.map(l=>`<div>[${l.timestamp}] ${l.action}</div>`).join('');
         }
         async function updateStatus(id, s) { await ZolngenDB.updateOrderStatus(id, s); refreshAll(); }
@@ -123,16 +119,18 @@
             document.getElementById('modal').classList.remove('hidden');
             if(type === 'edit') {
                 document.getElementById('m-id').value = p.id; document.getElementById('m-name').value = p.name; document.getElementById('m-sku').value = p.sku; document.getElementById('m-price').value = p.price; document.getElementById('m-stock').value = p.stock;
+                document.getElementById('m-title').innerText = "Asset Registry Modification";
             } else {
                 document.getElementById('m-id').value = ""; document.getElementById('m-name').value = ""; document.getElementById('m-sku').value = ""; document.getElementById('m-price').value = ""; document.getElementById('m-stock').value = "";
+                document.getElementById('m-title').innerText = "New Asset Deployment";
             }
         }
         function closeModal() { document.getElementById('modal').classList.add('hidden'); }
         async function commitModal() {
             const id = document.getElementById('m-id').value;
             const p = { name: document.getElementById('m-name').value, sku: document.getElementById('m-sku').value, price: parseFloat(document.getElementById('m-price').value), stock: parseInt(document.getElementById('m-stock').value) };
-            if(id) { p.id = id; await ZolngenDB.updateProduct(p); } else { await ZolngenDB.createProduct(p); }
-            closeModal(); refreshAll(); ZolngenUI.showToast("Registry Synchronized");
+            const success = id ? await ZolngenDB.updateProduct({id, ...p}) : await ZolngenDB.createProduct(p);
+            if(success) { closeModal(); refreshAll(); ZolngenUI.showToast("Registry Updated Successfully"); }
         }
         function logout() { localStorage.removeItem('zolngen_auth_token'); location.reload(); }
         window.refreshAll = refreshAll;
