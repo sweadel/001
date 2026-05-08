@@ -1,15 +1,15 @@
 {
-  "name": "ZOLNGEN SOVEREIGN OS",
-  "short_name": "ZOLNGEN",
-  "start_url": "/index.html",
-  "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#D4AF37",
-  "icons": [
-    {
-      "src": "images/zolngen_hero_laptop.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    }
-  ]
+    "name": "ZOLNGEN Enterprise Pro",
+    "short_name": "ZOLNGEN",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#050505",
+    "theme_color": "#D4AF37",
+    "icons": [
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/3665/3665923.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
 }

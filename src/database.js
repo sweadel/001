@@ -1,51 +1,99 @@
-/* database.js - ZOLNGEN HYPER-FUNCTIONAL DATABASE V141.0 */
+/* database.js - ZOLNGEN DEBUG-READY DATABASE V145.0 */
 class ZolngenEnterpriseDB {
     constructor() {
         this.tokenKey = "zolngen_auth_token";
+        this.baseUrl = ""; // Relative to server root
         this.api = {
             products: "/api/products",
             orders: "/api/orders",
             login: "/api/login",
             inquiries: "/api/inquiries",
-            logs: "/api/logs"
+            logs: "/api/logs",
+            heal: "/api/heal"
         };
     }
 
-    async login(username, password) {
-        const res = await fetch(this.api.login, { method: 'POST', body: JSON.stringify({ username, password }) });
-        if (res.ok) { localStorage.setItem(this.tokenKey, (await res.json()).token); return true; }
-        return false;
+    async request(url, options = {}) {
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                throw new Error(error.error || `HTTP Error ${response.status}`);
+            }
+            return await response.json();
+        } catch (e) {
+            console.error(`[API ERROR] at ${url}:`, e.message);
+            if (window.ZolngenUI) ZolngenUI.showToast(`Error: ${e.message}`, "error");
+            throw e;
+        }
     }
 
-    async getProducts() { return (await fetch(this.api.products)).json(); }
-    async getOrders() { return (await fetch(this.api.orders)).json(); }
-    async getInquiries() { return (await fetch(this.api.inquiries)).json(); }
-    async getLogs() { return (await fetch(this.api.logs)).json(); }
+    async login(username, password) {
+        try {
+            const data = await this.request(this.api.login, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }) 
+            });
+            localStorage.setItem(this.tokenKey, data.token);
+            return true;
+        } catch (e) { return false; }
+    }
+
+    async getProducts() { return this.request(this.api.products).catch(() => []); }
+    async getOrders() { return this.request(this.api.orders).catch(() => []); }
+    async getInquiries() { return this.request(this.api.inquiries).catch(() => []); }
+    async getLogs() { return this.request(this.api.logs).catch(() => []); }
 
     async createProduct(p) {
         const token = localStorage.getItem(this.tokenKey);
-        return (await fetch(this.api.products, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: JSON.stringify(p) })).ok;
+        return this.request(this.api.products, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(p)
+        }).then(() => true).catch(() => false);
     }
 
-    // NEW: UPDATE PRODUCT
     async updateProduct(p) {
         const token = localStorage.getItem(this.tokenKey);
-        return (await fetch(`${this.api.products}/update`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}` }, body: JSON.stringify(p) })).ok;
+        return this.request(`${this.api.products}/update`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(p)
+        }).then(() => true).catch(() => false);
     }
 
-    // NEW: UPDATE ORDER STATUS
     async updateOrderStatus(id, status) {
         const token = localStorage.getItem(this.tokenKey);
-        return (await fetch(`${this.api.orders}/status`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ id, status }) })).ok;
+        return this.request(`${this.api.orders}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ id, status })
+        }).then(() => true).catch(() => false);
     }
 
     async placeOrder(order) {
-        return (await fetch(this.api.orders, { method: 'POST', body: JSON.stringify(order) })).ok;
+        return this.request(this.api.orders, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(order)
+        }).then(() => true).catch(() => false);
     }
 
-    // NEW: SUBMIT CONTACT FORM
     async submitInquiry(data) {
-        return (await fetch(this.api.inquiries, { method: 'POST', body: JSON.stringify(data) })).ok;
+        return this.request(this.api.inquiries, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(() => true).catch(() => false);
+    }
+
+    async runHealer() {
+        const token = localStorage.getItem(this.tokenKey);
+        return this.request(this.api.heal, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
     }
 }
 
