@@ -1,142 +1,92 @@
-/* ui.js - ZOLNGEN SOVEREIGN INTERACTION V135.0 */
+/* ui.js - ZOLNGEN ZERO-DEFECT UI V142.0 */
 const ZolngenUI = {
     chart: null,
 
     init() {
-        this.createStatusBadgeContainer();
+        this.injectGlobalStyles();
+        this.createCursor();
         this.createToastContainer();
-        this.setupCursorInteraction(); // POINT (125)
-        this.bindEvents();
-        this.renderAll();
+        this.setupGlobalEvents();
+        this.checkAuthPersistence();
+        console.log("[SYSTEM] ZOLNGEN UI V142.0 INITIALIZED.");
     },
 
-    createStatusBadgeContainer() {
-        if (!document.getElementById('sovereign-status-badge')) {
-            const badge = document.createElement('div');
-            badge.id = 'sovereign-status-badge';
-            badge.className = "fixed bottom-10 left-10 z-[3000]";
-            document.body.appendChild(badge);
+    injectGlobalStyles() {
+        const style = document.createElement('style');
+        style.textContent = `
+            * { cursor: none !important; scroll-behavior: smooth; }
+            .cursor-glow { 
+                width: 25px; height: 25px; background: rgba(212, 175, 55, 0.1); 
+                border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 50%; 
+                position: fixed; pointer-events: none; z-index: 9999; 
+                backdrop-filter: blur(2px); transition: transform 0.1s;
+            }
+            .toast { 
+                background: rgba(10,10,10,0.9); backdrop-filter: blur(20px); 
+                border: 1px solid rgba(212,175,55,0.3); padding: 20px 40px; 
+                border-radius: 20px; color: #D4AF37; font-weight: 900; 
+                box-shadow: 0 20px 50px rgba(0,0,0,0.5); z-index: 10000;
+            }
+        `;
+        document.head.appendChild(style);
+    },
+
+    createCursor() {
+        if (!document.getElementById('cursor')) {
+            const cursor = document.createElement('div');
+            cursor.id = 'cursor';
+            cursor.className = 'cursor-glow';
+            document.body.appendChild(cursor);
+            document.addEventListener('mousemove', (e) => {
+                gsap.to(cursor, { x: e.clientX - 12, y: e.clientY - 12, duration: 0.1 });
+            });
+            this.setupCursorInteraction();
         }
+    },
+
+    setupCursorInteraction() {
+        const cursor = document.getElementById('cursor');
+        document.querySelectorAll('button, a, input, .glass-card, .glass').forEach(el => {
+            el.addEventListener('mouseenter', () => gsap.to(cursor, { scale: 3, backgroundColor: 'rgba(212, 175, 55, 0.3)', duration: 0.3 }));
+            el.addEventListener('mouseleave', () => gsap.to(cursor, { scale: 1, backgroundColor: 'rgba(212, 175, 55, 0.1)', duration: 0.3 }));
+        });
     },
 
     createToastContainer() {
         if (!document.getElementById('toast-container')) {
             const container = document.createElement('div');
             container.id = 'toast-container';
-            container.className = "fixed bottom-10 right-10 flex flex-col gap-3 z-[4000]";
+            container.className = "fixed bottom-10 right-10 flex flex-col gap-4 z-[10000]";
             document.body.appendChild(container);
         }
     },
 
-    // POINT (167) - GSAP GOLDEN TOASTS
-    showToast(message, type = "info") {
+    showToast(msg, type = "success") {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
-        toast.className = `glass p-5 rounded-2xl border border-gold/30 text-gold font-bold shadow-2xl flex items-center gap-4`;
-        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'} text-gold"></i> ${message}`;
-        
+        toast.className = 'toast animate-fade-up';
+        toast.innerHTML = `<i class="fas fa-shield-check mr-3"></i> ${msg}`;
         container.appendChild(toast);
-        
-        // GSAP Entrance
-        gsap.from(toast, { x: 100, opacity: 0, duration: 0.5, ease: "back.out" });
-
+        gsap.from(toast, { x: 100, opacity: 0, duration: 0.5 });
         setTimeout(() => {
-            gsap.to(toast, { 
-                opacity: 0, 
-                y: -20, 
-                duration: 0.5, 
-                onComplete: () => toast.remove() 
-            });
-        }, 3500);
+            gsap.to(toast, { opacity: 0, y: -20, duration: 0.5, onComplete: () => toast.remove() });
+        }, 3000);
     },
 
-    // POINT (125) - REACTIVE GOLDEN HALO (SCALE)
-    setupCursorInteraction() {
-        const cursor = document.getElementById('cursor');
-        if (!cursor) return;
-        
-        document.querySelectorAll('.btn-gold, button, .glass-card, a').forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                gsap.to(cursor, { 
-                    scale: 3.5, 
-                    backgroundColor: 'rgba(212, 175, 55, 0.4)', 
-                    boxShadow: '0 0 50px rgba(212, 175, 55, 0.9)',
-                    duration: 0.4,
-                    ease: "power2.out"
-                });
-            });
-            el.addEventListener('mouseleave', () => {
-                gsap.to(cursor, { 
-                    scale: 1, 
-                    backgroundColor: 'rgba(212, 175, 55, 0.15)', 
-                    boxShadow: '0 0 15px rgba(212, 175, 55, 0.5)',
-                    duration: 0.4,
-                    ease: "power2.inOut"
-                });
-            });
-        });
-    },
-
-    bindEvents() {
-        window.addEventListener('zolngen_sql_update', () => {
-            this.renderAll();
-        });
-    },
-
-    renderAll() {
-        this.renderProducts();
-        this.renderStats();
-        this.updateCharts();
-        this.setupCursorInteraction(); 
-    },
-
-    renderProducts() {
-        const list = document.getElementById('product-list');
-        if (!list) return;
-        const products = ZolngenDB.select('products');
-        list.innerHTML = products.map(p => `
-            <div class="glass p-8 rounded-[40px] border border-gold/10 hover:border-gold/40 transition-all">
-                <div class="flex justify-between items-start mb-6">
-                    <h3 class="text-2xl font-black text-gold">${p.name}</h3>
-                    <button onclick="ZolngenDB.delete('products', ${p.id})" class="text-red-500 opacity-20 hover:opacity-100 transition-opacity"><i class="fas fa-trash"></i></button>
-                </div>
-                <div class="flex justify-between items-end">
-                    <span class="text-3xl font-black">$${p.price.toLocaleString()}</span>
-                    <span class="px-4 py-2 bg-gold/10 text-gold rounded-full text-xs font-bold uppercase tracking-widest">${p.stock} Units</span>
-                </div>
-            </div>
-        `).join('');
-    },
-
-    renderStats() {
-        const stat = document.getElementById('stat-sales');
-        if (stat) {
-            const products = ZolngenDB.select('products');
-            stat.innerText = products.length;
+    checkAuthPersistence() {
+        const token = localStorage.getItem('zolngen_auth_token');
+        if (token && document.getElementById('login-screen')) {
+            document.getElementById('login-screen').classList.add('hidden');
+            if (document.getElementById('main-dash')) {
+                document.getElementById('main-dash').classList.remove('hidden');
+                if (window.refreshAll) window.refreshAll();
+            }
         }
     },
 
-    updateCharts() {
-        const ctx = document.getElementById('forecastChart');
-        if (!ctx) return;
-        const products = ZolngenDB.select('products');
-        if (this.chart) this.chart.destroy();
-        this.chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: products.map(p => p.name),
-                datasets: [{
-                    label: 'Asset Levels',
-                    data: products.map(p => p.stock),
-                    backgroundColor: 'rgba(212, 175, 55, 0.3)',
-                    borderColor: '#D4AF37',
-                    borderWidth: 2
-                }]
-            },
-            options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { color: '#D4AF37' } } } }
-        });
+    setupGlobalEvents() {
+        window.addEventListener('load', () => this.setupCursorInteraction());
     }
 };
 
 document.addEventListener('DOMContentLoaded', () => ZolngenUI.init());
-window.ZolngenUI = ZolngenUI;
